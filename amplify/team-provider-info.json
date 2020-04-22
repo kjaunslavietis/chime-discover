@@ -1,0 +1,15 @@
+{
+    "dev": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-chime-discover-dev-233649-authRole",
+            "UnauthRoleArn": "arn:aws:iam::845108551121:role/amplify-chime-discover-dev-233649-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::845108551121:role/amplify-chime-discover-dev-233649-authRole",
+            "Region": "eu-central-1",
+            "DeploymentBucketName": "amplify-chime-discover-dev-233649-deployment",
+            "UnauthRoleName": "amplify-chime-discover-dev-233649-unauthRole",
+            "StackName": "amplify-chime-discover-dev-233649",
+            "StackId": "arn:aws:cloudformation:eu-central-1:845108551121:stack/amplify-chime-discover-dev-233649/607352a0-84e1-11ea-bc16-06dd2d585442",
+            "AmplifyAppId": "d298axrwmiitj7"
+        }
+    }
+}
