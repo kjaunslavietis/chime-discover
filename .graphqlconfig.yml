@@ -1,0 +1,18 @@
+projects:
+  meetings:
+    schemaPath: amplify/backend/api/meetings/build/schema.graphql
+    includes:
+      - src/graphql/**/*.js
+    excludes:
+      - ./amplify/**
+    extensions:
+      amplify:
+        codeGenTarget: javascript
+        generatedFileName: ''
+        docsFilePath: src/graphql
+        region: eu-central-1
+        apiId: null
+        maxDepth: 2
+extensions:
+  amplify:
+    version: 3

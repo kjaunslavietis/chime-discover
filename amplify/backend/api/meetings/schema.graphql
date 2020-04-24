@@ -1,0 +1,37 @@
+type Meeting {
+  ExternalMeetingId: String
+  MediaPlacement: MediaPlacement
+  MediaRegion: String
+  MeetingId: String
+}
+
+type Attendee {
+  AttendeeId: String
+  ExternalUserId: String
+  JoinToken: String
+}
+
+type MediaPlacement {
+  AudioFallbackUrl: String
+  AudioHostUrl: String
+  ScreenDataUrl: String
+  ScreenSharingUrl: String
+  ScreenViewingUrl: String
+  SignalingUrl: String
+  TurnControlUrl: String
+}
+
+type AttendeeAndMeeting {
+  meeting: Meeting
+  attendee: Attendee
+  statusCode: Int
+  error: AWSJSON
+}
+
+type Mutation {
+  getOrCreateMeeting(meetingId: String): AttendeeAndMeeting @function(name: "getOrCreateConversation-${env}")
+}
+
+type Query {
+  getOrCreateMeeting(meetingId: String): AttendeeAndMeeting @function(name: "getOrCreateConversation-${env}")
+}
