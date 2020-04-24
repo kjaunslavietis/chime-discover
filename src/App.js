@@ -12,15 +12,6 @@ function App() {
     setFormState({ ...formState, [key]: value })
   }
 
-  async function multiplyTheNumber() {
-    try {
-      let result = await API.graphql(graphqlOperation(getDemoResponse, {input: "210"}));
-      console.log(JSON.stringify(result));
-    }catch(err) {
-      console.log(JSON.stringify(err));
-    }
-  }
-
   async function joinMeeting() {
     try {
       let meetingAndAttendeeInfo = await API.graphql(graphqlOperation(getOrCreateMeeting, {meetingId: formState.desiredMeetingId}));
@@ -40,7 +31,6 @@ function App() {
         placeholder="Meeting ID"
       />
       <button style={styles.button} onClick={joinMeeting}>Join meeting</button>
-      <button style={styles.button} onClick={multiplyTheNumber}>Multiply the number</button>
     </div>
   );
 }

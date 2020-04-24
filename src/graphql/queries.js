@@ -19,12 +19,3 @@ export const getOrCreateMeeting = /* GraphQL */ `
     }
   }
 `;
-export const getDemoResponse = /* GraphQL */ `
-  query GetDemoResponse($input: Int) {
-    getDemoResponse(input: $input) {
-      result
-      statusCode
-      body
-    }
-  }
-`;
