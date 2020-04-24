@@ -28,10 +28,13 @@ type AttendeeAndMeeting {
   error: AWSJSON
 }
 
-type Mutation {
-  getOrCreateMeeting(meetingId: String): AttendeeAndMeeting @function(name: "getOrCreateConversation-${env}")
-}
-
 type Query {
   getOrCreateMeeting(meetingId: String): AttendeeAndMeeting @function(name: "getOrCreateConversation-${env}")
+  getDemoResponse(input: Int): DemoResponse @function(name: "functionDemo-${env}")
+}
+
+type DemoResponse {
+  result: Int!
+  statusCode: Int
+  body: String
 }
