@@ -11,5 +11,23 @@
             "StackId": "arn:aws:cloudformation:eu-central-1:845108551121:stack/amplify-chime-discover-dev-222529/933afe80-85a0-11ea-b296-0239ee1f6632",
             "AmplifyAppId": "d3op8vw0uhd7qe"
         }
+    },
+    "chimesdk": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-chime-discover-chimesdk-211432-authRole",
+            "UnauthRoleArn": "arn:aws:iam::845108551121:role/amplify-chime-discover-chimesdk-211432-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::845108551121:role/amplify-chime-discover-chimesdk-211432-authRole",
+            "Region": "eu-central-1",
+            "DeploymentBucketName": "amplify-chime-discover-chimesdk-211432-deployment",
+            "UnauthRoleName": "amplify-chime-discover-chimesdk-211432-unauthRole",
+            "StackName": "amplify-chime-discover-chimesdk-211432",
+            "StackId": "arn:aws:cloudformation:eu-central-1:845108551121:stack/amplify-chime-discover-chimesdk-211432/d4669850-865f-11ea-b6d7-029363dcbd8e",
+            "AmplifyAppId": "d3op8vw0uhd7qe"
+        },
+        "categories": {
+            "function": {
+                "getOrCreateConversation": {}
+            }
+        }
     }
 }
