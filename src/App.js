@@ -2,7 +2,7 @@ import React from 'react'
 import './App.css';
 import { Container, Row, Col, Jumbotron, Navbar, Button, Form } from 'react-bootstrap';
 import Browser from './components/Browser';
-
+import { createMeeting, joinMeeting } from './chime/handlers';
 import './App.scss';
 
 const mockConvos = [

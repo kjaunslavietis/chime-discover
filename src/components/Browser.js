@@ -1,4 +1,5 @@
 import { Card, Container, ListGroup } from 'react-bootstrap';
+import { createMeeting, joinMeeting } from './../chime/handlers';
 import React from 'react';
 
 import './Browser.scss';
@@ -24,6 +25,7 @@ class Browser extends React.Component {
     handleClick(id) {
         console.log(`You selected: ${id}`);
         this.state.onConversationSelected(id);
+        joinMeeting();
     }
 
     render() {

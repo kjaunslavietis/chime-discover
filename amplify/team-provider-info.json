@@ -10,6 +10,11 @@
             "StackName": "amplify-chime-discover-dev-222529",
             "StackId": "arn:aws:cloudformation:eu-central-1:845108551121:stack/amplify-chime-discover-dev-222529/933afe80-85a0-11ea-b296-0239ee1f6632",
             "AmplifyAppId": "d3op8vw0uhd7qe"
+        },
+        "categories": {
+            "function": {
+                "getOrCreateConversation": {}
+            }
         }
     },
     "chimesdk": {
