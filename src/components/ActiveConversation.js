@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, Button, Spinner } from 'react-bootstrap';
+import { joinMeeting } from './../chime/handlers';
 
 class ActiveConversation extends React.Component {
     constructor(props) {
@@ -25,6 +26,7 @@ class ActiveConversation extends React.Component {
             isMeetingLoading: true
         })
         // call getOrCreateMeeting lambda (or service), get the necessary parameters, use chime SDK to connect to meeting, finally set isMeetingLoading: false
+        this.meetingSession = joinMeeting();
         await new Promise(r => setTimeout(r, 2000));
         this.setState({
             isMeetingLoading: false
@@ -48,10 +50,29 @@ class ActiveConversation extends React.Component {
         );
     }
 
+    async listAudioVideo() {
+        try {
+            const audioInputDevices = await this.meetingSession.audioVideo.listAudioInputDevices();
+            const audioOutputDevices = await this.meetingSession.audioVideo.listAudioOutputDevices();
+
+            // An array of MediaDeviceInfo objects
+            audioInputDevices.forEach(mediaDeviceInfo => {
+            console.log(`Device ID: ${mediaDeviceInfo.deviceId} Microphone: ${mediaDeviceInfo.label}`);
+            });
+            audioOutputDevices.forEach(mediaDeviceInfo => {
+                console.log(`Device ID: ${mediaDeviceInfo.deviceId} Microphone: ${mediaDeviceInfo.label}`);
+            });
+        }
+        catch(err){
+            console.error(err);
+        }
+    }
+
     render() {
         if(this.state.isMeetingLoading) {
             return this.loadingScreen();
         } else {
+            this.listAudioVideo();
             return (
                 // layout should be something like
                 // meeting controls on top

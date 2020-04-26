@@ -43,6 +43,7 @@ export async function joinMeeting() {
         deviceController
       );
       console.log(meetingSession);
+      return meetingSession;
     } catch(err) {
       console.error(err);
     }

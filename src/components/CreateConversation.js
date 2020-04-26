@@ -1,5 +1,6 @@
 import React from 'react';
 import { Form, Button } from 'react-bootstrap';
+import { createMeeting } from './../chime/handlers';
 
 class CreateConversation extends React.Component {
     constructor(props) {
@@ -27,6 +28,7 @@ class CreateConversation extends React.Component {
     createChimeMeeting() {
         // call chime SDK to create meeting
         // put an overlay while meeting creating
+        createMeeting();
         return "MockMeetingId";
     }
 
