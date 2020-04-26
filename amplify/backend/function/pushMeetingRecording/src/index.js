@@ -6,14 +6,17 @@ var storageSampleTranscriptionsBucketName = process.env.STORAGE_SAMPLETRANSCRIPT
 
 Amplify Params - DO NOT EDIT */
 
-exports.handler = async (event) => {
-    let base64 = event.arguments.base64;
-    let blob = await fetch(base64).then(res => res.blob());
+const webmToMp3Converter = require('./W3Module')
 
+exports.handler = async (event) => {
+    let base64WebM = event.arguments.base64;
+    let blobWebM = await fetch(base64WebM).then(res => res.blob());
+
+    let blobMP3 = await webmToMp3Converter.convertWebmToMP3(blobWebM);
     // TODO implement
     const response = {
         statusCode: 200,
-        body: JSON.stringify(blob),
+        body: JSON.stringify(blobMP3),
     };
     return response;
 };
