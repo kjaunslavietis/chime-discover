@@ -26,7 +26,9 @@ class ActiveConversation extends React.Component {
             isMeetingLoading: true
         })
         // call getOrCreateMeeting lambda (or service), get the necessary parameters, use chime SDK to connect to meeting, finally set isMeetingLoading: false
-        this.meetingSession = await joinMeeting();
+        console.log(this.props.desiredMeetingId);
+        //TODO take desiredMeetingId from activeConversation after DB is ready
+        this.meetingSession = await joinMeeting(this.props.desiredMeetingId);
         await new Promise(r => setTimeout(r, 2000));
         this.setState({
             isMeetingLoading: false
@@ -123,6 +125,7 @@ class ActiveConversation extends React.Component {
             this.meetingSession.audioVideo.addObserver(observer);
             
             this.meetingSession.audioVideo.start();
+            console.log("Audio has started");
         }
         catch(err) {
             console.error(err);
@@ -140,10 +143,11 @@ class ActiveConversation extends React.Component {
                 // active participants and their status (talking/not talking, muted/not muted) on the right
                 // chat in the middle / bottom
                 <Container>
-                    <audio id="meeting-audio" style="display:none"></audio>
+                    
                     <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
                     <Button variant="secondary" size="lg" block onClick={this.enableAudio}>Enable Audio</Button>
                     <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
+                    <audio id="meeting-audio" ></audio>
                 </Container>
             )
         }

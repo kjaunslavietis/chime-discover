@@ -16,31 +16,31 @@ const mockConvos = [
     name: "Conversation 1",
     description: "Conversation 1 description",
     category: "Conversation 1 category",
-    meetingId: ""
+    meetingId: "e5102622-6672-4969-b2ca-f689c85d0be1"
   },
   {
     name: "Conversation 2",
     description: "Conversation 2 description",
     category: "Conversation 2 category",
-    meetingId: "AS1Q23EWDS"
+    meetingId: "439589bf-8dac-4082-b4db-f584cf25d747"
   },
   {
     name: "Conversation 3",
     description: "Conversation 3 description",
     category: "Conversation 3 category",
-    meetingId: "AWE12QWDSA"
+    meetingId: "439589bf-8dac-4082-b4db-f584cf25d747"
   },
   {
     name: "Conversation 4",
     description: "Conversationm 4 description",
     category: "Conversation 4 category",
-    meetingId: "123EWDQSAXC123"
+    meetingId: "f073d4c1-bb52-4bcc-90e4-4d2662773bdd"
   },
   {
     name: "Conversation 5",
     description: "Conversation 5 description",
     category: "Conversation 5 category",
-    meetingId: "1234MM1234123"
+    meetingId: "f29f4436-9f81-484e-9b1e-14eb0dd06728"
   },
 ]
 
@@ -61,7 +61,8 @@ class App extends React.Component {
       conversations: this.conversationService.getAllConversations(),
       selectedConversation: null,
       activeConversation: null,
-      mainSlot: this.noConversationSelected()
+      mainSlot: this.noConversationSelected(),
+      desiredMeetingId: '',
     };
   }
 
@@ -82,7 +83,8 @@ class App extends React.Component {
   joinConversation() {
     if(this.state.activeConversation) {
       this.setState({
-        mainSlot: <ActiveConversation conversation={this.state.activeConversation} onConversationExited={this.onConversationExited}/>
+        //TODO remove desiredMeetingId when DB is ready
+        mainSlot: <ActiveConversation desiredMeetingId={this.state.desiredMeetingId} conversation={this.state.activeConversation} onConversationExited={this.onConversationExited}/>
       });
     }
   }
@@ -94,6 +96,11 @@ class App extends React.Component {
     })
   }
 
+  updateId = (target, value) => {
+    this.setState({ [target]: value });
+    console.log('Passed meeting ID: ', this.state.desiredMeetingId);
+  };
+  
   conversationInfo() {
     if(this.state.selectedConversation) {
       return <MeetingInfoModal 
@@ -101,6 +108,7 @@ class App extends React.Component {
         conversation={this.state.selectedConversation}
         onClose={() => this.setState({selectedConversation: null})}
         onJoin={() => this.setState({selectedConversation: null, activeConversation: this.state.selectedConversation}, () => this.joinConversation())}
+        updateId={this.updateId}
         />
     }
   }

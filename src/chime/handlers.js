@@ -19,9 +19,9 @@ export async function createMeeting() {
     }
   }
   
-export async function joinMeeting() {
+export async function joinMeeting(desiredMeetingId) {
     try {
-      const desiredMeetingId = "random";
+      console.log(desiredMeetingId);
       let meetingAndAttendeeInfo = await API.graphql(graphqlOperation(getOrCreateMeeting, {meetingId: desiredMeetingId}));
       console.log(JSON.stringify(meetingAndAttendeeInfo));
       const meetingResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.meeting;
