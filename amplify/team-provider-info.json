@@ -37,5 +37,28 @@
                 "getOrCreateConversation": {}
             }
         }
+    },
+    "recordings": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-chime-discover-recordings-225715-authRole",
+            "UnauthRoleArn": "arn:aws:iam::845108551121:role/amplify-chime-discover-recordings-225715-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::845108551121:role/amplify-chime-discover-recordings-225715-authRole",
+            "Region": "eu-central-1",
+            "DeploymentBucketName": "amplify-chime-discover-recordings-225715-deployment",
+            "UnauthRoleName": "amplify-chime-discover-recordings-225715-unauthRole",
+            "StackName": "amplify-chime-discover-recordings-225715",
+            "StackId": "arn:aws:cloudformation:eu-central-1:845108551121:stack/amplify-chime-discover-recordings-225715/83244030-8800-11ea-8820-0a3f741aced4",
+            "AmplifyAppId": "d3op8vw0uhd7qe"
+        },
+        "categories": {
+            "auth": {
+                "chimediscoverb4fac449": {}
+            },
+            "function": {
+                "getOrCreateConversation": {},
+                "transcribeSample": {},
+                "extractKeywords": {}
+            }
+        }
     }
 }

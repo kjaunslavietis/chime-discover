@@ -31,7 +31,6 @@ class ActiveConversation extends React.Component {
         console.log(this.props.desiredMeetingId);
         //TODO take desiredMeetingId from activeConversation after DB is ready
         this.state.meetingSession = await joinMeeting(this.props.desiredMeetingId);
-        await new Promise(r => setTimeout(r, 2000));
         this.setState({
             isMeetingLoading: false
         })
@@ -115,12 +114,15 @@ class ActiveConversation extends React.Component {
 
     enableAudio() {
         try {
-            const audioElement = document.getElementById('meeting-audio');
+            let audioElement = document.getElementById('meeting-audio');
             this.state.meetingSession.audioVideo.bindAudioElement(audioElement);
             
             const observer = {
               audioVideoDidStart: () => {
                 console.log('Started');
+
+                let audioStream = audioElement.captureStream();
+                console.log(JSON.stringify(audioStream));
               }
             };
             
