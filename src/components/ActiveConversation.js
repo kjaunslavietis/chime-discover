@@ -26,7 +26,7 @@ class ActiveConversation extends React.Component {
             isMeetingLoading: true
         })
         // call getOrCreateMeeting lambda (or service), get the necessary parameters, use chime SDK to connect to meeting, finally set isMeetingLoading: false
-        this.meetingSession = joinMeeting();
+        this.meetingSession = await joinMeeting();
         await new Promise(r => setTimeout(r, 2000));
         this.setState({
             isMeetingLoading: false
@@ -52,6 +52,7 @@ class ActiveConversation extends React.Component {
 
     async listAudioVideo() {
         try {
+            console.log(this.meetingSession);
             const audioInputDevices = await this.meetingSession.audioVideo.listAudioInputDevices();
             const audioOutputDevices = await this.meetingSession.audioVideo.listAudioOutputDevices();
 
