@@ -1,0 +1,38 @@
+{
+  "Records": [
+      {
+          "eventVersion": "2.1",
+          "eventSource": "aws:s3",
+          "awsRegion": "eu-central-1",
+          "eventTime": "2020-04-26T18:20:30.580Z",
+          "eventName": "ObjectCreated:Put",
+          "userIdentity": {
+              "principalId": "AWS:AIDA4JRDFDXIRTTVPHXXQ"
+          },
+          "requestParameters": {
+              "sourceIPAddress": "94.252.122.185"
+          },
+          "responseElements": {
+              "x-amz-request-id": "3208E023AE857F1D",
+              "x-amz-id-2": "u3kjTOHFLBGTxuIjuEZ5aubNmL/VhwJ+v4eucWfTGX707HHQxqja7C3GsHFbCbMbm6THQnVLXACl+Cm+hUf1UPxTBAPmhwYH"
+          },
+          "s3": {
+              "s3SchemaVersion": "1.0",
+              "configurationId": "fc7105d9-720a-47bf-9422-7b114c5a4953",
+              "bucket": {
+                  "name": "sample-transcriptionsdev-dev",
+                  "ownerIdentity": {
+                      "principalId": "A1R2GZL92TZGQD"
+                  },
+                  "arn": "arn:aws:s3:::sample-transcriptionsdev-dev"
+              },
+              "object": {
+                  "key": "job-8433e311-e262-4360-9b78-48c47ac3a292.json",
+                  "size": 234808,
+                  "eTag": "ceea94a624368f009eebdca3a81fc8ea",
+                  "sequencer": "005EA5D0EFB7BF80E2"
+              }
+          }
+      }
+  ]
+}

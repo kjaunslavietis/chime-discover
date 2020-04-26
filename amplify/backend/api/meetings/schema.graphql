@@ -31,3 +31,18 @@ type AttendeeAndMeeting {
 type Query {
   getOrCreateMeeting(meetingId: String): AttendeeAndMeeting @function(name: "getOrCreateConversation-${env}")
 }
+
+type Room @model
+# @key (name: “byMeetingID”, fields: [“meetingID”, “name”, “createdAt”])
+# @key (name: “byCategory”, fields: [“category”,“name”, “createdAt”])
+# @key (name: “byName”, fields: [“name”, “createdAt”])
+ {
+  id: ID!
+  meetingID: String!
+  name: String!
+  description: String!
+  category: String!
+  imageUrl: String
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+}
