@@ -32,10 +32,6 @@ type Query {
   getOrCreateMeeting(meetingId: String): AttendeeAndMeeting @function(name: "getOrCreateConversation-${env}")
 }
 
-type Query {
-  getOrCreateMeeting(meetingId: String): AttendeeAndMeeting @function(name: "getOrCreateConversation-${env}")
-}
-
 type Room @model
 # @key (name: “byMeetingID”, fields: [“meetingID”, “name”, “createdAt”])
 # @key (name: “byCategory”, fields: [“category”,“name”, “createdAt”])
