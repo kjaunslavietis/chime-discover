@@ -13,7 +13,8 @@
         },
         "categories": {
             "auth": {
-                "chimediscoverb4fac449": {},
+                "chimediscoverb4fac449": {}
+            },
             "function": {
                 "getOrCreateConversation": {}
             }
