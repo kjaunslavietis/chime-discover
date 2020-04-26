@@ -169,19 +169,20 @@ class ActiveConversation extends React.Component {
             return this.loadingScreen();
         } else {
             this.chooseAudioDevice();
+            this.enableAudio();
             //When audio is disabled, enable audio
             if(!this.state.isAudioEnabled) {
                 this.setState({
                     isAudioEnabled: true
                 })
-                return (
-                    <Container>
-                        <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
-                        <Button variant="secondary" size="lg" block onClick={this.enableAudio}>Enable Audio</Button>
-                        <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
-                        <audio id="meeting-audio" ></audio>
-                    </Container>
-                )
+                // return (
+                //     <Container>
+                //         <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
+                //         <Button variant="secondary" size="lg" block onClick={this.enableAudio}>Enable Audio</Button>
+                //         <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
+                //         <audio id="meeting-audio" ></audio>
+                //     </Container>
+                // )
             //when audio is enabled, mute or unmute
             }  else {
                 //when is muted, unmute
