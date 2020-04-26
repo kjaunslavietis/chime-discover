@@ -1,4 +1,22 @@
 {
+    "pssalib": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-chime-discover-pssalib-105500-authRole",
+            "UnauthRoleArn": "arn:aws:iam::845108551121:role/amplify-chime-discover-pssalib-105500-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::845108551121:role/amplify-chime-discover-pssalib-105500-authRole",
+            "Region": "eu-central-1",
+            "DeploymentBucketName": "amplify-chime-discover-pssalib-105500-deployment",
+            "UnauthRoleName": "amplify-chime-discover-pssalib-105500-unauthRole",
+            "StackName": "amplify-chime-discover-pssalib-105500",
+            "StackId": "arn:aws:cloudformation:eu-central-1:845108551121:stack/amplify-chime-discover-pssalib-105500/72f2a460-86d2-11ea-9b2b-06a619e5de86",
+            "AmplifyAppId": "d3op8vw0uhd7qe"
+        },
+        "categories": {
+            "function": {
+                "getOrCreateConversation": {}
+            }
+        }
+    },
     "dev": {
         "awscloudformation": {
             "AuthRoleName": "amplify-chime-discover-dev-222529-authRole",

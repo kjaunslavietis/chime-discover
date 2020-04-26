@@ -1,0 +1,17 @@
+
+type Room @model
+@key (fields: ["meetingID"]) 
+# @key (name: "byCategory", fields: ["category","name", "createdAt"])
+# @key (name: "byName", fields: ["name", "createdAt"])
+ {
+  id: ID!
+  meetingID: String!
+  name: String!
+  description: String!
+  category: String!
+  imageUrl: String
+  createdAt: AWSDateTime
+  lastActiveDate: AWSDateTime
+  canBeAnalyzed: Boolean
+  keywords: [String]!
+}

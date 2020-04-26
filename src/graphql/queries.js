@@ -29,8 +29,8 @@ export const getOrCreateMeeting = /* GraphQL */ `
   }
 `;
 export const getRoom = /* GraphQL */ `
-  query GetRoom($id: ID!) {
-    getRoom(id: $id) {
+  query GetRoom($meetingID: String!) {
+    getRoom(meetingID: $meetingID) {
       id
       meetingID
       name
@@ -38,17 +38,27 @@ export const getRoom = /* GraphQL */ `
       category
       imageUrl
       createdAt
-      updatedAt
+      lastActiveDate
+      canBeAnalyzed
+      keywords
     }
   }
 `;
 export const listRooms = /* GraphQL */ `
   query ListRooms(
+    $meetingID: String
     $filter: ModelRoomFilterInput
     $limit: Int
     $nextToken: String
+    $sortDirection: ModelSortDirection
   ) {
-    listRooms(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    listRooms(
+      meetingID: $meetingID
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
       items {
         id
         meetingID
@@ -57,7 +67,9 @@ export const listRooms = /* GraphQL */ `
         category
         imageUrl
         createdAt
-        updatedAt
+        lastActiveDate
+        canBeAnalyzed
+        keywords
       }
       nextToken
     }

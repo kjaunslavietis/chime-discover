@@ -11,7 +11,9 @@ export const onCreateRoom = /* GraphQL */ `
       category
       imageUrl
       createdAt
-      updatedAt
+      lastActiveDate
+      canBeAnalyzed
+      keywords
     }
   }
 `;
@@ -25,7 +27,9 @@ export const onUpdateRoom = /* GraphQL */ `
       category
       imageUrl
       createdAt
-      updatedAt
+      lastActiveDate
+      canBeAnalyzed
+      keywords
     }
   }
 `;
@@ -39,7 +43,9 @@ export const onDeleteRoom = /* GraphQL */ `
       category
       imageUrl
       createdAt
-      updatedAt
+      lastActiveDate
+      canBeAnalyzed
+      keywords
     }
   }
 `;
