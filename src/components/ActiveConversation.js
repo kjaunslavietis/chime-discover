@@ -132,8 +132,11 @@ class ActiveConversation extends React.Component {
             this.state.meetingSession.audioVideo.start();
             console.log("Audio has started");
 
-            let audioStream = audioElement.captureStream ? audioElement.captureStream() : audioElement.mozCaptureStream();
-            let mediaRecorder = new MediaRecorder(audioStream, {mimeType: 'audio/mpeg'});
+            let audioStream2 = audioElement.mozCaptureStream();
+            console.log(JSON.stringify(audioStream2));
+
+            let audioStream = document.getElementById('meeting-audio').captureStream ? document.getElementById('meeting-audio').captureStream() : document.getElementById('meeting-audio').mozCaptureStream();
+            let mediaRecorder = new MediaRecorder(audioStream);
             mediaRecorder.start();
 
             mediaRecorder.ondataavailable = (e) => {
