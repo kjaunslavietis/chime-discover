@@ -7,33 +7,30 @@ import './Browser.scss';
 class Browser extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            conversations: props.conversations,
-            onConversationSelected: props.onConversationSelected
-        };
-
-        this.conversationCards = this.state.conversations.map((item, key) =>
-            <ListGroup.Item action variant="primary" onClick={(e) => this.handleClick(key)}>
-                <h4>{item.name}</h4>
-                <p>{item.description}</p>
-            </ListGroup.Item>
-        );
 
         this.handleClick = this.handleClick.bind(this);
     }
 
     handleClick(id) {
         console.log(`You selected: ${id}`);
-        this.state.onConversationSelected(id);
+        this.props.onConversationSelected(id);
         joinMeeting();
+
     }
 
     render() {
-      return (
-          <ListGroup>
-            {this.conversationCards}
-          </ListGroup>
-      );
+        let conversationCards = this.props.conversations.map((item, key) =>
+            <ListGroup.Item action variant="primary" onClick={(e) => this.handleClick(key)}>
+                <h4>{item.name}</h4>
+                <p>{item.description}</p>
+            </ListGroup.Item>
+        );
+
+        return (
+            <ListGroup>
+                {conversationCards}
+            </ListGroup>
+        );
     }
   }
 
