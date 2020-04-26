@@ -19,6 +19,8 @@ class ActiveConversation extends React.Component {
         }
 
         this.joinChimeMeeting();
+        this.chooseAudioDevice();
+        this.enableAudio();
     }
 
     // this will be called when the component is un-rendered, eg. the user has chosen to leave the meeting
@@ -45,6 +47,7 @@ class ActiveConversation extends React.Component {
     }
 
     exitConversation() {
+        this.meetingSession.audioVideo.stop();
         this.state.onConversationExited();
     }
 
@@ -53,6 +56,7 @@ class ActiveConversation extends React.Component {
             <Container>
                 <Spinner animation="grow" size="lg"/>
                 <h4>Joining meeting...</h4>
+                <audio id="meeting-audio" ></audio>
             </Container>
         );
     }
@@ -165,9 +169,9 @@ class ActiveConversation extends React.Component {
 
     render() {
         if(this.state.isMeetingLoading) {
+
             return this.loadingScreen();
         } else {
-            this.chooseAudioDevice();
             if(this.state.isMuted) {
                 return (
                     // layout should be something like
@@ -178,7 +182,6 @@ class ActiveConversation extends React.Component {
                         
                         <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
                         <Button variant="secondary" size="lg" block onClick={this.muteOrUnmute}>Unmute</Button>
-                        <Button variant="secondary" size="lg" block onClick={this.enableAudio}>Enable Audio</Button>
                         <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
                         <audio id="meeting-audio" ></audio>
                     </Container>
@@ -193,7 +196,6 @@ class ActiveConversation extends React.Component {
                         
                         <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
                         <Button variant="primary" size="lg" block onClick={this.muteOrUnmute}>Mute</Button>
-                        <Button variant="secondary" size="lg" block onClick={this.enableAudio}>Enable Audio</Button>
                         <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
                         <audio id="meeting-audio" ></audio>
                     </Container>
