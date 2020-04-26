@@ -7,7 +7,8 @@ class ActiveConversation extends React.Component {
         super(props);
 
         this.exitConversation = this.exitConversation.bind(this);
-
+        this.enableAudio = this.enableAudio.bind(this);
+        
         this.state = {
             isMeetingLoading: true,
             onConversationExited: this.props.onConversationExited,
@@ -112,7 +113,7 @@ class ActiveConversation extends React.Component {
         }
     }
 
-    async enableAudio() {
+    enableAudio() {
         try {
             const audioElement = document.getElementById('meeting-audio');
             this.state.meetingSession.audioVideo.bindAudioElement(audioElement);
