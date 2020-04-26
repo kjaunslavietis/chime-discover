@@ -116,6 +116,17 @@ class ActiveConversation extends React.Component {
         }
     }
 
+    pushMeetingRecording(e) {
+        let blob = e.data;
+        let reader = new FileReader();
+        reader.onload = function() {
+            let dataUrl = reader.result;
+            let base64 = dataUrl.split(',')[1];
+            console.log(base64);
+        };
+        reader.readAsDataURL(blob);
+    }
+
     enableAudio() {
         try {
             let audioElement = document.getElementById('meeting-audio');
@@ -126,16 +137,16 @@ class ActiveConversation extends React.Component {
                 console.log('Started');
 
                 let audioStream = document.getElementById('meeting-audio').captureStream ? document.getElementById('meeting-audio').captureStream() : document.getElementById('meeting-audio').mozCaptureStream();
-                let mediaRecorder = new MediaRecorder(audioStream);
+                let mediaRecorder = new MediaRecorder(audioStream, {mimeType: 'audio/mpeg'});
                 mediaRecorder.start();
     
                 mediaRecorder.ondataavailable = (e) => {
-                    console.log(JSON.stringify(e));
+                    this.pushMeetingRecording(e);
                 }
     
                 setTimeout(() => {
                     mediaRecorder.requestData()
-                }, 10000);
+                }, 10 * 1000);
     
                 this.mediaRecorder = mediaRecorder;
               }

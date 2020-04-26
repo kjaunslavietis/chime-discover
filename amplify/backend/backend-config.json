@@ -14,6 +14,20 @@
 			"build": true,
 			"providerPlugin": "awscloudformation",
 			"service": "Lambda"
+		},
+		"pushMeetingRecording": {
+			"build": true,
+			"providerPlugin": "awscloudformation",
+			"service": "Lambda",
+			"dependsOn": [
+				{
+					"category": "storage",
+					"resourceName": "sampleTranscriptions",
+					"attributes": [
+						"BucketName"
+					]
+				}
+			]
 		}
 	},
 	"api": {

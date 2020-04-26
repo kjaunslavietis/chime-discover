@@ -1,0 +1,12 @@
+{
+    "permissions": {
+        "storage": {
+            "sampleTranscriptions": [
+                "create",
+                "read",
+                "update",
+                "delete"
+            ]
+        }
+    }
+}
