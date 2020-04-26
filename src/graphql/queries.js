@@ -6,6 +6,15 @@ export const getOrCreateMeeting = /* GraphQL */ `
     getOrCreateMeeting(meetingId: $meetingId) {
       meeting {
         ExternalMeetingId
+        MediaPlacement {
+          AudioFallbackUrl
+          AudioHostUrl
+          ScreenDataUrl
+          ScreenSharingUrl
+          ScreenViewingUrl
+          SignalingUrl
+          TurnControlUrl
+        }
         MediaRegion
         MeetingId
       }
@@ -16,6 +25,53 @@ export const getOrCreateMeeting = /* GraphQL */ `
       }
       statusCode
       error
+    }
+  }
+`;
+export const getRoom = /* GraphQL */ `
+  query GetRoom($meetingID: String!) {
+    getRoom(meetingID: $meetingID) {
+      id
+      meetingID
+      name
+      description
+      category
+      imageUrl
+      createdAt
+      lastActiveDate
+      canBeAnalyzed
+      keywords
+    }
+  }
+`;
+export const listRooms = /* GraphQL */ `
+  query ListRooms(
+    $meetingID: String
+    $filter: ModelRoomFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listRooms(
+      meetingID: $meetingID
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        id
+        meetingID
+        name
+        description
+        category
+        imageUrl
+        createdAt
+        lastActiveDate
+        canBeAnalyzed
+        keywords
+      }
+      nextToken
     }
   }
 `;
