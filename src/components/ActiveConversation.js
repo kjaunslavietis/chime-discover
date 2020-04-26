@@ -3,16 +3,20 @@ import { Container, Button, Spinner } from 'react-bootstrap';
 import { joinMeeting } from './../chime/handlers';
 
 class ActiveConversation extends React.Component {
+
     constructor(props) {
         super(props);
 
         this.exitConversation = this.exitConversation.bind(this);
         this.enableAudio = this.enableAudio.bind(this);
+
+        this.mediaRecorder = null;
         
         this.state = {
             isMeetingLoading: true,
             onConversationExited: this.props.onConversationExited,
             meetingSession: null,
+            mediaRecorder: null
         }
 
         this.joinChimeMeeting();
@@ -120,9 +124,6 @@ class ActiveConversation extends React.Component {
             const observer = {
               audioVideoDidStart: () => {
                 console.log('Started');
-
-                let audioStream = audioElement.captureStream();
-                console.log(JSON.stringify(audioStream));
               }
             };
             
@@ -130,6 +131,20 @@ class ActiveConversation extends React.Component {
             
             this.state.meetingSession.audioVideo.start();
             console.log("Audio has started");
+
+            let audioStream = audioElement.captureStream ? audioElement.captureStream() : audioElement.mozCaptureStream();
+            let mediaRecorder = new MediaRecorder(audioStream, {mimeType: 'audio/mpeg'});
+            mediaRecorder.start();
+
+            mediaRecorder.ondataavailable = (e) => {
+                console.log(JSON.stringify(e));
+            }
+
+            setTimeout(() => {
+                mediaRecorder.requestData()
+            }, 10000);
+
+            this.mediaRecorder = mediaRecorder;
         }
         catch(err) {
             console.error(err);
