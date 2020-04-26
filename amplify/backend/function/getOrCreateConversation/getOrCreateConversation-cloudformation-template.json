@@ -67,8 +67,8 @@
 				"Runtime": "nodejs12.x",
 				"Timeout": "25",
 				"Code": {
-					"S3Bucket": "amplify-chime-discover-dev-222529-deployment",
-					"S3Key": "amplify-builds/getOrCreateConversation-3068745a4c2f75483850-build.zip"
+					"S3Bucket": "amplify-chime-discover-chimesdk-211432-deployment",
+					"S3Key": "amplify-builds/getOrCreateConversation-4131416f6d534268676e-build.zip"
 				}
 			}
 		},

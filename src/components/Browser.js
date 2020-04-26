@@ -13,6 +13,7 @@ class Browser extends React.Component {
     handleClick(id) {
         console.log(`You selected: ${id}`);
         this.props.onConversationSelected(id);
+
     }
 
     render() {
