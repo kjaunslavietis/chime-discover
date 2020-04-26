@@ -53,6 +53,10 @@ class ActiveConversation extends React.Component {
             return this.loadingScreen();
         } else {
             return (
+                // layout should be something like
+                // meeting controls on top
+                // active participants and their status (talking/not talking, muted/not muted) on the right
+                // chat in the middle / bottom
                 <Container>
                     <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
                     <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>

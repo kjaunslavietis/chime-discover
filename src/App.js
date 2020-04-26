@@ -6,6 +6,8 @@ import CreateConversation from './components/CreateConversation';
 import ActiveConversation from './components/ActiveConversation';
 import MeetingInfoModal from './components/MeetingInfoModal';
 
+import ConversationService from './services/ConversationService';
+
 import './App.scss';
 
 const mockConvos = [
@@ -52,8 +54,10 @@ class App extends React.Component {
     this.onConversationExited = this.onConversationExited.bind(this);
     this.onConversationSelected = this.onConversationSelected.bind(this);
 
+    this.conversationService = new ConversationService();
+
     this.state = {
-      conversations: mockConvos,
+      conversations: this.conversationService.getAllConversations(),
       selectedConversation: null,
       activeConversation: null,
       mainSlot: this.noConversationSelected()
@@ -108,8 +112,9 @@ class App extends React.Component {
 
   onConversationCreated(conversation) {
     console.log(JSON.stringify(conversation));
+    this.conversationService.createConversation(conversation);
     this.setState({
-      conversations: this.state.conversations.concat(conversation),
+      // conversations: this.state.conversations.concat(conversation),
       selectedConversation: conversation,
       mainSlot: this.noConversationSelected()
     });
