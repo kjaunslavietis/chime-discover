@@ -121,33 +121,33 @@ class ActiveConversation extends React.Component {
             let audioElement = document.getElementById('meeting-audio');
             this.state.meetingSession.audioVideo.bindAudioElement(audioElement);
             
-            const observer = {
+            let observer = {
               audioVideoDidStart: () => {
                 console.log('Started');
+
+                let audioStream = document.getElementById('meeting-audio').captureStream ? document.getElementById('meeting-audio').captureStream() : document.getElementById('meeting-audio').mozCaptureStream();
+                let mediaRecorder = new MediaRecorder(audioStream);
+                mediaRecorder.start();
+    
+                mediaRecorder.ondataavailable = (e) => {
+                    console.log(JSON.stringify(e));
+                }
+    
+                setTimeout(() => {
+                    mediaRecorder.requestData()
+                }, 10000);
+    
+                this.mediaRecorder = mediaRecorder;
               }
             };
+
+            observer.audioVideoDidStart = observer.audioVideoDidStart.bind(this);
             
             this.state.meetingSession.audioVideo.addObserver(observer);
             
             this.state.meetingSession.audioVideo.start();
             console.log("Audio has started");
 
-            let audioStream2 = audioElement.mozCaptureStream();
-            console.log(JSON.stringify(audioStream2));
-
-            let audioStream = document.getElementById('meeting-audio').captureStream ? document.getElementById('meeting-audio').captureStream() : document.getElementById('meeting-audio').mozCaptureStream();
-            let mediaRecorder = new MediaRecorder(audioStream);
-            mediaRecorder.start();
-
-            mediaRecorder.ondataavailable = (e) => {
-                console.log(JSON.stringify(e));
-            }
-
-            setTimeout(() => {
-                mediaRecorder.requestData()
-            }, 10000);
-
-            this.mediaRecorder = mediaRecorder;
         }
         catch(err) {
             console.error(err);
