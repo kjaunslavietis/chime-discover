@@ -10,7 +10,8 @@ class ActiveConversation extends React.Component {
 
         this.state = {
             isMeetingLoading: true,
-            onConversationExited: this.props.onConversationExited
+            onConversationExited: this.props.onConversationExited,
+            meetingSession: null,
         }
 
         this.joinChimeMeeting();
@@ -28,7 +29,7 @@ class ActiveConversation extends React.Component {
         // call getOrCreateMeeting lambda (or service), get the necessary parameters, use chime SDK to connect to meeting, finally set isMeetingLoading: false
         console.log(this.props.desiredMeetingId);
         //TODO take desiredMeetingId from activeConversation after DB is ready
-        this.meetingSession = await joinMeeting(this.props.desiredMeetingId);
+        this.state.meetingSession = await joinMeeting(this.props.desiredMeetingId);
         await new Promise(r => setTimeout(r, 2000));
         this.setState({
             isMeetingLoading: false
@@ -54,9 +55,9 @@ class ActiveConversation extends React.Component {
 
     async listAudioDevices() {
         try {
-            console.log(this.meetingSession);
-            const audioInputDevices = await this.meetingSession.audioVideo.listAudioInputDevices();
-            const audioOutputDevices = await this.meetingSession.audioVideo.listAudioOutputDevices();
+            console.log(this.state.meetingSession);
+            const audioInputDevices = await this.state.meetingSession.audioVideo.listAudioInputDevices();
+            const audioOutputDevices = await this.state.meetingSession.audioVideo.listAudioOutputDevices();
 
             // An array of MediaDeviceInfo objects
             audioInputDevices.forEach(mediaDeviceInfo => {
@@ -85,7 +86,7 @@ class ActiveConversation extends React.Component {
                 }
               };
               
-              this.meetingSession.audioVideo.addDeviceChangeObserver(observer);
+              this.state.meetingSession.audioVideo.addDeviceChangeObserver(observer);
             return devices;
         }
         catch(err){
@@ -100,21 +101,21 @@ class ActiveConversation extends React.Component {
             const audioInputDeviceInfo = devices.input;
             const inputDeviceId = audioInputDeviceInfo[0].deviceId;
             console.log('Input audio device: ', audioInputDeviceInfo[0]);
-            await this.meetingSession.audioVideo.chooseAudioInputDevice(inputDeviceId);
+            await this.state.meetingSession.audioVideo.chooseAudioInputDevice(inputDeviceId);
             const audioOutputDeviceInfo = devices.output;
             const outputDeviceId = audioOutputDeviceInfo[0].deviceId;
             console.log('Ouput audio device: ', audioOutputDeviceInfo[0]);
-            await this.meetingSession.audioVideo.chooseAudioOutputDevice(outputDeviceId);
+            await this.state.meetingSession.audioVideo.chooseAudioOutputDevice(outputDeviceId);
         }
         catch(err) {
             console.error(err);
         }
     }
 
-    enableAudio() {
+    async enableAudio() {
         try {
             const audioElement = document.getElementById('meeting-audio');
-            this.meetingSession.audioVideo.bindAudioElement(audioElement);
+            this.state.meetingSession.audioVideo.bindAudioElement(audioElement);
             
             const observer = {
               audioVideoDidStart: () => {
@@ -122,9 +123,9 @@ class ActiveConversation extends React.Component {
               }
             };
             
-            this.meetingSession.audioVideo.addObserver(observer);
+            this.state.meetingSession.audioVideo.addObserver(observer);
             
-            this.meetingSession.audioVideo.start();
+            this.state.meetingSession.audioVideo.start();
             console.log("Audio has started");
         }
         catch(err) {
