@@ -15,11 +15,11 @@ class ActiveConversation extends React.Component {
             isMeetingLoading: true,
             onConversationExited: this.props.onConversationExited,
             isAudioEnabled: false,
-            isMuted: false
+            isMuted: true
         }
 
-        this.joinChimeMeeting();
-        this.chooseAudioDevice();
+        await this.joinChimeMeeting();
+        await this.chooseAudioDevice();
         this.enableAudio();
     }
 
@@ -169,9 +169,9 @@ class ActiveConversation extends React.Component {
 
     render() {
         if(this.state.isMeetingLoading) {
-
             return this.loadingScreen();
         } else {
+            // this.chooseAudioDevice();
             if(this.state.isMuted) {
                 return (
                     // layout should be something like
