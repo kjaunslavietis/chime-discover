@@ -1,6 +1,8 @@
 import React from 'react';
-import { Container, Button, Spinner } from 'react-bootstrap';
+import { Container, Button, Spinner, DropdownButton } from 'react-bootstrap';
 import { joinMeeting } from './../chime/handlers';
+import { OutputDevices } from './OutputDevices.js';
+import { InputDevices } from './InputDevices.js';
 
 class ActiveConversation extends React.Component {
     constructor(props) {
@@ -8,11 +10,12 @@ class ActiveConversation extends React.Component {
 
         this.exitConversation = this.exitConversation.bind(this);
         this.enableAudio = this.enableAudio.bind(this);
-        
+        this.muteOrUnmute = this.muteOrUnmute.bind(this);
         this.state = {
             isMeetingLoading: true,
             onConversationExited: this.props.onConversationExited,
-            meetingSession: null,
+            isAudioEnabled: false,
+            isMuted: false
         }
 
         this.joinChimeMeeting();
@@ -30,7 +33,7 @@ class ActiveConversation extends React.Component {
         // call getOrCreateMeeting lambda (or service), get the necessary parameters, use chime SDK to connect to meeting, finally set isMeetingLoading: false
         console.log(this.props.desiredMeetingId);
         //TODO take desiredMeetingId from activeConversation after DB is ready
-        this.state.meetingSession = await joinMeeting(this.props.desiredMeetingId);
+        this.meetingSession = await joinMeeting(this.props.desiredMeetingId);
         await new Promise(r => setTimeout(r, 2000));
         this.setState({
             isMeetingLoading: false
@@ -56,9 +59,9 @@ class ActiveConversation extends React.Component {
 
     async listAudioDevices() {
         try {
-            console.log(this.state.meetingSession);
-            const audioInputDevices = await this.state.meetingSession.audioVideo.listAudioInputDevices();
-            const audioOutputDevices = await this.state.meetingSession.audioVideo.listAudioOutputDevices();
+            console.log(this.meetingSession);
+            const audioInputDevices = await this.meetingSession.audioVideo.listAudioInputDevices();
+            const audioOutputDevices = await this.meetingSession.audioVideo.listAudioOutputDevices();
 
             // An array of MediaDeviceInfo objects
             audioInputDevices.forEach(mediaDeviceInfo => {
@@ -87,7 +90,7 @@ class ActiveConversation extends React.Component {
                 }
               };
               
-              this.state.meetingSession.audioVideo.addDeviceChangeObserver(observer);
+              this.meetingSession.audioVideo.addDeviceChangeObserver(observer);
             return devices;
         }
         catch(err){
@@ -102,11 +105,11 @@ class ActiveConversation extends React.Component {
             const audioInputDeviceInfo = devices.input;
             const inputDeviceId = audioInputDeviceInfo[0].deviceId;
             console.log('Input audio device: ', audioInputDeviceInfo[0]);
-            await this.state.meetingSession.audioVideo.chooseAudioInputDevice(inputDeviceId);
+            await this.meetingSession.audioVideo.chooseAudioInputDevice(inputDeviceId);
             const audioOutputDeviceInfo = devices.output;
             const outputDeviceId = audioOutputDeviceInfo[0].deviceId;
             console.log('Ouput audio device: ', audioOutputDeviceInfo[0]);
-            await this.state.meetingSession.audioVideo.chooseAudioOutputDevice(outputDeviceId);
+            await this.meetingSession.audioVideo.chooseAudioOutputDevice(outputDeviceId);
         }
         catch(err) {
             console.error(err);
@@ -116,7 +119,7 @@ class ActiveConversation extends React.Component {
     enableAudio() {
         try {
             const audioElement = document.getElementById('meeting-audio');
-            this.state.meetingSession.audioVideo.bindAudioElement(audioElement);
+            this.meetingSession.audioVideo.bindAudioElement(audioElement);
             
             const observer = {
               audioVideoDidStart: () => {
@@ -124,9 +127,9 @@ class ActiveConversation extends React.Component {
               }
             };
             
-            this.state.meetingSession.audioVideo.addObserver(observer);
+            this.meetingSession.audioVideo.addObserver(observer);
             
-            this.state.meetingSession.audioVideo.start();
+            this.meetingSession.audioVideo.start();
             console.log("Audio has started");
         }
         catch(err) {
@@ -134,24 +137,68 @@ class ActiveConversation extends React.Component {
         }
     }   
 
+    muteOrUnmute() {
+        try {
+            // Mute
+            if(this.state.isMuted) {
+                const unmuted = this.meetingSession.audioVideo.realtimeUnmuteLocalAudio();
+                if (unmuted) {
+                    console.log('Unmuted');
+                    this.setState({
+                        isMuted: false
+                    })
+                } 
+            // Unmute
+            } else {
+                this.meetingSession.audioVideo.realtimeMuteLocalAudio();
+                console.log('Muted');
+                this.setState({
+                    isMuted: true
+                })
+            }
+
+        }
+        catch(err) {
+            console.error(err);
+        }
+    }
+
     render() {
         if(this.state.isMeetingLoading) {
             return this.loadingScreen();
         } else {
             this.chooseAudioDevice();
-            return (
-                // layout should be something like
-                // meeting controls on top
-                // active participants and their status (talking/not talking, muted/not muted) on the right
-                // chat in the middle / bottom
-                <Container>
-                    
-                    <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
-                    <Button variant="secondary" size="lg" block onClick={this.enableAudio}>Enable Audio</Button>
-                    <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
-                    <audio id="meeting-audio" ></audio>
-                </Container>
-            )
+            if(this.state.isMuted) {
+                return (
+                    // layout should be something like
+                    // meeting controls on top
+                    // active participants and their status (talking/not talking, muted/not muted) on the right
+                    // chat in the middle / bottom
+                    <Container>
+                        
+                        <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
+                        <Button variant="secondary" size="lg" block onClick={this.muteOrUnmute}>Unmute</Button>
+                        <Button variant="secondary" size="lg" block onClick={this.enableAudio}>Enable Audio</Button>
+                        <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
+                        <audio id="meeting-audio" ></audio>
+                    </Container>
+                )
+            } else {
+                return (
+                    // layout should be something like
+                    // meeting controls on top
+                    // active participants and their status (talking/not talking, muted/not muted) on the right
+                    // chat in the middle / bottom
+                    <Container>
+                        
+                        <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
+                        <Button variant="primary" size="lg" block onClick={this.muteOrUnmute}>Mute</Button>
+                        <Button variant="secondary" size="lg" block onClick={this.enableAudio}>Enable Audio</Button>
+                        <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
+                        <audio id="meeting-audio" ></audio>
+                    </Container>
+                )
+            }
         }
     }
 }

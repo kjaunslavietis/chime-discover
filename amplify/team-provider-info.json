@@ -16,7 +16,8 @@
                 "chimediscoverb4fac449": {}
             },
             "function": {
-                "getOrCreateConversation": {}
+                "getOrCreateConversation": {},
+                "transcribeSample": {}
             }
         }
     },
@@ -34,7 +35,12 @@
         },
         "categories": {
             "function": {
-                "getOrCreateConversation": {}
+                "getOrCreateConversation": {},
+                "transcribeSample": {},
+                "extractKeywords": {}
+            },
+            "auth": {
+                "chimediscoverb4fac449": {}
             }
         }
     }
