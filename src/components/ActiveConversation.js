@@ -50,7 +50,7 @@ class ActiveConversation extends React.Component {
         );
     }
 
-    async listAudioVideo() {
+    async listAudioDevices() {
         try {
             console.log(this.meetingSession);
             const audioInputDevices = await this.meetingSession.audioVideo.listAudioInputDevices();
@@ -63,24 +63,86 @@ class ActiveConversation extends React.Component {
             audioOutputDevices.forEach(mediaDeviceInfo => {
                 console.log(`Device ID: ${mediaDeviceInfo.deviceId} Microphone: ${mediaDeviceInfo.label}`);
             });
+            const devices = {
+                input: audioInputDevices,
+                output: audioOutputDevices
+            }
+
+            const observer = {
+                audioInputsChanged: freshAudioInputDeviceList => {
+                  // An array of MediaDeviceInfo objects
+                  freshAudioInputDeviceList.forEach(mediaDeviceInfo => {
+                    console.log(`Device ID: ${mediaDeviceInfo.deviceId} Microphone: ${mediaDeviceInfo.label}`);
+                  });
+                },
+                audioOutputsChanged: freshAudioOutputDeviceList => {
+                  console.log('Audio outputs updated: ', freshAudioOutputDeviceList);
+                },
+                videoInputsChanged: freshVideoInputDeviceList => {
+                  console.log('Video inputs updated: ', freshVideoInputDeviceList);
+                }
+              };
+              
+              this.meetingSession.audioVideo.addDeviceChangeObserver(observer);
+            return devices;
         }
         catch(err){
             console.error(err);
         }
     }
 
+    async chooseAudioDevice() {
+        try {
+            const devices = await this.listAudioDevices();
+            //chose the first ones by default for now
+            const audioInputDeviceInfo = devices.input;
+            const inputDeviceId = audioInputDeviceInfo[0].deviceId;
+            console.log('Input audio device: ', audioInputDeviceInfo[0]);
+            await this.meetingSession.audioVideo.chooseAudioInputDevice(inputDeviceId);
+            const audioOutputDeviceInfo = devices.output;
+            const outputDeviceId = audioOutputDeviceInfo[0].deviceId;
+            console.log('Ouput audio device: ', audioOutputDeviceInfo[0]);
+            await this.meetingSession.audioVideo.chooseAudioOutputDevice(outputDeviceId);
+        }
+        catch(err) {
+            console.error(err);
+        }
+    }
+
+    enableAudio() {
+        try {
+            const audioElement = document.getElementById('meeting-audio');
+            this.meetingSession.audioVideo.bindAudioElement(audioElement);
+            
+            const observer = {
+              audioVideoDidStart: () => {
+                console.log('Started');
+              }
+            };
+            
+            this.meetingSession.audioVideo.addObserver(observer);
+            
+            this.meetingSession.audioVideo.start();
+        }
+        catch(err) {
+            console.error(err);
+        }
+    }   
+
     render() {
         if(this.state.isMeetingLoading) {
             return this.loadingScreen();
         } else {
-            this.listAudioVideo();
+            this.chooseAudioDevice();
             return (
                 // layout should be something like
                 // meeting controls on top
                 // active participants and their status (talking/not talking, muted/not muted) on the right
                 // chat in the middle / bottom
                 <Container>
+                    <audio id="meeting-audio" style="display:none"></audio>
                     <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
+                    <Button variant="secondary" size="lg" block onClick={this.enableAudio}>Enable Audio</Button>
                     <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
                 </Container>
             )
