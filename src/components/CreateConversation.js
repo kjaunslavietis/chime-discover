@@ -7,7 +7,7 @@ class CreateConversation extends React.Component {
         this.state = {
             newConversationTitle: "",
             newConversationDescription: "",
-            newConversationTags: ""
+            newConversationCategory: ""
         };
 
         this.submitForm = this.submitForm.bind(this);
@@ -17,9 +17,21 @@ class CreateConversation extends React.Component {
         let newConversation = {
             name: this.state.newConversationName,
             description: this.state.newConversationDescription,
-            tags: this.state.newConversationTags
+            category: this.state.newConversationCategory,
+            meetingId: this.createChimeMeeting()
         };
+        this.writeConversation();
         this.props.onConversationCreated(newConversation);
+    }
+
+    createChimeMeeting() {
+        // call chime SDK to create meeting
+        // put an overlay while meeting creating
+        return "MockMeetingId";
+    }
+
+    writeConversation() {
+        // write conversation record to DynamoDB
     }
 
     render() {
@@ -32,8 +44,8 @@ class CreateConversation extends React.Component {
                     <Form.Label>Conversation Description</Form.Label>
                     <Form.Control type="text" placeholder="Conversation Description" onChange={(e) => this.setState({newConversationDescription: e.target.value})}/>
                     <br />
-                    <Form.Label>Conversation Tags</Form.Label>
-                    <Form.Control type="text" placeholder="Conversation Tags" onChange={(e) => this.setState({newConversationTags: e.target.value})}/>
+                    <Form.Label>Conversation Category</Form.Label>
+                    <Form.Control type="text" placeholder="Conversation Category" onChange={(e) => this.setState({newConversationCategory: e.target.value})}/>
                 </Form.Group>
                 <Button variant="primary" type="submit" onClick={this.submitForm}>
                     Create

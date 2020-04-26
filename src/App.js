@@ -3,6 +3,8 @@ import './App.css';
 import { Container, Row, Col, Jumbotron, Navbar, Button, Form } from 'react-bootstrap';
 import Browser from './components/Browser';
 import CreateConversation from './components/CreateConversation';
+import ActiveConversation from './components/ActiveConversation';
+import MeetingInfoModal from './components/MeetingInfoModal';
 
 import './App.scss';
 
@@ -10,27 +12,32 @@ const mockConvos = [
   {
     name: "Conversation 1",
     description: "Conversation 1 description",
-    tags: "Conversation 1 tags"
+    category: "Conversation 1 category",
+    meetingId: ""
   },
   {
     name: "Conversation 2",
     description: "Conversation 2 description",
-    tags: "Conversation 2 tags"
+    category: "Conversation 2 category",
+    meetingId: "AS1Q23EWDS"
   },
   {
     name: "Conversation 3",
     description: "Conversation 3 description",
-    tags: "Conversation 3 tags"
+    category: "Conversation 3 category",
+    meetingId: "AWE12QWDSA"
   },
   {
     name: "Conversation 4",
     description: "Conversationm 4 description",
-    tags: "Conversation 4 tags"
+    category: "Conversation 4 category",
+    meetingId: "123EWDQSAXC123"
   },
   {
     name: "Conversation 5",
     description: "Conversation 5 description",
-    tags: "Conversation 5 tags"
+    category: "Conversation 5 category",
+    meetingId: "1234MM1234123"
   },
 ]
 
@@ -41,10 +48,14 @@ class App extends React.Component {
     this.conversationInfo = this.conversationInfo.bind(this);
     this.onConversationCreated = this.onConversationCreated.bind(this);
     this.createConversation = this.createConversation.bind(this);
+    this.joinConversation = this.joinConversation.bind(this);
+    this.onConversationExited = this.onConversationExited.bind(this);
+    this.onConversationSelected = this.onConversationSelected.bind(this);
 
     this.state = {
       conversations: mockConvos,
       selectedConversation: null,
+      activeConversation: null,
       mainSlot: this.noConversationSelected()
     };
   }
@@ -63,22 +74,29 @@ class App extends React.Component {
     )
   }
 
+  joinConversation() {
+    if(this.state.activeConversation) {
+      this.setState({
+        mainSlot: <ActiveConversation conversation={this.state.activeConversation} onConversationExited={this.onConversationExited}/>
+      });
+    }
+  }
+
+  onConversationExited() {
+    this.setState({
+      mainSlot: this.noConversationSelected(),
+      activeConversation: null
+    })
+  }
+
   conversationInfo() {
     if(this.state.selectedConversation) {
-      return (
-        <Container>
-          <h1>Conversation info</h1>
-          <h3><strong>Conversation name:</strong> {this.state.selectedConversation.name}</h3>
-          <p>
-            <strong>Conversation description:</strong> {this.state.selectedConversation.description}
-          </p>
-          <p>
-            <strong>Conversation tags:</strong> {this.state.selectedConversation.tags}
-          </p>
-        </Container>
-      )
-    } else {
-      return this.noConversationSelected();
+      return <MeetingInfoModal 
+        show={true}
+        conversation={this.state.selectedConversation}
+        onClose={() => this.setState({selectedConversation: null})}
+        onJoin={() => this.setState({selectedConversation: null, activeConversation: this.state.selectedConversation}, () => this.joinConversation())}
+        />
     }
   }
 
@@ -92,24 +110,32 @@ class App extends React.Component {
     console.log(JSON.stringify(conversation));
     this.setState({
       conversations: this.state.conversations.concat(conversation),
-      selectedConversation: conversation
-    }, () => this.setState({mainSlot: this.conversationInfo()}));
+      selectedConversation: conversation,
+      mainSlot: this.noConversationSelected()
+    });
+  }
+
+  onConversationSelected(id) {
+    this.setState({
+      selectedConversation: this.state.conversations[id]
+    });
   }
 
   render() {
     return (
       <Container fluid>
+        { this.conversationInfo() }
         <Navbar className="bg-light justify-content-between">
           <Navbar.Brand>Chime Discover</Navbar.Brand>
           <Form inline>
-            <Button variant="primary" onClick={this.createConversation}>Create Conversation</Button>
+            <Button variant="primary" onClick={this.createConversation} disabled={this.state.activeConversation ? true : false}>Create Conversation</Button>
           </Form>
         </Navbar>
         <Row id="mainRow">
           <Col id="searchCol" sm={2}>
             <Browser 
               conversations={this.state.conversations}
-              onConversationSelected={(id) => this.setState({selectedConversation: this.state.conversations[id]})}
+              onConversationSelected={(id) => this.onConversationSelected(id)}
               />
           </Col>
           <Col id="mainCol" sm={10}>
