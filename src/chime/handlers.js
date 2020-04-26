@@ -24,24 +24,25 @@ export async function joinMeeting() {
       const desiredMeetingId = "random";
       let meetingAndAttendeeInfo = await API.graphql(graphqlOperation(getOrCreateMeeting, {meetingId: desiredMeetingId}));
       console.log(JSON.stringify(meetingAndAttendeeInfo));
+      const meetingResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.meeting;
+      const attendeeResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.attendee;
+      console.log(attendeeResponse);
+      console.log(meetingResponse);
       const logger = new ConsoleLogger('SDK', LogLevel.INFO);
       console.log(logger);
       const deviceController = new DefaultDeviceController(logger);
       console.log(deviceController);
       // You need responses from server-side Chime API. See below for details.
-      const meetingResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.meeting;
-      const attendeeResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.attendee;
       const configuration = new MeetingSessionConfiguration(meetingResponse, attendeeResponse);
-      console.log(JSON.stringify(configuration));
-      console.log(meetingResponse);
-      console.log(attendeeResponse);
+      console.log(configuration);
+
       // In the usage examples below, you will use this meetingSession object.
-    //   const meetingSession = new DefaultMeetingSession(
-    //     configuration,
-    //     logger,
-    //     deviceController
-    //   );
-    //   console.log(meetingSession);
+      const meetingSession = new DefaultMeetingSession(
+        configuration,
+        logger,
+        deviceController
+      );
+      console.log(meetingSession);
     } catch(err) {
       console.error(err);
     }

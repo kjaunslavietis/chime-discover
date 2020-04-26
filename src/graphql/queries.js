@@ -6,6 +6,15 @@ export const getOrCreateMeeting = /* GraphQL */ `
     getOrCreateMeeting(meetingId: $meetingId) {
       meeting {
         ExternalMeetingId
+        MediaPlacement {
+          AudioFallbackUrl
+          AudioHostUrl
+          ScreenDataUrl
+          ScreenSharingUrl
+          ScreenViewingUrl
+          SignalingUrl
+          TurnControlUrl
+        }
         MediaRegion
         MeetingId
       }
