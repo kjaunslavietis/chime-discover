@@ -6,10 +6,11 @@ const chime = new AWS.Chime({ region: 'us-east-1' });
 chime.endpoint = new AWS.Endpoint('https://service.chime.aws.amazon.com/console');
 
 exports.handler = async (event) => {
-    let meetingId = event.meetingId;
+    let meetingId = event.arguments.meetingId;
 
     let meetingResponse;
     let createNewMeeting = false;
+    console.log(JSON.stringify(meetingId));
 
     if(!meetingId) {
         createNewMeeting = true;
