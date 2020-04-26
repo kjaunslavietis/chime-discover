@@ -171,6 +171,9 @@ class ActiveConversation extends React.Component {
             this.chooseAudioDevice();
             //When audio is disabled, enable audio
             if(!this.state.isAudioEnabled) {
+                this.setState({
+                    isAudioEnabled: true
+                })
                 return (
                     <Container>
                         <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
