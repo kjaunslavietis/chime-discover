@@ -23,7 +23,7 @@ exports.handler = async (event) => {
                 Media: { /* required */
                   MediaFileUri: `s3://${record.s3.bucket.name}/${record.s3.object.key}`
                 },
-                TranscriptionJobName: `${fileName}-${uuid()}`,
+                TranscriptionJobName: `${fileName}:${uuid()}`,
                 OutputBucketName: record.s3.bucket.name,
                 Settings: {}
               };
@@ -67,6 +67,9 @@ exports.handler = async (event) => {
                 let topThreePhrases = sortedPhrases.slice(0, 3);
 
                 console.log(JSON.stringify(topThreePhrases));
+
+                let conversationId = record.s3.object.key.split(':')[0];
+                console.log(conversationId);
             }
         }
 

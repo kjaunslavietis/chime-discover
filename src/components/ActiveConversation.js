@@ -15,16 +15,18 @@ class ActiveConversation extends React.Component {
         super(props);
 
         this.exitConversation = this.exitConversation.bind(this);
+        this.pushMeetingRecording = this.pushMeetingRecording.bind(this);
         this.enableAudio = this.enableAudio.bind(this);
         this.muteOrUnmute = this.muteOrUnmute.bind(this);
+        this.startRecording = this.startRecording.bind(this);
+        this.restartMediaRecorder = this.restartMediaRecorder.bind(this);
+
         this.state = {
             isMeetingLoading: true,
             onConversationExited: this.props.onConversationExited,
             isAudioEnabled: false,
             isMuted: false
         }
-        this.startRecording = this.startRecording.bind(this);
-        this.restartMediaRecorder = this.restartMediaRecorder.bind(this);
 
         this.recorderWorker = mp3RecorderWorker();
         this.mediaRecorder = null;
@@ -136,7 +138,7 @@ class ActiveConversation extends React.Component {
     async pushMeetingRecording(e) {
         let blob = e.data;
         if(blob.size > 100 * 1024) {
-            Storage.put(`audioin/test.mp3`, blob)
+            Storage.put(`audioin/${this.props.conversation.id}`, blob)
             .then (result => console.log(result))
             .catch(err => console.log(err));
         }
