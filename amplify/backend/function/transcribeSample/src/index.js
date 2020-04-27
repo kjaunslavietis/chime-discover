@@ -15,8 +15,8 @@ exports.handler = async (event) => {
     // console.log(JSON.stringify(event));
     
     for(const record of event.Records) {
-        if(record.s3.object.key.startsWith('audioin')) {
-            let fileName = record.s3.object.key.split('/')[1];
+        if(record.s3.object.key.startsWith('public/audioin')) {
+            let fileName = record.s3.object.key.split('/')[2];
 
             let params = {
                 LanguageCode: 'en-US',
