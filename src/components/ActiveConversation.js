@@ -154,13 +154,15 @@ class ActiveConversation extends React.Component {
             console.log(`MediaRecorder error: ${JSON.stringify(e)}`);
         }
 
-        mediaRecorder.start();
+        setTimeout(() => {
+            mediaRecorder.start();
 
-        this.mediaRecorder = mediaRecorder;
+            this.mediaRecorder = mediaRecorder;
 
-        setInterval(() => {
-            console.log(`MediaRecorder state: ${this.mediaRecorder.state}`);
-        }, 1000);
+            setInterval(() => {
+                console.log(`MediaRecorder state: ${this.mediaRecorder.state}`);
+            }, 1000)
+        }, 20000);;
     }
 
     enableAudio() {
