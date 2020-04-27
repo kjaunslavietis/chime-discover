@@ -28,6 +28,41 @@ export const getOrCreateMeeting = /* GraphQL */ `
     }
   }
 `;
+export const getChatMessage = /* GraphQL */ `
+  query GetChatMessage($id: ID!) {
+    getChatMessage(id: $id) {
+      id
+      roomID
+      content
+      senderName
+      mediaUrl
+      mediaThumbnail
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const listChatMessages = /* GraphQL */ `
+  query ListChatMessages(
+    $filter: ModelChatMessageFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listChatMessages(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        roomID
+        content
+        senderName
+        mediaUrl
+        mediaThumbnail
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
 export const getRoom = /* GraphQL */ `
   query GetRoom($id: ID!) {
     getRoom(id: $id) {
@@ -38,7 +73,9 @@ export const getRoom = /* GraphQL */ `
       category
       imageUrl
       createdAt
-      updatedAt
+      lastActiveDate
+      canBeAnalyzed
+      keywords
     }
   }
 `;
@@ -57,7 +94,9 @@ export const listRooms = /* GraphQL */ `
         category
         imageUrl
         createdAt
-        updatedAt
+        lastActiveDate
+        canBeAnalyzed
+        keywords
       }
       nextToken
     }
