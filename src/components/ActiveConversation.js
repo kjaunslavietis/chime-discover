@@ -131,7 +131,9 @@ class ActiveConversation extends React.Component {
             this.meetingSession.audioVideo.addObserver(observer);
             
             this.meetingSession.audioVideo.start();
-            this.state.isAudioEnabled = true;
+            this.setState({
+                isAudioEnabled: true
+            });
             console.log("Audio has started");
         }
         catch(err) {
@@ -148,7 +150,7 @@ class ActiveConversation extends React.Component {
                     console.log('Unmuted');
                     this.setState({
                         isMuted: false
-                    })
+                    });
                 } 
             // Unmute
             } else {
@@ -156,7 +158,7 @@ class ActiveConversation extends React.Component {
                 console.log('Muted');
                 this.setState({
                     isMuted: true
-                })
+                });
             }
 
         }
