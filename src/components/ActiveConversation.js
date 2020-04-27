@@ -30,6 +30,8 @@ class ActiveConversation extends React.Component {
     // this will be called when the component is un-rendered, eg. the user has chosen to leave the meeting
     componentWillUnmount() {
         if(this.mediaRecorder) {
+            this.mediaRecorder.onstop = {};
+            this.mediaRecorder.audioContext.close();
             this.mediaRecorder.stop();
         }
         this.leaveChimeMeeting();
@@ -126,14 +128,15 @@ class ActiveConversation extends React.Component {
 
     async pushMeetingRecording(e) {
         let blob = e.data;
-
-        Storage.put(`audioin/test.mp3`, blob)
+        if(blob.size > 60 * 1024) {
+            Storage.put(`audioin/test.mp3`, blob)
             .then (result => console.log(result))
             .catch(err => console.log(err));
+        }
 
         setTimeout(() => {
             this.restartMediaRecorder();
-        }, 10000);
+        }, 60 * 1000);
     }
 
     async startRecording() {
@@ -157,7 +160,7 @@ class ActiveConversation extends React.Component {
             setTimeout(() => {
                 console.log(`MediaRecorder state: ${this.mediaRecorder.state}`);
                 this.restartMediaRecorder();
-            }, 10000)
+            }, 60 * 000)
         }
 
         mediaRecorder.onerror = (e) => {
