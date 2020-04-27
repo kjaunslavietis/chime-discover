@@ -145,6 +145,11 @@ class ActiveConversation extends React.Component {
                 // mediaRecorder.start();
             }, 20 * 1000);
         }
+
+        mediaRecorder.worker.onerror = (e) => {
+            console.log(`MediaRecorder worker error: ${JSON.stringify(e)}`);
+        }
+
         mediaRecorder.start();
 
         this.mediaRecorder = mediaRecorder;
