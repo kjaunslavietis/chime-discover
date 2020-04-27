@@ -3,7 +3,7 @@ import { Container, Button, Spinner } from 'react-bootstrap';
 import { joinMeeting } from './../chime/handlers';
 import { Mp3MediaRecorder } from 'mp3-mediarecorder';
 import mp3RecorderWorker from 'workerize-loader!./RecorderWorker';  // eslint-disable-line import/no-webpack-loader-syntax
-import { selectInput } from 'aws-amplify';
+import { Storage } from 'aws-amplify';
 
 class ActiveConversation extends React.Component {
 
@@ -135,7 +135,10 @@ class ActiveConversation extends React.Component {
     async startRecording() {
         let audioElement = document.getElementById('meeting-audio');
         let audioStream = audioElement.captureStream ? audioElement.captureStream() : audioElement.mozCaptureStream();
-        let mediaRecorder = new Mp3MediaRecorder(audioStream, { worker: this.recorderWorker });
+        let mediaRecorder = new Mp3MediaRecorder(audioStream, { 
+            worker: this.recorderWorker,
+            audioContext: new AudioContext()
+         });
 
         mediaRecorder.ondataavailable = (e) => {
             this.pushMeetingRecording(e);
