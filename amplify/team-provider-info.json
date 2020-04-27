@@ -56,8 +56,7 @@
             },
             "function": {
                 "getOrCreateConversation": {},
-                "transcribeSample": {},
-                "extractKeywords": {}
+                "transcribeSample": {}
             }
         }
     }

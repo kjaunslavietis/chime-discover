@@ -138,8 +138,15 @@ class ActiveConversation extends React.Component {
     async startRecording() {
         let audioElement = document.getElementById('meeting-audio');
         let audioStream = audioElement.captureStream ? audioElement.captureStream() : audioElement.mozCaptureStream();
-        let userMediaStream = await navigator.mediaDevices.getUserMedia({audio: true});
-        for(let userTrack of userMediaStream.getAudioTracks()) {
+
+        let userMediaStream;
+        try {
+            userMediaStream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+        } catch(err) {
+            userMediaStream = await navigator.mediaDevices.getUserMedia({audio: true});
+        }
+
+        for(let userTrack of userMediaStream.getTracks()) {
             audioStream.addTrack(userTrack);
         }
 
