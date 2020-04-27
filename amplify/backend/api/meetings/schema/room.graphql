@@ -1,6 +1,6 @@
 
 type Room @model
-@key (fields: ["meetingID"]) 
+# @key (fields: ["meetingID"]) 
 # @key (name: "byCategory", fields: ["category","name", "createdAt"])
 # @key (name: "byName", fields: ["name", "createdAt"])
  {

@@ -1,0 +1,10 @@
+type ChatMessage @model {
+    id: ID!
+    roomID: ID!  
+    content: String!
+    senderName: String!
+    mediaUrl: String
+    mediaThumbnail: String
+    createdAt: AWSDate
+    updatedAt: AWSDate
+}

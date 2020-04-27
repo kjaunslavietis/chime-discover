@@ -28,9 +28,44 @@ export const getOrCreateMeeting = /* GraphQL */ `
     }
   }
 `;
+export const getChatMessage = /* GraphQL */ `
+  query GetChatMessage($id: ID!) {
+    getChatMessage(id: $id) {
+      id
+      roomID
+      content
+      senderName
+      mediaUrl
+      mediaThumbnail
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const listChatMessages = /* GraphQL */ `
+  query ListChatMessages(
+    $filter: ModelChatMessageFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listChatMessages(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        roomID
+        content
+        senderName
+        mediaUrl
+        mediaThumbnail
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
 export const getRoom = /* GraphQL */ `
-  query GetRoom($meetingID: String!) {
-    getRoom(meetingID: $meetingID) {
+  query GetRoom($id: ID!) {
+    getRoom(id: $id) {
       id
       meetingID
       name
@@ -46,19 +81,11 @@ export const getRoom = /* GraphQL */ `
 `;
 export const listRooms = /* GraphQL */ `
   query ListRooms(
-    $meetingID: String
     $filter: ModelRoomFilterInput
     $limit: Int
     $nextToken: String
-    $sortDirection: ModelSortDirection
   ) {
-    listRooms(
-      meetingID: $meetingID
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      sortDirection: $sortDirection
-    ) {
+    listRooms(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
         meetingID
