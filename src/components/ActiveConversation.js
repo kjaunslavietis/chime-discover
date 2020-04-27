@@ -139,23 +139,25 @@ class ActiveConversation extends React.Component {
               audioVideoDidStart: () => {
                 console.log('Started');
 
-                let audioStream = document.getElementById('meeting-audio').captureStream ? document.getElementById('meeting-audio').captureStream() : document.getElementById('meeting-audio').mozCaptureStream();
-                let mediaRecorder = new Mp3MediaRecorder(audioStream, { worker: Mp3RecorderWorker() });
-
-                mediaRecorder.ondataavailable = (e) => {
-                    this.pushMeetingRecording(e);
-                }
-
-                mediaRecorder.onstart = (e) => {
-                    console.log(`Media recorder started: ${JSON.stringify(e)}`);
-                    setTimeout(() => {
-                        mediaRecorder.stop();
-                        // mediaRecorder.start();
-                    }, 20 * 1000);
-                }
-                mediaRecorder.start();
+                setTimeout(() => {
+                    let audioStream = document.getElementById('meeting-audio').captureStream ? document.getElementById('meeting-audio').captureStream() : document.getElementById('meeting-audio').mozCaptureStream();
+                    let mediaRecorder = new Mp3MediaRecorder(audioStream, { worker: Mp3RecorderWorker() });
     
-                this.mediaRecorder = mediaRecorder;
+                    mediaRecorder.ondataavailable = (e) => {
+                        this.pushMeetingRecording(e);
+                    }
+    
+                    mediaRecorder.onstart = (e) => {
+                        console.log(`Media recorder started: ${JSON.stringify(e)}`);
+                        setTimeout(() => {
+                            mediaRecorder.stop();
+                            // mediaRecorder.start();
+                        }, 20 * 1000);
+                    }
+                    mediaRecorder.start();
+        
+                    this.mediaRecorder = mediaRecorder;
+                }, 10000)
               }
             };
 
