@@ -68,7 +68,7 @@
 				"Timeout": "25",
 				"Code": {
 					"S3Bucket": "amplify-chime-discover-pssalib-105500-deployment",
-					"S3Key": "amplify-builds/getOrCreateConversation-3068745a4c2f75483850-build.zip"
+					"S3Key": "amplify-builds/getOrCreateConversation-534375734b726c316e58-build.zip"
 				}
 			}
 		},

@@ -26,13 +26,9 @@
 					"defaultAuthentication": {
 						"authenticationType": "API_KEY",
 						"apiKeyConfig": {
-<<<<<<< HEAD
 							"description": "meetings",
 							"apiKeyExpirationDays": "365"
-=======
-							"description": "",
-							"apiKeyExpirationDays": 7
->>>>>>> room-chat-api
+
 						}
 					}
 				}
