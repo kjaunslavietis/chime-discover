@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Button, Spinner } from 'react-bootstrap';
 import { joinMeeting } from './../chime/handlers';
 import { Mp3MediaRecorder } from 'mp3-mediarecorder';
-import Mp3RecorderWorker from 'workerize-loader!./RecorderWorker';  // eslint-disable-line import/no-webpack-loader-syntax
+// import mp3RecorderWorker from 'workerize-loader!./RecorderWorker';  // eslint-disable-line import/no-webpack-loader-syntax
 
 class ActiveConversation extends React.Component {
 
@@ -132,7 +132,8 @@ class ActiveConversation extends React.Component {
 
     async startRecording() {
         let audioStream = await window.navigator.mediaDevices.getUserMedia({ audio: true });
-        let mediaRecorder = new Mp3MediaRecorder(audioStream, { worker: Mp3RecorderWorker() });
+        // let mediaRecorder = new Mp3MediaRecorder(audioStream, { worker: mp3RecorderWorker() });
+        let mediaRecorder = new Mp3MediaRecorder(audioStream, new Worker('./RecorderWorker.js'));
 
         mediaRecorder.ondataavailable = (e) => {
             this.pushMeetingRecording(e);
