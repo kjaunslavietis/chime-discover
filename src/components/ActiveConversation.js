@@ -150,7 +150,7 @@ class ActiveConversation extends React.Component {
                 setTimeout(() => {
                     mediaRecorder.stop()
                     mediaRecorder.start()
-                }, 10 * 1000);
+                }, 20 * 1000);
     
                 this.mediaRecorder = mediaRecorder;
               }
