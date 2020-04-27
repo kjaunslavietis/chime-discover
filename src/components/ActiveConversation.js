@@ -133,10 +133,6 @@ class ActiveConversation extends React.Component {
             .then (result => console.log(result))
             .catch(err => console.log(err));
         }
-
-        setTimeout(() => {
-            this.restartMediaRecorder();
-        }, 60 * 1000);
     }
 
     async startRecording() {
@@ -160,7 +156,7 @@ class ActiveConversation extends React.Component {
             setInterval(() => {
                 console.log(`MediaRecorder state: ${this.mediaRecorder.state}`);
                 this.restartMediaRecorder();
-            }, 60 * 000)
+            }, 60 * 1000)
         }
 
         mediaRecorder.onerror = (e) => {
