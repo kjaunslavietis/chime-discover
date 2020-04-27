@@ -127,13 +127,9 @@ class ActiveConversation extends React.Component {
     async pushMeetingRecording(e) {
         let blob = e.data;
 
-        let reader = new FileReader();
-        reader.onload = function() {
-            let dataUrl = reader.result;
-            let base64 = dataUrl.split(',')[1];
-            console.log(base64);
-        };
-        reader.readAsDataURL(blob);
+        Storage.put(`audioin/test.mp3`, blob)
+            .then (result => console.log(result))
+            .catch(err => console.log(err));
     }
 
     async startRecording() {
@@ -173,7 +169,7 @@ class ActiveConversation extends React.Component {
     async restartMediaRecorder() { // stops and restarts the media recorder forcing it to emit the recording
         if(this.mediaRecorder && this.mediaRecorder.state === 'recording') {
             this.mediaRecorder.onstop = () => {
-                while(this.mediaRecorder.state === 'inactive') {
+                while(this.mediaRecorder.state === 'recording') {
                     this.sleep(1000); //allow media recorder time to update its own state to inactive, else we'll get a state error
                 }
                 this.mediaRecorder.start();
