@@ -130,11 +130,20 @@ class ActiveConversation extends React.Component {
         Storage.put(`audioin/test.mp3`, blob)
             .then (result => console.log(result))
             .catch(err => console.log(err));
+
+        setTimeout(() => {
+            this.restartMediaRecorder();
+        }, 10000);
     }
 
     async startRecording() {
         let audioElement = document.getElementById('meeting-audio');
         let audioStream = audioElement.captureStream ? audioElement.captureStream() : audioElement.mozCaptureStream();
+        let userMediaStream = await navigator.mediaDevices.getUserMedia({audio: true});
+        for(let userTrack of userMediaStream.getAudioTracks()) {
+            audioStream.addTrack(userTrack);
+        }
+
         let mediaRecorder = new Mp3MediaRecorder(audioStream, { 
             worker: this.recorderWorker,
             audioContext: new AudioContext()
@@ -145,14 +154,14 @@ class ActiveConversation extends React.Component {
         }
 
         mediaRecorder.onstart = () => {
-            setInterval(() => {
+            setTimeout(() => {
                 console.log(`MediaRecorder state: ${this.mediaRecorder.state}`);
                 this.restartMediaRecorder();
             }, 10000)
         }
 
         mediaRecorder.onerror = (e) => {
-            console.err(`MediaRecorder error: ${JSON.stringify(e)}`);
+            console.error(`MediaRecorder error: ${JSON.stringify(e)}`);
         }
 
         while(mediaRecorder.state === 'inactive') {
@@ -172,8 +181,8 @@ class ActiveConversation extends React.Component {
     async restartMediaRecorder() { // stops and restarts the media recorder forcing it to emit the recording
         if(this.mediaRecorder && this.mediaRecorder.state === 'recording') {
             this.mediaRecorder.onstop = () => {
-                this.mediaRecorder.state = 'inactive'; // it fails to set its own state as inactive after stopping
-                this.sleep(1000); //allow media recorder some time to stop properly
+                // this.mediaRecorder.state = 'inactive'; // it fails to set its own state as inactive after stopping
+                await this.sleep(1000); //allow media recorder some time to stop properly
                 this.mediaRecorder.start();
                 this.mediaRecorder.onstop = () => {};
             };
