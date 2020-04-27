@@ -13,6 +13,7 @@ class ActiveConversation extends React.Component {
         this.exitConversation = this.exitConversation.bind(this);
         this.enableAudio = this.enableAudio.bind(this);
         this.startRecording = this.startRecording.bind(this);
+        this.restartMediaRecorder = this.restartMediaRecorder.bind(this);
 
         this.recorderWorker = mp3RecorderWorker();
         this.mediaRecorder = null;
@@ -172,6 +173,9 @@ class ActiveConversation extends React.Component {
     async restartMediaRecorder() { // stops and restarts the media recorder forcing it to emit the recording
         if(this.mediaRecorder && this.mediaRecorder.state === 'recording') {
             this.mediaRecorder.onstop = () => {
+                while(this.mediaRecorder.state === 'inactive') {
+                    this.sleep(1000); //allow media recorder time to update its own state to inactive, else we'll get a state error
+                }
                 this.mediaRecorder.start();
                 this.mediaRecorder.onstop = () => {};
             };
