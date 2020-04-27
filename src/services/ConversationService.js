@@ -1,3 +1,7 @@
+import { API, graphqlOperation } from 'aws-amplify'
+import { listRooms} from './../graphql/queries'
+import { createRoom} from './../graphql/mutations'
+
 class ConversationService {
     constructor() {
         this.mockConvos = [
@@ -39,11 +43,21 @@ class ConversationService {
           ]
     }
 
-    getAllConversations() {
-        return this.mockConvos;
+    async getAllConversations() {
+      const conversations = await API.graphql(graphqlOperation(listRooms));
+      return conversations.data.listRooms.items;
     }
-    
-    createConversation(conversation) {
+    async updateConversation(oldId, newId) {
+      //TODO update conversation id
+      return null;
+    }
+    async createConversation(conversation) {
+        // console.log('creating convo');
+        // const newConversation = await API.graphql(graphqlOperation(createRoom,  {input: {meetingID: "id-123454678", name: "cool meeting", description: "a meeting description", category: "a meeting category", keywords: []}}))
+        // .then(response => console.log('new convo : ${newConversation}'))
+        // .catch(error => console.log(error.message));;
+        
+        // console.log(newConversation);
         this.mockConvos.push(conversation);
     }
 }

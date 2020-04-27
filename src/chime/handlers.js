@@ -26,10 +26,11 @@ export async function joinMeeting(desiredMeetingId) {
       console.log(JSON.stringify(meetingAndAttendeeInfo));
       const meetingResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.meeting;
       const attendeeResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.attendee;
+      const isCreated = meetingAndAttendeeInfo.data.getOrCreateMeeting.isCreated;
       console.log(attendeeResponse);
       console.log(meetingResponse);
+      console.log("Was created:", isCreated);
       const logger = new ConsoleLogger('SDK', LogLevel.INFO);
-      console.log(logger);
       const deviceController = new DefaultDeviceController(logger);
       console.log(deviceController);
       // You need responses from server-side Chime API. See below for details.

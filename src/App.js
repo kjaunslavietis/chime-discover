@@ -11,39 +11,6 @@ import ConversationService from './services/ConversationService';
 
 import './App.scss';
 
-const mockConvos = [
-  {
-    name: "Conversation 1",
-    description: "Conversation 1 description",
-    category: "Conversation 1 category",
-    meetingId: "e5102622-6672-4969-b2ca-f689c85d0be1"
-  },
-  {
-    name: "Conversation 2",
-    description: "Conversation 2 description",
-    category: "Conversation 2 category",
-    meetingId: "439589bf-8dac-4082-b4db-f584cf25d747"
-  },
-  {
-    name: "Conversation 3",
-    description: "Conversation 3 description",
-    category: "Conversation 3 category",
-    meetingId: "439589bf-8dac-4082-b4db-f584cf25d747"
-  },
-  {
-    name: "Conversation 4",
-    description: "Conversationm 4 description",
-    category: "Conversation 4 category",
-    meetingId: "f073d4c1-bb52-4bcc-90e4-4d2662773bdd"
-  },
-  {
-    name: "Conversation 5",
-    description: "Conversation 5 description",
-    category: "Conversation 5 category",
-    meetingId: "f29f4436-9f81-484e-9b1e-14eb0dd06728"
-  },
-]
-
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -58,14 +25,20 @@ class App extends React.Component {
     this.conversationService = new ConversationService();
 
     this.state = {
-      conversations: this.conversationService.getAllConversations(),
+      conversations: [],
       selectedConversation: null,
       activeConversation: null,
       mainSlot: this.noConversationSelected(),
       desiredMeetingId: '',
     };
   }
-
+  async componentWillMount(){
+    const allConversations = await this.conversationService.getAllConversations();
+    this.setState({
+      conversations: allConversations
+    })
+    console.log(allConversations);
+  }
   noConversationSelected() {
     return (
       <Container>

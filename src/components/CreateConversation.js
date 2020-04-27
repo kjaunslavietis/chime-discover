@@ -1,10 +1,14 @@
 import React from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { createMeeting } from './../chime/handlers';
+import ConversationService from './../services/ConversationService';
 
 class CreateConversation extends React.Component {
     constructor(props) {
         super(props);
+
+        this.conversationService = new ConversationService();
+
         this.state = {
             newConversationTitle: "",
             newConversationDescription: "",
@@ -14,25 +18,32 @@ class CreateConversation extends React.Component {
         this.submitForm = this.submitForm.bind(this);
     }
 
-    submitForm() {
+    async submitForm() {
         let newConversation = {
             name: this.state.newConversationName,
             description: this.state.newConversationDescription,
             category: this.state.newConversationCategory,
-            meetingId: this.createChimeMeeting()
+            meetingID: this.createChimeMeeting(),
+            keywords: []
         };
-        this.writeConversation();
+        await this.writeConversation(newConversation);
+        //Add an overlay while meeting is creating
         this.props.onConversationCreated(newConversation);
     }
 
     createChimeMeeting() {
         // call chime SDK to create meeting
         // put an overlay while meeting creating
-        createMeeting();
-        return "MockMeetingId";
-    }
+        // createMeeting();
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+          });
+        }
 
-    writeConversation() {
+    async writeConversation(newConversation) {
+        console.log(newConversation);
+        await this.conversationService.createConversation(newConversation);
         // write conversation record to DynamoDB
     }
 
