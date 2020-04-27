@@ -50,7 +50,7 @@ class ChatService {
         ).subscribe({
             next: (chatMessage) => {
                 console.log("==> chat messages" + JSON.stringify(chatMessage))
-                if (chatMessage.roomID !== conversationId)
+                if (chatMessage.value.data.onCreateChatMessage.roomID !== conversationId)
                     subsriptionCallBack(chatMessage.value.data.onCreateChatMessage)
             },
             error: (error) => {
