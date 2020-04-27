@@ -169,9 +169,8 @@ class ActiveConversation extends React.Component {
     async restartMediaRecorder() { // stops and restarts the media recorder forcing it to emit the recording
         if(this.mediaRecorder && this.mediaRecorder.state === 'recording') {
             this.mediaRecorder.onstop = () => {
-                while(this.mediaRecorder.state === 'recording') {
-                    this.sleep(1000); //allow media recorder time to update its own state to inactive, else we'll get a state error
-                }
+                this.mediaRecorder.state = 'inactive'; // it fails to set its own state as inactive after stopping
+                this.sleep(1000); //allow media recorder some time to stop properly
                 this.mediaRecorder.start();
                 this.mediaRecorder.onstop = () => {};
             };
