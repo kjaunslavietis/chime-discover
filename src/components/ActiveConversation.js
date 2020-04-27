@@ -1,6 +1,8 @@
 import React from 'react';
 import { Container, Button, Spinner } from 'react-bootstrap';
 import { joinMeeting } from './../chime/handlers';
+import { Mp3MediaRecorder } from 'mp3-mediarecorder';
+import Mp3RecorderWorker from 'workerize-loader!./RecorderWorker';  // eslint-disable-line import/no-webpack-loader-syntax
 
 class ActiveConversation extends React.Component {
 
@@ -116,8 +118,9 @@ class ActiveConversation extends React.Component {
         }
     }
 
-    pushMeetingRecording(e) {
+    async pushMeetingRecording(e) {
         let blob = e.data;
+
         let reader = new FileReader();
         reader.onload = function() {
             let dataUrl = reader.result;
@@ -137,7 +140,7 @@ class ActiveConversation extends React.Component {
                 console.log('Started');
 
                 let audioStream = document.getElementById('meeting-audio').captureStream ? document.getElementById('meeting-audio').captureStream() : document.getElementById('meeting-audio').mozCaptureStream();
-                let mediaRecorder = new MediaRecorder(audioStream);
+                let mediaRecorder = new Mp3MediaRecorder(audioStream, { worker: Mp3RecorderWorker() });
                 mediaRecorder.start();
     
                 mediaRecorder.ondataavailable = (e) => {
@@ -145,7 +148,8 @@ class ActiveConversation extends React.Component {
                 }
     
                 setTimeout(() => {
-                    mediaRecorder.requestData()
+                    mediaRecorder.stop()
+                    mediaRecorder.start()
                 }, 10 * 1000);
     
                 this.mediaRecorder = mediaRecorder;

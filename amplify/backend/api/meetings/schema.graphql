@@ -30,6 +30,7 @@ type AttendeeAndMeeting {
 
 type Query {
   getOrCreateMeeting(meetingId: String): AttendeeAndMeeting @function(name: "getOrCreateConversation-${env}")
+  pushMeetingRecording(base64: String): AWSJSON @function(name: "pushMeetingRecording-${env}")
 }
 
 type Room @model
