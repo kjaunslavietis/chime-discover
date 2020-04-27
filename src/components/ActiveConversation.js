@@ -128,7 +128,7 @@ class ActiveConversation extends React.Component {
 
     async pushMeetingRecording(e) {
         let blob = e.data;
-        if(blob.size > 60 * 1024) {
+        if(blob.size > 100 * 1024) {
             Storage.put(`audioin/test.mp3`, blob)
             .then (result => console.log(result))
             .catch(err => console.log(err));
@@ -152,12 +152,12 @@ class ActiveConversation extends React.Component {
             audioContext: new AudioContext()
          });
 
-        mediaRecorder.ondataavailable = (e) => {
-            this.pushMeetingRecording(e);
-        }
+        // mediaRecorder.ondataavailable = (e) => {
+        //     this.pushMeetingRecording(e);
+        // }
 
         mediaRecorder.onstart = () => {
-            setTimeout(() => {
+            setInterval(() => {
                 console.log(`MediaRecorder state: ${this.mediaRecorder.state}`);
                 this.restartMediaRecorder();
             }, 60 * 000)
@@ -185,11 +185,15 @@ class ActiveConversation extends React.Component {
         if(this.mediaRecorder && this.mediaRecorder.state === 'recording') {
             this.mediaRecorder.onstop = () => {
                 this.mediaRecorder.onstop = () => {};
-                // this.mediaRecorder.state = 'inactive'; // it fails to set its own state as inactive after stopping
                 this.sleep(1000).then(() => {
                     this.mediaRecorder.start();
                 }); //allow media recorder some time to stop properly
             };
+
+            this.mediaRecorder.ondataavailable = (e) => { // ensures we only get data when we need it
+                this.pushMeetingRecording(e);
+                this.mediaRecorder.ondataavailable = {};
+            }
             this.mediaRecorder.stop();
         }
     }
