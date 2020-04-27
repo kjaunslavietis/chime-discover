@@ -122,6 +122,9 @@ class ActiveConversation extends React.Component {
     enableAudio() {
         try {
             const audioElement = document.getElementById('meeting-audio');
+            this.setState({
+                isAudioEnabled: true
+            });
             this.meetingSession.audioVideo.bindAudioElement(audioElement);
             
             const observer = {
@@ -133,9 +136,7 @@ class ActiveConversation extends React.Component {
             this.meetingSession.audioVideo.addObserver(observer);
             
             this.meetingSession.audioVideo.start();
-            this.setState({
-                isAudioEnabled: true
-            });
+
             console.log("Audio has started");
         }
         catch(err) {
@@ -183,7 +184,12 @@ class ActiveConversation extends React.Component {
                     <Row id="testRow">
                         <Col id="col" sm={2}>
                             <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
-                            <AudioControl isMuted={this.state.isMuted} isAudioEnabled={this.state.isAudioEnabled}/>
+                            <AudioControl
+                                isMuted={this.state.isMuted} 
+                                isAudioEnabled={this.state.isAudioEnabled}
+                                enableAudio={this.enableAudio}
+                                muteOrUnmute={this.muteOrUnmute}
+                            />
                             <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
                             <audio id="meeting-audio" ></audio>
                         </Col>
