@@ -3,6 +3,7 @@ import { Container, Button, Spinner } from 'react-bootstrap';
 import { joinMeeting } from './../chime/handlers';
 import { Mp3MediaRecorder } from 'mp3-mediarecorder';
 import mp3RecorderWorker from 'workerize-loader!./RecorderWorker';  // eslint-disable-line import/no-webpack-loader-syntax
+import { selectInput } from 'aws-amplify';
 
 class ActiveConversation extends React.Component {
 
@@ -13,6 +14,7 @@ class ActiveConversation extends React.Component {
         this.enableAudio = this.enableAudio.bind(this);
         this.startRecording = this.startRecording.bind(this);
 
+        this.recorderWorker = mp3RecorderWorker();
         this.mediaRecorder = null;
         
         this.state = {
@@ -26,6 +28,9 @@ class ActiveConversation extends React.Component {
 
     // this will be called when the component is un-rendered, eg. the user has chosen to leave the meeting
     componentWillUnmount() {
+        if(this.mediaRecorder) {
+            this.mediaRecorder.stop();
+        }
         this.leaveChimeMeeting();
     }
 
@@ -131,38 +136,47 @@ class ActiveConversation extends React.Component {
     }
 
     async startRecording() {
-        let audioStream = await window.navigator.mediaDevices.getUserMedia({ audio: true });
-        let mediaRecorder = new Mp3MediaRecorder(audioStream, { worker: mp3RecorderWorker() });
+        let audioElement = document.getElementById('meeting-audio');
+        let audioStream = audioElement.captureStream ? audioElement.captureStream() : audioElement.mozCaptureStream();
+        let mediaRecorder = new Mp3MediaRecorder(audioStream, { worker: this.recorderWorker });
 
         mediaRecorder.ondataavailable = (e) => {
             this.pushMeetingRecording(e);
         }
 
-        mediaRecorder.onstart = (e) => {
-            console.log(`Media recorder started: ${JSON.stringify(e)}`);
-            setTimeout(() => {
-                mediaRecorder.stop();
-                // mediaRecorder.start();
-            }, 20 * 1000);
-        }
-
-        mediaRecorder.worker.onerror = (e) => {
-            console.log(`MediaRecorder worker error: ${JSON.stringify(e)}`);
+        mediaRecorder.onstart = () => {
+            setInterval(() => {
+                console.log(`MediaRecorder state: ${this.mediaRecorder.state}`);
+                this.restartMediaRecorder();
+            }, 10000)
         }
 
         mediaRecorder.onerror = (e) => {
-            console.log(`MediaRecorder error: ${JSON.stringify(e)}`);
+            console.err(`MediaRecorder error: ${JSON.stringify(e)}`);
         }
 
-        setTimeout(() => {
-            mediaRecorder.start();
+        while(mediaRecorder.state === 'inactive') {
+            mediaRecorder.start(); // attempt to start the media recorder - might take several tries due to a race condition bug inside the recorder's worker
+            await sleep(1000);
+        }
 
-            this.mediaRecorder = mediaRecorder;
+        this.mediaRecorder = mediaRecorder;
+    }
 
-            setInterval(() => {
-                console.log(`MediaRecorder state: ${this.mediaRecorder.state}`);
-            }, 1000)
-        }, 20000);;
+    sleep(ms) {
+        return new Promise((resolve) => {
+          setTimeout(resolve, ms);
+        });
+      }   
+
+    async restartMediaRecorder() { // stops and restarts the media recorder forcing it to emit the recording
+        if(this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+            this.mediaRecorder.onstop = () => {
+                this.mediaRecorder.start();
+                this.mediaRecorder.onstop = () => {};
+            };
+            this.mediaRecorder.stop();
+        }
     }
 
     enableAudio() {
@@ -172,9 +186,7 @@ class ActiveConversation extends React.Component {
             
             let observer = {
               audioVideoDidStart: () => {
-                console.log('Started');
-
-                this.startRecording().then((a, b) => console.log(`startRecording finished: ${JSON.stringify(a)}, ${JSON.stringify(b)}`));
+                this.startRecording();
               }
             };
 
