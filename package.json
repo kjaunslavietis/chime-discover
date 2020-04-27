@@ -13,17 +13,20 @@
     "amazon-chime-sdk-js": "^1.4.0",
     "aws-amplify": "^3.0.8",
     "bootstrap": "^4.4.1",
+    "mp3-mediarecorder": "^4.0.2",
     "node-sass": "^4.14.0",
     "react": "^16.13.1",
+    "react-app-rewired": "^2.1.5",
     "react-bootstrap": "^1.0.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
-    "uuid": "^7.0.3"
+    "uuid": "^7.0.3",
+    "workerize-loader": "^1.1.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

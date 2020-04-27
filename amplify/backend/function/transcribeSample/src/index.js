@@ -12,11 +12,11 @@ const comprehend = new AWS.Comprehend();
 const s3 = new AWS.S3();
 
 exports.handler = async (event) => {
-    // console.log(JSON.stringify(event));
+    console.log(JSON.stringify(event));
     
     for(const record of event.Records) {
-        if(record.s3.object.key.startsWith('audioin')) {
-            let fileName = record.s3.object.key.split('/')[1];
+        if(record.s3.object.key.startsWith('public/audioin')) {
+            let fileName = record.s3.object.key.split('/')[2];
 
             let params = {
                 LanguageCode: 'en-US',
@@ -33,7 +33,7 @@ exports.handler = async (event) => {
               } catch(err) {
                   console.log(err);
               }
-        } else {
+        } else if(!record.s3.object.key.startsWith('.write_access_check_file.temp')) {
             let s3Params = {
                 Bucket: record.s3.bucket.name, 
                 Key: record.s3.object.key
@@ -58,9 +58,9 @@ exports.handler = async (event) => {
 
                 let sortedPhrases = comprehension.KeyPhrases.sort((p1, p2) => {
                     if(p1.Score > p2.Score) {
-                        return 1;
-                    } else if(p1.Score < p2.Score) {
                         return -1;
+                    } else if(p1.Score < p2.Score) {
+                        return 1;
                     } else return 0;
                 }).map(p => p.Text);
 

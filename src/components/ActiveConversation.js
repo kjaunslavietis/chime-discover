@@ -5,8 +5,12 @@ import OutputDevices from './OutputDevices';
 import InputDevices from './InputDevices';
 import AudioControl from './AudioControl';
 
+import { Mp3MediaRecorder } from 'mp3-mediarecorder';
+import mp3RecorderWorker from 'workerize-loader!./RecorderWorker';  // eslint-disable-line import/no-webpack-loader-syntax
+import { Storage } from 'aws-amplify';
 
 class ActiveConversation extends React.Component {
+
     constructor(props) {
         super(props);
 
@@ -19,12 +23,22 @@ class ActiveConversation extends React.Component {
             isAudioEnabled: false,
             isMuted: false
         }
+        this.startRecording = this.startRecording.bind(this);
+        this.restartMediaRecorder = this.restartMediaRecorder.bind(this);
+
+        this.recorderWorker = mp3RecorderWorker();
+        this.mediaRecorder = null;
 
         this.joinChimeMeeting();
     }
 
     // this will be called when the component is un-rendered, eg. the user has chosen to leave the meeting
     componentWillUnmount() {
+        if(this.mediaRecorder) {
+            this.mediaRecorder.onstop = {};
+            this.mediaRecorder.audioContext.close();
+            this.mediaRecorder.stop();
+        }
         this.leaveChimeMeeting();
     }
 
@@ -119,6 +133,81 @@ class ActiveConversation extends React.Component {
         }
     }
 
+    async pushMeetingRecording(e) {
+        let blob = e.data;
+        if(blob.size > 100 * 1024) {
+            Storage.put(`audioin/test.mp3`, blob)
+            .then (result => console.log(result))
+            .catch(err => console.log(err));
+        }
+    }
+
+    async startRecording() {
+        let audioElement = document.getElementById('meeting-audio');
+        let audioStream = audioElement.captureStream ? audioElement.captureStream() : audioElement.mozCaptureStream();
+
+        let userMediaStream;
+        try {
+            userMediaStream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+        } catch(err) {
+            userMediaStream = await navigator.mediaDevices.getUserMedia({audio: true});
+        }
+
+        for(let userTrack of userMediaStream.getTracks()) {
+            audioStream.addTrack(userTrack);
+        }
+
+        let mediaRecorder = new Mp3MediaRecorder(audioStream, { 
+            worker: this.recorderWorker,
+            audioContext: new AudioContext()
+         });
+
+        // mediaRecorder.ondataavailable = (e) => {
+        //     this.pushMeetingRecording(e);
+        // }
+
+        mediaRecorder.onstart = () => {
+            setInterval(() => {
+                console.log(`MediaRecorder state: ${this.mediaRecorder.state}`);
+                this.restartMediaRecorder();
+            }, 60 * 1000)
+        }
+
+        mediaRecorder.onerror = (e) => {
+            console.error(`MediaRecorder error: ${JSON.stringify(e)}`);
+        }
+
+        while(mediaRecorder.state === 'inactive') {
+            mediaRecorder.start(); // attempt to start the media recorder - might take several tries due to a race condition bug inside the recorder's worker
+            await this.sleep(1000);
+        }
+
+        this.mediaRecorder = mediaRecorder;
+    }
+
+    sleep(ms) {
+        return new Promise((resolve) => {
+          setTimeout(resolve, ms);
+        });
+      }   
+
+    async restartMediaRecorder() { // stops and restarts the media recorder forcing it to emit the recording
+        if(this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+            this.mediaRecorder.onstop = () => {
+                this.mediaRecorder.onstop = () => {};
+                this.sleep(1000).then(() => {
+                    this.mediaRecorder.start();
+                }); //allow media recorder some time to stop properly
+            };
+
+            this.mediaRecorder.ondataavailable = (e) => { // ensures we only get data when we need it
+                this.pushMeetingRecording(e);
+                this.mediaRecorder.ondataavailable = {};
+            }
+            this.mediaRecorder.stop();
+        }
+    }
+
     enableAudio() {
         try {
             const audioElement = document.getElementById('meeting-audio');
@@ -127,17 +216,20 @@ class ActiveConversation extends React.Component {
             });
             this.meetingSession.audioVideo.bindAudioElement(audioElement);
             
-            const observer = {
+            let observer = {
               audioVideoDidStart: () => {
-                console.log('Started');
+                this.startRecording();
               }
             };
+
+            observer.audioVideoDidStart = observer.audioVideoDidStart.bind(this);
             
             this.meetingSession.audioVideo.addObserver(observer);
             
             this.meetingSession.audioVideo.start();
 
             console.log("Audio has started");
+
         }
         catch(err) {
             console.error(err);

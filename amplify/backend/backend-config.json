@@ -9,11 +9,6 @@
 			"build": true,
 			"providerPlugin": "awscloudformation",
 			"service": "Lambda"
-		},
-		"extractKeywords": {
-			"build": true,
-			"providerPlugin": "awscloudformation",
-			"service": "Lambda"
 		}
 	},
 	"api": {
