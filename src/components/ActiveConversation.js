@@ -1,8 +1,10 @@
 import React from 'react';
-import { Container, Button, Spinner, DropdownButton } from 'react-bootstrap';
+import { Container, Button, Spinner, DropdownButton, Row, Col } from 'react-bootstrap';
 import { joinMeeting } from './../chime/handlers';
-import { OutputDevices } from './OutputDevices.js';
-import { InputDevices } from './InputDevices.js';
+import OutputDevices from './OutputDevices';
+import InputDevices from './InputDevices';
+import AudioControl from './AudioControl';
+
 
 class ActiveConversation extends React.Component {
     constructor(props) {
@@ -172,50 +174,68 @@ class ActiveConversation extends React.Component {
             return this.loadingScreen();
         } else {
             this.chooseAudioDevice();
-            if(!this.state.isAudioEnabled) {
-                return (
-                    // layout should be something like
-                    // meeting controls on top
-                    // active participants and their status (talking/not talking, muted/not muted) on the right
-                    // chat in the middle / bottom
-                    <Container>
+            return (
+                // layout should be something like
+                // meeting controls on top
+                // active participants and their status (talking/not talking, muted/not muted) on the right
+                // chat in the middle / bottom
+                <Container fluid>
+                    <Row id="testRow">
+                        <Col id="col" sm={2}>
+                            <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
+                            <AudioControl isMuted={this.state.isMuted} isAudioEnabled={this.state.isAudioEnabled}/>
+                            <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
+                            <audio id="meeting-audio" ></audio>
+                        </Col>
+                    </Row>
+                </Container>
+            )
+
+            // if(!this.state.isAudioEnabled) {
+            //     return (
+            //         // layout should be something like
+            //         // meeting controls on top
+            //         // active participants and their status (talking/not talking, muted/not muted) on the right
+            //         // chat in the middle / bottom
+            //         <Container>
                         
-                        <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
-                        <Button variant="secondary" size="lg" block onClick={this.enableAudio}>Enable Audio</Button>
-                        <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
-                        <audio id="meeting-audio" ></audio>
-                    </Container>
-                )
-            }
-            else if(this.state.isMuted && this.state.isAudioEnabled) {
-                return (
-                    // layout should be something like
-                    // meeting controls on top
-                    // active participants and their status (talking/not talking, muted/not muted) on the right
-                    // chat in the middle / bottom
-                    <Container>
+            //             <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
+            //             <Button variant="secondary" size="lg" block onClick={this.enableAudio}>Enable Audio</Button>
+            //             <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
+            //             <audio id="meeting-audio" ></audio>
+            //         </Container>
+            //     )
+            // }
+            // else if(this.state.isMuted && this.state.isAudioEnabled) {
+            //     return (
+            //         // layout should be something like
+            //         // meeting controls on top
+            //         // active participants and their status (talking/not talking, muted/not muted) on the right
+            //         // chat in the middle / bottom
+            //         <Container>
                         
-                        <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
-                        <Button variant="secondary" size="lg" block onClick={this.muteOrUnmute}>Unmute</Button>
-                        <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
-                        <audio id="meeting-audio" ></audio>
-                    </Container>
-                )
-            } else if(!this.state.isMuted && this.state.isAudioEnabled) {
-                return (
-                    // layout should be something like
-                    // meeting controls on top
-                    // active participants and their status (talking/not talking, muted/not muted) on the right
-                    // chat in the middle / bottom
-                    <Container>
+            //             <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
+            //             <AudioControl isMuted={this.state.isMuted} isAudioEnabled={this.state.isAudioEnabled}/>
+            //             <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
+            //             <audio id="meeting-audio" ></audio>
+            //         </Container>
+            //     )
+            // } 
+            // else if(!this.state.isMuted && this.state.isAudioEnabled) {
+            //     return (
+            //         // layout should be something like
+            //         // meeting controls on top
+            //         // active participants and their status (talking/not talking, muted/not muted) on the right
+            //         // chat in the middle / bottom
+            //         <Container>
                         
-                        <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
-                        <Button variant="primary" size="lg" block onClick={this.muteOrUnmute}>Mute</Button>
-                        <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
-                        <audio id="meeting-audio" ></audio>
-                    </Container>
-                )
-            }
+            //             <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
+            //             <AudioControl isMuted={this.state.isMuted} />
+            //             <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
+            //             <audio id="meeting-audio" ></audio>
+            //         </Container>
+            //     )
+            // }
         }
     }
 }

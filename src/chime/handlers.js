@@ -12,6 +12,7 @@ import {
   
 
 export async function createMeeting() {
+    //TODO finalize if it's needed, so far only joinMeeting is used
     try {
       const desiredMeetingId = null;
       let meetingAndAttendeeInfo = await API.graphql(graphqlOperation(getOrCreateMeeting, {meetingId: desiredMeetingId}));

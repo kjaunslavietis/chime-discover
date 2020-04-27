@@ -73,9 +73,6 @@ class ConversationService {
     async createConversation(conversation) {
         console.log('creating convo');
         const newConversation = await API.graphql(graphqlOperation(createRoom,  {input: conversation}))
-        // .then(response => console.log('new convo : ${newConversation}'))
-        // .catch(error => console.log(error.message));;
-        
         console.log(newConversation);
         this.mockConvos.push(conversation);
     }
