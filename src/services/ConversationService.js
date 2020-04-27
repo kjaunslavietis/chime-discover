@@ -53,12 +53,22 @@ class ConversationService {
     }
     async getAllConversations() {
       try {
-      const conversations = await API.graphql(graphqlOperation(listRooms));
-      return conversations.data.listRooms.items;
-      } catch(err) {
-        console.error(err);
-      }
+        let conversations = await API.graphql(graphqlOperation(listRooms));
+        let nextToken ;
+        let allConversations = []
+        do {
+            allConversations = allConversations.concat(conversations.data.listRooms.items)
+            nextToken = conversations.data.listRooms.nextToken;
+            console.log("==>nexttoke "+ nextToken)
+            conversations = await API.graphql(graphqlOperation(listRooms, {nextToken}));
+            
+        } while (nextToken)
+        return allConversations;
+        } catch (err) {
+            console.log("==>err:" + JSON.stringify(err))
+        }
     }
+
     async updateConversation(oldId, newMeetingId) {
       try{ 
         await API.graphql(graphqlOperation(updateRoom, 
