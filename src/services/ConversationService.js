@@ -71,12 +71,12 @@ class ConversationService {
       }
     }
     async createConversation(conversation) {
-        // console.log('creating convo');
-        // const newConversation = await API.graphql(graphqlOperation(createRoom,  {input: {meetingID: "id-123454678", name: "cool meeting", description: "a meeting description", category: "a meeting category", keywords: []}}))
+        console.log('creating convo');
+        const newConversation = await API.graphql(graphqlOperation(createRoom,  {input: conversation}))
         // .then(response => console.log('new convo : ${newConversation}'))
         // .catch(error => console.log(error.message));;
         
-        // console.log(newConversation);
+        console.log(newConversation);
         this.mockConvos.push(conversation);
     }
 }
