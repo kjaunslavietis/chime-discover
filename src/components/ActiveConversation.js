@@ -11,14 +11,14 @@ class ActiveConversation extends React.Component {
 
         this.exitConversation = this.exitConversation.bind(this);
         this.enableAudio = this.enableAudio.bind(this);
+        this.startRecording = this.startRecording.bind(this);
 
         this.mediaRecorder = null;
         
         this.state = {
             isMeetingLoading: true,
             onConversationExited: this.props.onConversationExited,
-            meetingSession: null,
-            mediaRecorder: null
+            meetingSession: null
         }
 
         this.joinChimeMeeting();
@@ -130,6 +130,30 @@ class ActiveConversation extends React.Component {
         reader.readAsDataURL(blob);
     }
 
+    async startRecording() {
+        let audioStream = document.getElementById('meeting-audio').captureStream ? document.getElementById('meeting-audio').captureStream() : document.getElementById('meeting-audio').mozCaptureStream();
+        let mediaRecorder = new Mp3MediaRecorder(audioStream, { worker: Mp3RecorderWorker() });
+
+        mediaRecorder.ondataavailable = (e) => {
+            this.pushMeetingRecording(e);
+        }
+
+        mediaRecorder.onstart = (e) => {
+            console.log(`Media recorder started: ${JSON.stringify(e)}`);
+            setTimeout(() => {
+                mediaRecorder.stop();
+                // mediaRecorder.start();
+            }, 20 * 1000);
+        }
+        mediaRecorder.start();
+
+        this.mediaRecorder = mediaRecorder;
+
+        setInterval(() => {
+            console.log(`MediaRecorder state: ${this.mediaRecorder.state}`);
+        }, 1000);
+    }
+
     enableAudio() {
         try {
             let audioElement = document.getElementById('meeting-audio');
@@ -139,25 +163,7 @@ class ActiveConversation extends React.Component {
               audioVideoDidStart: () => {
                 console.log('Started');
 
-                setTimeout(() => {
-                    let audioStream = document.getElementById('meeting-audio').captureStream ? document.getElementById('meeting-audio').captureStream() : document.getElementById('meeting-audio').mozCaptureStream();
-                    let mediaRecorder = new Mp3MediaRecorder(audioStream, { worker: Mp3RecorderWorker() });
-    
-                    mediaRecorder.ondataavailable = (e) => {
-                        this.pushMeetingRecording(e);
-                    }
-    
-                    mediaRecorder.onstart = (e) => {
-                        console.log(`Media recorder started: ${JSON.stringify(e)}`);
-                        setTimeout(() => {
-                            mediaRecorder.stop();
-                            // mediaRecorder.start();
-                        }, 20 * 1000);
-                    }
-                    mediaRecorder.start();
-        
-                    this.mediaRecorder = mediaRecorder;
-                }, 10000)
+                this.startRecording().then((a, b) => console.log(`startRecording finished: ${JSON.stringify(a)}, ${JSON.stringify(b)}`));
               }
             };
 
