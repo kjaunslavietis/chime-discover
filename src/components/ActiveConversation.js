@@ -157,7 +157,7 @@ class ActiveConversation extends React.Component {
 
         while(mediaRecorder.state === 'inactive') {
             mediaRecorder.start(); // attempt to start the media recorder - might take several tries due to a race condition bug inside the recorder's worker
-            await sleep(1000);
+            await this.sleep(1000);
         }
 
         this.mediaRecorder = mediaRecorder;
