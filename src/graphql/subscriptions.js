@@ -11,7 +11,6 @@ export const onCreateChatMessage = /* GraphQL */ `
       mediaUrl
       mediaThumbnail
       createdAt
-      updatedAt
     }
   }
 `;
@@ -25,7 +24,6 @@ export const onUpdateChatMessage = /* GraphQL */ `
       mediaUrl
       mediaThumbnail
       createdAt
-      updatedAt
     }
   }
 `;
@@ -39,7 +37,6 @@ export const onDeleteChatMessage = /* GraphQL */ `
       mediaUrl
       mediaThumbnail
       createdAt
-      updatedAt
     }
   }
 `;
