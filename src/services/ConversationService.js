@@ -1,7 +1,9 @@
+
 class ConversationService {
     constructor() {
         this.mockConvos = [
             {
+              id: "1",
               name: "Conversation 1",
               description: "Conversation 1 description",
               category: "Conversation 1 category",
@@ -9,6 +11,7 @@ class ConversationService {
               keywords: ["supernatural", "world war two"]
             },
             {
+              id: "2",
               name: "Conversation 2",
               description: "Conversation 2 description",
               category: "Conversation 2 category",
@@ -16,6 +19,7 @@ class ConversationService {
               keywords: ["bigfoot"]
             },
             {
+              id: "3",
               name: "Conversation 3",
               description: "Conversation 3 description",
               category: "Conversation 3 category",
@@ -23,6 +27,7 @@ class ConversationService {
               keywords: []
             },
             {
+              id: "4",
               name: "Conversation 4",
               description: "Conversationm 4 description",
               category: "Conversation 4 category",
@@ -30,6 +35,7 @@ class ConversationService {
               keywords: []
             },
             {
+              id: "5",
               name: "Conversation 5",
               description: "Conversation 5 description",
               category: "Conversation 5 category",

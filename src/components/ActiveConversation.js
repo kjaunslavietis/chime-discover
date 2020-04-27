@@ -1,6 +1,8 @@
 import React from 'react';
 import { Container, Button, Spinner } from 'react-bootstrap';
 import { joinMeeting } from './../chime/handlers';
+import { API, graphqlOperation } from 'aws-amplify'
+import { updateRoom } from './../graphql/mutations'
 
 class ActiveConversation extends React.Component {
     constructor(props) {
@@ -31,6 +33,12 @@ class ActiveConversation extends React.Component {
         console.log(this.props.desiredMeetingId);
         //TODO take desiredMeetingId from activeConversation after DB is ready
         this.state.meetingSession = await joinMeeting(this.props.desiredMeetingId);
+        if(this.state.meetingSession) {       
+            await API.graphql(graphqlOperation(updateRoom, {
+                id: this.props.conversation.id,
+                meetingID: this.state.meetingSession._configuration.meetingId
+            }));
+        }
         await new Promise(r => setTimeout(r, 2000));
         this.setState({
             isMeetingLoading: false
