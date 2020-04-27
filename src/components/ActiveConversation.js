@@ -31,9 +31,9 @@ class ActiveConversation extends React.Component {
             isMeetingLoading: true
         })
         // call getOrCreateMeeting lambda (or service), get the necessary parameters, use chime SDK to connect to meeting, finally set isMeetingLoading: false
-        console.log(this.props.desiredMeetingId);
+        console.log(this.props.conversation.meetingID);
         //TODO take desiredMeetingId from activeConversation after DB is ready
-        this.meetingSession = await joinMeeting(this.props.desiredMeetingId);
+        this.meetingSession = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID);
         await new Promise(r => setTimeout(r, 2000));
         this.setState({
             isMeetingLoading: false

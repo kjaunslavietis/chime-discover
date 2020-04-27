@@ -1,5 +1,7 @@
 import { API, graphqlOperation } from 'aws-amplify'
 import { getOrCreateMeeting} from './../graphql/queries'
+import ConversationService from './../services/ConversationService';
+
 import {
     ConsoleLogger,
     DefaultDeviceController,
@@ -19,17 +21,23 @@ export async function createMeeting() {
     }
   }
   
-export async function joinMeeting(desiredMeetingId) {
+export async function joinMeeting(oldId, desiredMeetingId) {
     try {
+      let isCreated = false;
+      let conversationService = new ConversationService();
       console.log(desiredMeetingId);
       let meetingAndAttendeeInfo = await API.graphql(graphqlOperation(getOrCreateMeeting, {meetingId: desiredMeetingId}));
       console.log(JSON.stringify(meetingAndAttendeeInfo));
       const meetingResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.meeting;
       const attendeeResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.attendee;
-      const isCreated = meetingAndAttendeeInfo.data.getOrCreateMeeting.isCreated;
+      if(desiredMeetingId != meetingResponse.MeetingId) {
+        isCreated = true;
+        await conversationService.updateConversation(oldId, meetingResponse.MeetingId)
+      }
       console.log(attendeeResponse);
       console.log(meetingResponse);
       console.log("Was created:", isCreated);
+      
       const logger = new ConsoleLogger('SDK', LogLevel.INFO);
       const deviceController = new DefaultDeviceController(logger);
       console.log(deviceController);

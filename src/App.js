@@ -57,7 +57,7 @@ class App extends React.Component {
     if(this.state.activeConversation) {
       this.setState({
         //TODO remove desiredMeetingId when DB is ready
-        mainSlot: <ActiveConversation desiredMeetingId={this.state.desiredMeetingId} conversation={this.state.activeConversation} onConversationExited={this.onConversationExited}/>
+        mainSlot: <ActiveConversation conversation={this.state.activeConversation} onConversationExited={this.onConversationExited}/>
       });
     }
   }
