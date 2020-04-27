@@ -4,6 +4,8 @@ import { joinMeeting } from './../chime/handlers';
 import OutputDevices from './OutputDevices';
 import InputDevices from './InputDevices';
 import AudioControl from './AudioControl';
+import Chat from './Chat';
+
 
 import { Mp3MediaRecorder } from 'mp3-mediarecorder';
 import mp3RecorderWorker from 'workerize-loader!./RecorderWorker';  // eslint-disable-line import/no-webpack-loader-syntax
@@ -273,14 +275,21 @@ class ActiveConversation extends React.Component {
 
                 <Container fluid>
                     <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
-                    <AudioControl
-                        isMuted={this.state.isMuted} 
-                        isAudioEnabled={this.state.isAudioEnabled}
-                        enableAudio={this.enableAudio}
-                        muteOrUnmute={this.muteOrUnmute}
-                    />
-                    <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
-                    <audio id="meeting-audio" ></audio>
+                    <Row>
+                        <Chat
+                        roomId={this.props.conversation.id}
+                        />
+                    </Row>
+                    <Row>
+                        <AudioControl
+                            isMuted={this.state.isMuted} 
+                            isAudioEnabled={this.state.isAudioEnabled}
+                            enableAudio={this.enableAudio}
+                            muteOrUnmute={this.muteOrUnmute}
+                        />
+                        <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
+                        <audio id="meeting-audio" ></audio>
+                    </Row>
                 </Container>
             )
 

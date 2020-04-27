@@ -43,7 +43,6 @@ export const getChatMessage = /* GraphQL */ `
       mediaUrl
       mediaThumbnail
       createdAt
-      updatedAt
     }
   }
 `;
@@ -62,7 +61,6 @@ export const listChatMessages = /* GraphQL */ `
         mediaUrl
         mediaThumbnail
         createdAt
-        updatedAt
       }
       nextToken
     }

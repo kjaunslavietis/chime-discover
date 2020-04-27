@@ -1,0 +1,45 @@
+body {
+    /* height: 100%;
+    overflow: hidden; */
+}
+
+input,
+button {
+    font-family: verdana, ubuntu;
+}
+
+.container {
+    /* display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    overflow: auto;
+    position: absolute;
+    top: 100;
+    bottom: 100;
+    left: 100;
+    right: 100;
+    background-color:  bisque; */
+}
+
+.chat-list {
+    min-width: 240px;
+    max-width: 380px;
+    overflow: auto;
+}
+
+.right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.message-list {
+    flex: 1;
+    min-width: 140px;
+    overflow: auto;
+}
+
+.input-area {
+    height: 50px;
+    background: red;
+}
