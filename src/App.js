@@ -9,6 +9,8 @@ import MeetingInfoModal from './components/MeetingInfoModal';
 
 import ConversationService from './services/ConversationService';
 
+import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
+
 import './App.scss';
 
 class App extends React.Component {
@@ -116,6 +118,7 @@ class App extends React.Component {
           <Navbar.Brand>Chime Discover</Navbar.Brand>
           <Form inline>
             <Button variant="primary" onClick={this.createConversation} disabled={this.state.activeConversation ? true : false}>Create Conversation</Button>
+            <AmplifySignOut />
           </Form>
         </Navbar>
         <Row id="mainRow">
@@ -136,4 +139,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default withAuthenticator(App);

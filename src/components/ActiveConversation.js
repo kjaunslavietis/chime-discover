@@ -140,7 +140,7 @@ class ActiveConversation extends React.Component {
     async pushMeetingRecording(e) {
         let blob = e.data;
         if(blob.size > 100 * 1024) {
-            Storage.put(`audioin/${this.props.conversation.id}`, blob)
+            Storage.put(`audioin/${this.props.conversation.id}.mp3`, blob)
             .then (result => console.log(result))
             .catch(err => console.log(err));
         }
