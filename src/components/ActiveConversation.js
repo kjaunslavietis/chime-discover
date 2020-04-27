@@ -131,7 +131,7 @@ class ActiveConversation extends React.Component {
     }
 
     async startRecording() {
-        let audioStream = document.getElementById('meeting-audio').captureStream ? document.getElementById('meeting-audio').captureStream() : document.getElementById('meeting-audio').mozCaptureStream();
+        let audioStream = await window.navigator.mediaDevices.getUserMedia({ audio: true });
         let mediaRecorder = new Mp3MediaRecorder(audioStream, { worker: Mp3RecorderWorker() });
 
         mediaRecorder.ondataavailable = (e) => {
@@ -148,6 +148,10 @@ class ActiveConversation extends React.Component {
 
         mediaRecorder.worker.onerror = (e) => {
             console.log(`MediaRecorder worker error: ${JSON.stringify(e)}`);
+        }
+
+        mediaRecorder.onerror = (e) => {
+            console.log(`MediaRecorder error: ${JSON.stringify(e)}`);
         }
 
         mediaRecorder.start();
