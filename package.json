@@ -18,8 +18,10 @@
     "react": "^16.13.1",
     "react-app-rewired": "^2.1.5",
     "react-bootstrap": "^1.0.1",
+    "react-chat-elements": "^10.9.2",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
+    "stream-chat-react": "^0.11.13",
     "uuid": "^7.0.3",
     "workerize-loader": "^1.1.0"
   },

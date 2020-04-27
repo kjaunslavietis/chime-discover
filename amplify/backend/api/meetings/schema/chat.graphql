@@ -5,6 +5,5 @@ type ChatMessage @model {
     senderName: String!
     mediaUrl: String
     mediaThumbnail: String
-    createdAt: AWSDate
-    updatedAt: AWSDate
+    createdAt: AWSDateTime
 }
