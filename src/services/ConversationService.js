@@ -58,12 +58,22 @@ class ConversationService {
     }
     async getAllConversations() {
       try {
-      const conversations = await API.graphql(graphqlOperation(listRooms));
-      return conversations.data.listRooms.items;
-      } catch(err) {
-        console.error(err);
-      }
+        let conversations = await API.graphql(graphqlOperation(listRooms));
+        let nextToken ;
+        let allConversations = []
+        do {
+            allConversations = allConversations.concat(conversations.data.listRooms.items)
+            nextToken = conversations.data.listRooms.nextToken;
+            console.log("==>nexttoke "+ nextToken)
+            conversations = await API.graphql(graphqlOperation(listRooms, {nextToken}));
+            
+        } while (nextToken)
+        return allConversations;
+        } catch (err) {
+            console.log("==>err:" + JSON.stringify(err))
+        }
     }
+
     async updateConversation(oldId, newMeetingId) {
       try{ 
         await API.graphql(graphqlOperation(updateRoom, 
@@ -78,9 +88,6 @@ class ConversationService {
     async createConversation(conversation) {
         console.log('creating convo');
         const newConversation = await API.graphql(graphqlOperation(createRoom,  {input: conversation}))
-        // .then(response => console.log('new convo : ${newConversation}'))
-        // .catch(error => console.log(error.message));;
-        
         console.log(newConversation);
         this.mockConvos.push(conversation);
     }
