@@ -6,9 +6,11 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import Checkbox from '@material-ui/core/Checkbox';
 import ConversationService from './../services/ConversationService';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 
-export default function FormDialog(props) {
+export default function CreateConversation(props) {
 	const { open, handleClose, handleCreate } = props;
 	const [name, setName] = useState("");
 	const [description, setDescription] = useState("");
@@ -16,6 +18,7 @@ export default function FormDialog(props) {
 	const [nameIsMissing, setNameIsMissing] = useState(false);
 	const [descriptionIsMissing, setDescriptionIsMissing] = useState(false);
 	const [categoryIsMissing, setCategoryIsMissing] = useState(false);
+	const [checked, setChecked] = useState(false);
 
 	const handleClickOnCreate = () => {
 		let error = false;
@@ -33,7 +36,7 @@ export default function FormDialog(props) {
 		}
 
 		if (!error) {
-			handleCreate(name, description, category);
+			handleCreate(name, description, category, checked);
 		}
 	}
 
@@ -51,6 +54,10 @@ export default function FormDialog(props) {
 		setCategoryIsMissing(false);
 		setCategory(e.target.value);
 	}
+
+	const handleCheck = (event) => {
+		setChecked(event.target.checked);
+	  };
 
 	return (
 		<Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
@@ -90,6 +97,19 @@ export default function FormDialog(props) {
 					onChange={onCategoryChange}
 					fullWidth
 				/>
+				<div style={{marginTop: "10px"}}>
+					<FormControlLabel
+						control={
+							<Checkbox
+								checked={checked}
+								onChange={handleCheck}
+								name="check"
+								color="primary"
+							/>
+						}
+						label="Check this to let us record this room and extract keywords"
+					/>
+				</div>
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={handleClose} color="primary">

@@ -50,7 +50,6 @@ export default function SearchCard(props) {
     const classes = useStyles();
     const { conversation, handleClickOnChip, handleJoinRoom } = props;
     const { name, description, category, keywords, meetingId, numberOfUsers, image } = conversation;
-    const { definedKeywords, extractedKeywords } = keywords;
 
     return (
         <Card className={classes.root}>
@@ -78,15 +77,7 @@ export default function SearchCard(props) {
                     variant="outlined"
                     size="small"
                 />
-                {definedKeywords.map((keyword) => (
-                    <Chip
-                        label={keyword}
-                        onClick={handleClickOnChip}
-                        variant="outlined"
-                        size="small"
-                    />
-                ))}
-                {extractedKeywords.map((keyword) => (
+                {keywords.map((keyword) => (
                     <Tooltip
                         title="This keyword has been extracted from the current conversation. Join now if you are interested!"
                         classes={{tooltip: classes.customWidth}}

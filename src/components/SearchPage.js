@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Grid from '@material-ui/core/Grid';
@@ -49,13 +49,20 @@ export default function SearchPage(props) {
     const classes = useStyles();
     const { conversations, handleJoinRoom } = props;
     const [displayedRooms, setDisplayedRooms] = useState([...Array(conversations.length).keys()]);
+    const [categories, setCategories] = useState([]);
+    const [scoreMap, setScoreMap] = useState(new Map());
 
-    const categories = conversations.map(room => room.category);
-    const scoreMap = extractWordsToScore(
-        conversations.map(room => room.name),
-        conversations.map(room => room.description),
-        categories,
-        conversations.map(room => room.keywords.join(" ")));    
+    useEffect(() => {
+        setDisplayedRooms([...Array(conversations.length).keys()]);
+        const cat = [...new Set(conversations.map(room => room.category))];
+        setCategories(cat);
+        setScoreMap(extractWordsToScore(
+            conversations.map(room => room.name),
+            conversations.map(room => room.description),
+            cat,
+            conversations.map(room => room.keywords.join(" "))));
+
+      }, [conversations]);  
 
     const onSearch = (ids) => {
         setDisplayedRooms(ids);

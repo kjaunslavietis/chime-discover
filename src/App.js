@@ -124,8 +124,8 @@ const App = () => {
       setCurrentConversation(conv);
     }
 
-    const onConversationCreated = (name, description, category) => {
-	  console.log(name + " " + description + " " + category);
+    const onConversationCreated = (name, description, category, acceptRecording) => {
+	  console.log(name + " " + description + " " + category + " " + acceptRecording);
 	  // we don't check for creation error, let's assume everything is always working :-)
 	  setCreateDialogOpen(false);
 	  // TODO : join the newly created room
