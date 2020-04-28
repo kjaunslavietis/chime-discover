@@ -1,6 +1,4 @@
 {
-    "identityPoolName": "chimediscoverb4fac449_identitypool_b4fac449",
-    "allowUnauthenticatedIdentities": true,
     "resourceNameTruncated": "chimedb4fac449",
     "userPoolName": "chimediscoverb4fac449_userpool_b4fac449",
     "autoVerifiedAttributes": [
@@ -12,7 +10,7 @@
     ],
     "smsAuthenticationMessage": "Your authentication code is {####}",
     "smsVerificationMessage": "Your verification code is {####}",
-    "emailVerificationSubject": "Your verification code",
+    "emailVerificationSubject": "Your password",
     "emailVerificationMessage": "Your verification code is {####}",
     "defaultPasswordPolicy": false,
     "passwordPolicyMinLength": 8,
@@ -21,7 +19,7 @@
         "email"
     ],
     "userpoolClientGenerateSecret": true,
-    "userpoolClientRefreshTokenValidity": 30,
+    "userpoolClientRefreshTokenValidity": "30",
     "userpoolClientWriteAttributes": [
         "email"
     ],
@@ -29,9 +27,9 @@
         "email"
     ],
     "userpoolClientLambdaRole": "chimedb4fac449_userpoolclient_lambda_role",
-    "userpoolClientSetAttributes": false,
+    "userpoolClientSetAttributes": true,
     "resourceName": "chimediscoverb4fac449",
-    "authSelections": "identityPoolAndUserPool",
+    "authSelections": "userPoolOnly",
     "authRoleArn": {
         "Fn::GetAtt": [
             "AuthRole",
@@ -44,12 +42,17 @@
             "Arn"
         ]
     },
-    "useDefault": "default",
+    "useDefault": "manual",
     "triggers": "{}",
-    "userPoolGroupList": [],
+    "userPoolGroupList": [
+        "users"
+    ],
     "parentStack": {
         "Ref": "AWS::StackId"
     },
     "permissions": [],
-    "dependsOn": []
+    "dependsOn": [],
+    "userPoolGroups": true,
+    "adminQueries": false,
+    "hostedUI": false
 }

@@ -2,14 +2,66 @@
 You can access the following resource attributes as environment variables from your Lambda function
 var environment = process.env.ENV
 var region = process.env.REGION
-var storageSampleTranscriptionsBucketName = process.env.STORAGE_SAMPLETRANSCRIPTIONS_BUCKETNAME
+var apiMeetingsGraphQLAPIIdOutput = process.env.API_MEETINGS_GRAPHQLAPIIDOUTPUT
+var apiMeetingsGraphQLAPIEndpointOutput = process.env.API_MEETINGS_GRAPHQLAPIENDPOINTOUTPUT
 
 Amplify Params - DO NOT EDIT */
+const https = require('https');
 const { v4: uuid } = require('uuid');
 const AWS = require('aws-sdk');
 const transcribeservice = new AWS.TranscribeService();
 const comprehend = new AWS.Comprehend();
 const s3 = new AWS.S3();
+
+const urlParse = require("url").URL;
+const appsyncUrl = process.env.API_MEETINGS_GRAPHQLAPIENDPOINTOUTPUT;
+const region = process.env.REGION;
+const endpoint = new urlParse(appsyncUrl).hostname.toString();
+const graphqlQuery = require('./query.js').mutation;
+const apiKey = process.env.API_KEY;
+
+async function updateRoom(id, keywords) {
+    const req = new AWS.HttpRequest(appsyncUrl, region);
+
+    const item = {
+        input: {
+            id: id,
+            keywords: keywords
+        }
+    };
+
+    req.method = "POST";
+    req.headers.host = endpoint;
+    req.headers["Content-Type"] = "application/json";
+    req.body = JSON.stringify({
+        query: graphqlQuery,
+        operationName: "updateRoom",
+        variables: item
+    });
+
+    if (apiKey) {
+        req.headers["x-api-key"] = apiKey;
+    } else {
+        const signer = new AWS.Signers.V4(req, "appsync", true);
+        signer.addAuthorization(AWS.config.credentials, AWS.util.date.getDate());
+    }
+
+    const data = await new Promise((resolve, reject) => {
+        const httpRequest = https.request({ ...req, host: endpoint }, (result) => {
+            result.on('data', (data) => {
+                resolve(JSON.parse(data.toString()));
+            });
+        });
+
+        httpRequest.write(req.body);
+        httpRequest.end();
+    });
+
+    return {
+        statusCode: 200,
+        body: data
+    };
+}
 
 exports.handler = async (event) => {
     console.log(JSON.stringify(event));
@@ -23,7 +75,7 @@ exports.handler = async (event) => {
                 Media: { /* required */
                   MediaFileUri: `s3://${record.s3.bucket.name}/${record.s3.object.key}`
                 },
-                TranscriptionJobName: `${fileName}-${uuid()}`,
+                TranscriptionJobName: `${fileName}:${uuid()}`,
                 OutputBucketName: record.s3.bucket.name,
                 Settings: {}
               };
@@ -67,6 +119,11 @@ exports.handler = async (event) => {
                 let topThreePhrases = sortedPhrases.slice(0, 3);
 
                 console.log(JSON.stringify(topThreePhrases));
+
+                let conversationId = record.s3.object.key.split(':')[0];
+                console.log(conversationId);
+
+                return await updateRoom(conversationId, topThreePhrases);
             }
         }
 

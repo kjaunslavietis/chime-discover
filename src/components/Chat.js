@@ -66,15 +66,14 @@ class Chat extends React.Component {
   render() {
     return (
       <div
-        className='container'>
+        className='chat-container'>
         <MessageList
-          lockable={true}
           className='message-list'
           lockable={true}
           toBottomHeight={'100%'}
           dataSource={this.state.messageList} />
         <Input
-          placeholder="write anything here"
+          placeholder="Write your message here"
           ref='inputRef'
           multiline={true}
           onChange={(e) => this.setState({ message: e.target.value })}

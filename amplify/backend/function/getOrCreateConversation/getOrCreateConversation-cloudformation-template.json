@@ -68,7 +68,7 @@
 				"Timeout": "25",
 				"Code": {
 					"S3Bucket": "amplify-chime-discover-dev-222529-deployment",
-					"S3Key": "amplify-builds/getOrCreateConversation-5451734e4449445a394f-build.zip"
+					"S3Key": "amplify-builds/getOrCreateConversation-52436d51462f4b785673-build.zip"
 				}
 			}
 		},

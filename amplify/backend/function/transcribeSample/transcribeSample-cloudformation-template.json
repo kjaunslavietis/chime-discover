@@ -13,6 +13,14 @@
 		"storagesampleTranscriptionsBucketName": {
 			"Type": "String",
 			"Default": "storagesampleTranscriptionsBucketName"
+		},
+		"apimeetingsGraphQLAPIIdOutput": {
+			"Type": "String",
+			"Default": "apimeetingsGraphQLAPIIdOutput"
+		},
+		"apimeetingsGraphQLAPIEndpointOutput": {
+			"Type": "String",
+			"Default": "apimeetingsGraphQLAPIEndpointOutput"
 		}
 	},
 	"Conditions": {
@@ -68,6 +76,12 @@
 						},
 						"STORAGE_SAMPLETRANSCRIPTIONS_BUCKETNAME": {
 							"Ref": "storagesampleTranscriptionsBucketName"
+						},
+						"API_MEETINGS_GRAPHQLAPIIDOUTPUT": {
+							"Ref": "apimeetingsGraphQLAPIIdOutput"
+						},
+						"API_MEETINGS_GRAPHQLAPIENDPOINTOUTPUT": {
+							"Ref": "apimeetingsGraphQLAPIEndpointOutput"
 						}
 					}
 				},
@@ -81,7 +95,7 @@
 				"Timeout": "25",
 				"Code": {
 					"S3Bucket": "amplify-chime-discover-dev-222529-deployment",
-					"S3Key": "amplify-builds/transcribeSample-53467a6776356954394d-build.zip"
+					"S3Key": "amplify-builds/transcribeSample-737a5231394d46757058-build.zip"
 				}
 			}
 		},
@@ -221,19 +235,30 @@
 						{
 							"Effect": "Allow",
 							"Action": [
-								"s3:PutObject",
-								"s3:GetObject",
-								"s3:ListBucket",
-								"s3:DeleteObject"
+								"appsync:Create*",
+								"appsync:StartSchemaCreation",
+								"appsync:GraphQL",
+								"appsync:Get*",
+								"appsync:List*",
+								"appsync:Update*",
+								"appsync:Delete*"
 							],
 							"Resource": [
 								{
 									"Fn::Join": [
 										"",
 										[
-											"arn:aws:s3:::",
+											"arn:aws:appsync:",
 											{
-												"Ref": "storagesampleTranscriptionsBucketName"
+												"Ref": "AWS::Region"
+											},
+											":",
+											{
+												"Ref": "AWS::AccountId"
+											},
+											":apis/",
+											{
+												"Ref": "apimeetingsGraphQLAPIIdOutput"
 											},
 											"/*"
 										]

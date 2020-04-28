@@ -23,13 +23,13 @@ class App extends React.Component {
     this.onConversationSelected = this.onConversationSelected.bind(this);
 
     this.conversationService = new ConversationService();
-
+    
     this.state = {
       conversations: [],
       selectedConversation: null,
       activeConversation: null,
       mainSlot: this.noConversationSelected(),
-      desiredMeetingId: '',
+      attendeesList: null,
     };
   }
   async componentWillMount(){
@@ -56,8 +56,11 @@ class App extends React.Component {
   joinConversation() {
     if(this.state.activeConversation) {
       this.setState({
-        //TODO remove desiredMeetingId when DB is ready
-        mainSlot: <ActiveConversation conversation={this.state.activeConversation} onConversationExited={this.onConversationExited}/>
+        mainSlot: 
+        <ActiveConversation 
+          attendeesList={this.state.attendeesList}
+          conversation={this.state.activeConversation} onConversationExited={this.onConversationExited}
+        />
       });
     }
   }
@@ -68,11 +71,6 @@ class App extends React.Component {
       activeConversation: null
     })
   }
-
-  updateId = (target, value) => {
-    this.setState({ [target]: value });
-    console.log('Passed meeting ID: ', this.state.desiredMeetingId);
-  };
   
   conversationInfo() {
     if(this.state.selectedConversation) {
@@ -81,7 +79,6 @@ class App extends React.Component {
         conversation={this.state.selectedConversation}
         onClose={() => this.setState({selectedConversation: null})}
         onJoin={() => this.setState({selectedConversation: null, activeConversation: this.state.selectedConversation}, () => this.joinConversation())}
-        updateId={this.updateId}
         />
     }
   }
@@ -104,7 +101,8 @@ class App extends React.Component {
 
   onConversationSelected(id) {
     this.setState({
-      selectedConversation: this.state.conversations[id]
+      selectedConversation: this.state.conversations[id],
+      attendeesList: this.conversationService.getAttendees(this.state.conversations[id].id)
     });
   }
 

@@ -1,9 +1,9 @@
 import React from 'react';
-import { Container, Button, Spinner, DropdownButton, Row, Col } from 'react-bootstrap';
+import { Container, Button, Spinner, Row, Col } from 'react-bootstrap';
 import { joinMeeting } from './../chime/handlers';
-import OutputDevices from './OutputDevices';
-import InputDevices from './InputDevices';
 import AudioControl from './AudioControl';
+import AttendeesList from './AttendeesList';
+
 import Chat from './Chat';
 
 
@@ -15,7 +15,6 @@ class ActiveConversation extends React.Component {
 
     constructor(props) {
         super(props);
-
         this.exitConversation = this.exitConversation.bind(this);
         this.enableAudio = this.enableAudio.bind(this);
         this.muteOrUnmute = this.muteOrUnmute.bind(this);
@@ -271,22 +270,39 @@ class ActiveConversation extends React.Component {
             this.chooseAudioDevice();
             return (
 
-                <Container fluid>
-                    <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
-                    <Row>
-                        <Chat
-                        roomId={this.props.conversation.id}
-                        />
+                <Container>
+                    <Row className='room-control'>
+                        <Col className='room-title' sm={8}>
+                            <h4>{`Joined meeting: ${this.props.conversation.name}`}</h4>
+                        </Col>
+                        <Col sm={2}>
+                            <AudioControl
+                                isMuted={this.state.isMuted} 
+                                isAudioEnabled={this.state.isAudioEnabled}
+                                enableAudio={this.enableAudio}
+                                muteOrUnmute={this.muteOrUnmute}
+                            />
+
+                        </Col>
+                        <Col sm={2}>
+                            <Button variant="danger" size="md" block onClick={this.exitConversation}>Exit conversation</Button>
+                            <audio id="meeting-audio" ></audio>
+                        </Col>
                     </Row>
-                    <Row>
-                        <AudioControl
-                            isMuted={this.state.isMuted} 
-                            isAudioEnabled={this.state.isAudioEnabled}
-                            enableAudio={this.enableAudio}
-                            muteOrUnmute={this.muteOrUnmute}
-                        />
-                        <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
-                        <audio id="meeting-audio" ></audio>
+                    <Row className="participants-number">
+                        <Col>
+                            <h5>{this.props.attendeesList.length} participants</h5>
+                        </Col>
+                    </Row>
+                    <Row className='chat-participants'>
+                        <Col className='chat-ui' sm={8}>
+                            <Chat
+                            roomId={this.props.conversation.id}
+                            />
+                        </Col>
+                        <Col className='participants-ui' sm={4}>
+                            <AttendeesList attendeesList={this.props.attendeesList}/>
+                        </Col>
                     </Row>
                 </Container>
             )

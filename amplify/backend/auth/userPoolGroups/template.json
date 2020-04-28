@@ -1,0 +1,55 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "authchimediscoverb4fac449UserPoolId": {
+            "Type": "String",
+            "Default": "authchimediscoverb4fac449UserPoolId"
+        },
+        
+        "authchimediscoverb4fac449AppClientID": {
+            "Type": "String",
+            "Default": "authchimediscoverb4fac449AppClientID"
+        },
+        "authchimediscoverb4fac449AppClientIDWeb": {
+            "Type": "String",
+            "Default": "authchimediscoverb4fac449AppClientIDWeb"
+        },
+        "AuthRoleArn": {
+            "Type": "String"
+        },
+        "UnauthRoleArn": {
+            "Type": "String"
+        },
+        "env": {
+            "Type": "String"
+        }
+    },
+    "Conditions": {
+        "ShouldNotCreateEnvResources": {
+            "Fn::Equals": [
+                {
+                    "Ref": "env"
+                },
+                "NONE"
+            ]
+        }
+    },
+    "Resources": {
+    
+        "usersGroup": {
+          "Type" : "AWS::Cognito::UserPoolGroup",
+          "Properties" : {
+              "GroupName" : "users",
+              "Precedence" : 1,
+              
+              "UserPoolId" : {
+                "Ref": "authchimediscoverb4fac449UserPoolId"
+              } 
+            }
+        },
+        
+    
+    
+    },
+    
+}
