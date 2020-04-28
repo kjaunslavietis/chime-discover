@@ -105,17 +105,18 @@ const App = () => {
   
       Hub.listen('auth', authListener);
     }
-    
-    useEffect(() => {
+
       async function loadConversations() {
-          let allConversations = await conversationService.getAllConversations();
-          allConversations = allConversations.map(conversation => {
-            let conversationWithAttendees = conversation;
-            conversationWithAttendees.attendees = attendeeService.getAttendeesForRoom(conversation.id);
-            return conversationWithAttendees;
-          });
-          setConversations(allConversations);
-      }
+        let allConversations = await conversationService.getAllConversations();
+        allConversations = allConversations.map(conversation => {
+          let conversationWithAttendees = conversation;
+          conversationWithAttendees.attendees = attendeeService.getAttendeesForRoom(conversation.id);
+          return conversationWithAttendees;
+        });
+        setConversations(allConversations);
+    }
+
+    useEffect(() => {
       if (isSignedIn) {
           loadConversations();
       }    
@@ -132,10 +133,18 @@ const App = () => {
     }
 
     const onConversationCreated = (name, description, category, acceptRecording) => {
-	  console.log(name + " " + description + " " + category + " " + acceptRecording);
-	  // we don't check for creation error, let's assume everything is always working :-)
-	  setCreateDialogOpen(false);
-	  // TODO : join the newly created room
+      console.log(name + " " + description + " " + category + " " + acceptRecording);
+      // we don't check for creation error, let's assume everything is always working :-)
+      setCreateDialogOpen(false);
+      conversationService.createConversation({
+        name: name,
+        description: description,
+        category: category,
+        canBeAnalyzed: acceptRecording,
+        meetingId: "",
+        keywords: []
+      }).then(() => loadConversations());
+      // TODO : join the newly created room
     }
 
     const handleClickOpen = () => {

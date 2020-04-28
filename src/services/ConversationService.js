@@ -86,10 +86,20 @@ class ConversationService {
       }
     }
     async createConversation(conversation) {
-        console.log('creating convo');
-        const newConversation = await API.graphql(graphqlOperation(createRoom,  {input: conversation}))
-        console.log(newConversation);
-        this.mockConvos.push(conversation);
+      try{ 
+        await API.graphql(graphqlOperation(createRoom, 
+          {input: {
+            name: conversation.name,
+            description: conversation.description,
+            canBeAnalyzed: conversation.canBeAnalyzed,
+            keywords: conversation.keywords,
+            category: conversation.category,
+            meetingID: "blank"
+          }}
+        ));
+      } catch(err) {
+        console.error(err);
+      }
     }
 }
 

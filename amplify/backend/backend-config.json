@@ -29,15 +29,21 @@
                 "authConfig": {
                     "additionalAuthenticationProviders": [
                         {
-                            "authenticationType": "API_KEY",
-                            "apiKeyConfig": {
-                                "description": "meetings",
-                                "apiKeyExpirationDays": "365"
+                            "authenticationType": "AMAZON_COGNITO_USER_POOLS",
+                            "userPoolConfig": {
+                                "userPoolId": "authchimediscoverb4fac449"
                             }
+                        },
+                        {
+                            "authenticationType": "AWS_IAM"
                         }
                     ],
                     "defaultAuthentication": {
-                        "authenticationType": "AWS_IAM"
+                        "authenticationType": "API_KEY",
+                        "apiKeyConfig": {
+                            "description": "meetings",
+                            "apiKeyExpirationDays": "365"
+                        }
                     }
                 }
             }

@@ -75,7 +75,7 @@ exports.handler = async (event) => {
                 Media: { /* required */
                   MediaFileUri: `s3://${record.s3.bucket.name}/${record.s3.object.key}`
                 },
-                TranscriptionJobName: `${fileName}:${uuid()}`,
+                TranscriptionJobName: `${fileName}_${uuid()}`,
                 OutputBucketName: record.s3.bucket.name,
                 Settings: {}
               };
@@ -120,7 +120,7 @@ exports.handler = async (event) => {
 
                 console.log(JSON.stringify(topThreePhrases));
 
-                let conversationId = record.s3.object.key.split(':')[0];
+                let conversationId = record.s3.object.key.split('_')[0];
                 console.log(conversationId);
 
                 updateRoom(conversationId, topThreePhrases);
