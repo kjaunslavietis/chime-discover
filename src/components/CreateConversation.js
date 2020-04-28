@@ -1,69 +1,104 @@
-import React from 'react';
-import { Form, Button } from 'react-bootstrap';
-import { createMeeting } from './../chime/handlers';
+import React, { useState } from 'react';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import ConversationService from './../services/ConversationService';
 
-class CreateConversation extends React.Component {
-    constructor(props) {
-        super(props);
+export default function FormDialog(props) {
+	const { open, handleClose, handleCreate } = props;
+	const [name, setName] = useState("");
+	const [description, setDescription] = useState("");
+	const [category, setCategory] = useState("");
+	const [nameIsMissing, setNameIsMissing] = useState(false);
+	const [descriptionIsMissing, setDescriptionIsMissing] = useState(false);
+	const [categoryIsMissing, setCategoryIsMissing] = useState(false);
 
-        this.conversationService = new ConversationService();
+	const handleClickOnCreate = () => {
+		let error = false;
+		if (!name.replace(/ /g,"")) {
+			setNameIsMissing(true);
+			error = true;
+		}
+		if (!description.replace(/ /g,"")) {
+			setDescriptionIsMissing(true);
+			error = true;
+		}
+		if (!category.replace(/ /g,"")) {
+			setCategoryIsMissing(true);
+			error = true;
+		}
 
-        this.state = {
-            newConversationTitle: "",
-            newConversationDescription: "",
-            newConversationCategory: ""
-        };
+		if (!error) {
+			handleCreate(name, description, category);
+		}
+	}
 
-        this.submitForm = this.submitForm.bind(this);
-    }
+	const onNameChange = (e) => {
+		setNameIsMissing(false);
+		setName(e.target.value);
+	}
 
-    async submitForm() {
-        let newConversation = {
-            name: this.state.newConversationName,
-            description: this.state.newConversationDescription,
-            category: this.state.newConversationCategory,
-            meetingID: this.createChimeMeeting(),
-            keywords: []
-        };
-        await this.writeConversation(newConversation);
-        //Add an overlay while meeting is creating
-        this.props.onConversationCreated(newConversation);
-    }
+	const onDescriptionChange = (e) => {
+		setDescriptionIsMissing(false);
+		setDescription(e.target.value);
+	}
 
-    createChimeMeeting() {
-        // call chime SDK to create meeting
-        // put an overlay while meeting creating
-        // createMeeting();
-        return 'soon-to-be-id'; //id will be updated when the first person joins;
-    }
+	const onCategoryChange = (e) => {
+		setCategoryIsMissing(false);
+		setCategory(e.target.value);
+	}
 
-
-    async writeConversation(newConversation) {
-        console.log(newConversation);
-        await this.conversationService.createConversation(newConversation);
-        // write conversation record to DynamoDB
-    }
-
-    render() {
-        return (
-            <Form>
-                <Form.Group>
-                    <Form.Label>Conversation Name</Form.Label>
-                    <Form.Control type="text" placeholder="Conversation Name" onChange={(e) => this.setState({newConversationName: e.target.value})}/>
-                    <br />
-                    <Form.Label>Conversation Description</Form.Label>
-                    <Form.Control type="text" placeholder="Conversation Description" onChange={(e) => this.setState({newConversationDescription: e.target.value})}/>
-                    <br />
-                    <Form.Label>Conversation Category</Form.Label>
-                    <Form.Control type="text" placeholder="Conversation Category" onChange={(e) => this.setState({newConversationCategory: e.target.value})}/>
-                </Form.Group>
-                <Button variant="primary" type="submit" onClick={this.submitForm}>
-                    Create
-                </Button>
-            </Form>
-        )
-    }
+	return (
+		<Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+			<DialogTitle id="form-dialog-title">Let's create a new room!</DialogTitle>
+			<DialogContent>
+				<DialogContentText>
+					To do so, you need to give us some info:
+            </DialogContentText>
+				<TextField
+					autoFocus
+					margin="dense"
+					id="name"
+					label="A cool name"
+					value={name}
+					error={nameIsMissing}
+					helperText={nameIsMissing ? "Name is missing" : ""}
+					onChange={onNameChange}
+					fullWidth
+				/>
+				<TextField
+					margin="dense"
+					id="description"
+					label="A description"
+					value={description}
+					error={descriptionIsMissing}
+					helperText={descriptionIsMissing ? "Description is missing" : ""}
+					onChange={onDescriptionChange}
+					fullWidth
+				/>
+				<TextField
+					margin="dense"
+					id="category"
+					label="A category"
+					value={category}
+					error={categoryIsMissing}
+					helperText={categoryIsMissing ? "Category is missing" : ""}
+					onChange={onCategoryChange}
+					fullWidth
+				/>
+			</DialogContent>
+			<DialogActions>
+				<Button onClick={handleClose} color="primary">
+					Cancel
+            </Button>
+				<Button onClick={handleClickOnCreate} color="primary">
+					Create Room
+            </Button>
+			</DialogActions>
+		</Dialog>
+	);
 }
-
-export default CreateConversation;

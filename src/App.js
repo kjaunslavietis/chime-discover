@@ -115,19 +115,20 @@ const App = () => {
     }, [isSignedIn]);
 
     const handleClickOnCard = (conv) => {
-      console.log(conv);
       setIsCurrentPageSearch(false);
       setCurrentConversation(conv);
     };
 
     const handleJoinRoomOnSearch = (conv) => {
-      console.log(conv);
       setIsCurrentPageSearch(false);
       setCurrentConversation(conv);
     }
 
-    const onConversationCreated = (e) => {
-      console.log(e);
+    const onConversationCreated = (name, description, category) => {
+	  console.log(name + " " + description + " " + category);
+	  // we don't check for creation error, let's assume everything is always working :-)
+	  setCreateDialogOpen(false);
+	  // TODO : join the newly created room
     }
 
     const handleClickOpen = () => {
@@ -184,14 +185,7 @@ const App = () => {
             </Paper>
           </Container>
         </div>
-        <Dialog
-          open={createDialogOpen}
-          onClose={handleClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <CreateConversation onConversationCreated={onConversationCreated} />
-          </Dialog>
+          <CreateConversation handleCreate={onConversationCreated} open={createDialogOpen} handleClose={handleClose} />
       </React.Fragment>
     );
 }
