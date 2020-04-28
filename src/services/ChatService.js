@@ -9,7 +9,7 @@ import { API, graphqlOperation } from 'aws-amplify'
 const { v4: uuid } = require('uuid');
 
 class ChatService {
-    constructor(subsriptionCallBack, conversationId) {
+    constructor(subsriptionCallBack, conversationId, senderName) {
         this.mockMessages = {
             0: [
                 {
@@ -44,13 +44,16 @@ class ChatService {
                 },
             ]
         }
+        this.conversationId = conversationId;
+        this.senderName = senderName;
         this.subsriptionCallBack = subsriptionCallBack;
         const subscription = API.graphql(
             graphqlOperation(onCreateChatMessage)
         ).subscribe({
             next: (chatMessage) => {
                 console.log("==> chat messages" + JSON.stringify(chatMessage))
-                if (chatMessage.value.data.onCreateChatMessage.roomID !== conversationId)
+                if (chatMessage.value.data.onCreateChatMessage.roomID === this.conversationId &&
+                    chatMessage.value.data.onCreateChatMessage.senderName !== this.senderName)
                     subsriptionCallBack(chatMessage.value.data.onCreateChatMessage)
             },
             error: (error) => {
@@ -59,7 +62,7 @@ class ChatService {
         });
     }
 
-    async getMessagesForConversation(conversationId) {
+    async getMessagesForConversation() {
         try {
         let messages = await API.graphql(graphqlOperation(listChatMessages));
         let nextToken ;
@@ -71,10 +74,20 @@ class ChatService {
             messages = await API.graphql(graphqlOperation(listChatMessages, {nextToken}));
             
         } while (nextToken)
-        return allMessages;
+        return this.filterAndSort(allMessages);
         } catch (err) {
             console.log("==>err:" + JSON.stringify(err))
+            return []
         }
+    }
+
+    filterAndSort(allMessages) {
+        const filteredAndSortedMessages = allMessages.filter(element => element.roomID === this.conversationId).sort((a,b) => {
+            var dateA = new Date(a.createdAt), dateB = new Date(b.createdAt);
+            return dateA - dateB
+        })
+        console.log("==>filtered" + JSON.stringify(filteredAndSortedMessages))
+        return filteredAndSortedMessages
     }
 
     async createMessage(message) {

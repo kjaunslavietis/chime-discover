@@ -5,6 +5,7 @@ import './Chat.css'
 import ChatService from './../services/ChatService'
 
 const CHAT_ROOM_ID = "FAKE-34567654" // should be passed as prop
+const USER_NAME_AS_ID = "Wilson" // should be passed as prop
 
 class Chat extends React.Component {
   constructor(props) {
@@ -14,13 +15,13 @@ class Chat extends React.Component {
       messageList: [],
     };
     this.onNewMessageCreated = this.onNewMessageCreated.bind(this);
-    this.chatService = new ChatService(this.onNewMessageCreated, CHAT_ROOM_ID);
+    this.chatService = new ChatService(this.onNewMessageCreated, CHAT_ROOM_ID, USER_NAME_AS_ID);
     this.composeMessage = this.composeMessage.bind(this)
     
   }
 
   componentWillMount() {
-    this.chatService.getMessagesForConversation(0).then(chatMessages => {
+    this.chatService.getMessagesForConversation().then(chatMessages => {
       this.appendMessagesToChat(chatMessages)
     })
   }
@@ -37,8 +38,8 @@ class Chat extends React.Component {
       list.push
         (
           {
-            position: element.position ? element.position : "left",
-            title: element.senderName,
+            position:  element.senderName===USER_NAME_AS_ID ? "right" : "left",
+            title: element.senderName===USER_NAME_AS_ID ? "You" : element.senderName,
             date: new Date(element.createdAt),
             text: element.content
           }
@@ -52,12 +53,13 @@ class Chat extends React.Component {
     if (!this.state.message) {
       return
     }
-    const newMessage = { position: 'right', senderName: "You", createdAt: new Date(), content: this.state.message }
+    const newMessage =  {roomID: CHAT_ROOM_ID, senderName: USER_NAME_AS_ID, content: this.state.message}
     this.appendMessagesToChat([newMessage])
-    this.chatService.createMessage({roomID: CHAT_ROOM_ID, senderName: "John Doe", content: this.state.message})
+    this.chatService.createMessage({roomID: CHAT_ROOM_ID, senderName: USER_NAME_AS_ID, content: this.state.message})
     this.setState({
       message: ""
     });
+    this.refs.inputRef.clear()
   }
 
   render() {
@@ -81,7 +83,7 @@ class Chat extends React.Component {
             }
             if (e.charCode === 13) {
               this.composeMessage();
-              this.refs.inputRef.clear();
+              //this.refs.inputRef.clear();
               e.preventDefault();
               return false;
             }
