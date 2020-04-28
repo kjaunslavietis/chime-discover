@@ -3,9 +3,9 @@ import React from 'react';
 import 'react-chat-elements/dist/main.css'
 import './Chat.css'
 import ChatService from './../services/ChatService'
+import ScrollToBottom from 'react-scroll-to-bottom';
+import { JS } from 'aws-amplify';
 
-const CHAT_ROOM_ID = "FAKE-34567654" // should be passed as prop
-const USER_NAME_AS_ID = "Wilson" // should be passed as prop
 
 class Chat extends React.Component {
   constructor(props) {
@@ -14,88 +14,99 @@ class Chat extends React.Component {
       message: "",
       messageList: [],
     };
-    this.onNewMessageCreated = this.onNewMessageCreated.bind(this);
-    this.chatService = new ChatService(this.onNewMessageCreated, CHAT_ROOM_ID, USER_NAME_AS_ID);
-    this.composeMessage = this.composeMessage.bind(this)
     
+    this.onNewMessageCreated = this.onNewMessageCreated.bind(this);
+    this.chatService = new ChatService(this.onNewMessageCreated, this.props.roomID, this.props.userName);
+    this.composeMessage = this.composeMessage.bind(this)
   }
-
-  componentWillMount() {
-    this.chatService.getMessagesForConversation().then(chatMessages => {
-      this.appendMessagesToChat(chatMessages)
-    })
-  }
-
-  onNewMessageCreated(chatMessage) {
-    console.log("==> update from component" + JSON.stringify(chatMessage))
-    this.appendMessagesToChat([chatMessage])
   
+componentDidMount() {
+  this.timer = setInterval(() => {this.setState({});console.log("update chat messages time every min")},60*1000)
 }
 
-  appendMessagesToChat(newMessages) {
-    var list = this.state.messageList;
-    newMessages.forEach(element => {
-      list.push
-        (
-          {
-            position:  element.senderName===USER_NAME_AS_ID ? "right" : "left",
-            title: element.senderName===USER_NAME_AS_ID ? "You" : element.senderName,
-            date: new Date(element.createdAt),
-            text: element.content
+componentWillMount() {
+  this.chatService.getMessagesForConversation().then(chatMessages => {
+    this.appendMessagesToChat(chatMessages)
+  })
+}
+
+componentWillUnmount() {
+  clearInterval(this.timer)
+}
+
+
+onNewMessageCreated(chatMessage) {
+  this.appendMessagesToChat([chatMessage])
+
+}
+
+appendMessagesToChat(newMessages) {
+  var list = this.state.messageList;
+  newMessages.forEach(element => {
+    list.push
+      (
+        {
+          position: element.senderName === this.props.userName ? "right" : "left",
+          title: element.senderName === this.props.userName ? "You" : element.senderName,
+          date: element.createdAt ? new Date(element.createdAt) : new Date(),
+          text: element.content
+        }
+      )
+  }
+  );
+  this.setState({ messageList: list });
+}
+
+composeMessage() {
+  if (!this.state.message) {
+    return
+  }
+  const newMessage = { roomID: this.props.roomID, senderName: this.props.userName, content: this.state.message }
+  this.appendMessagesToChat([newMessage])
+  this.chatService.createMessage(newMessage)
+  this.setState({
+    message: ""
+  });
+  this.refs.inputRef.clear()
+}
+
+render() {
+  return (
+    <div
+      className='container'>
+      <ScrollToBottom className = "message-list-container">
+      <MessageList
+        id="messageListElementID"
+        //ref = {this.messageListElement}
+        lockable={true}
+        className='message-list'
+        toBottomHeight={0}
+        dataSource={this.state.messageList} />
+        </ScrollToBottom>
+      <Input
+        placeholder="write anything here"
+        ref='inputRef'
+        multiline={true}
+        onChange={(e) => this.setState({ message: e.target.value })}
+        onKeyPress={(e) => {
+          if (e.shiftKey && e.charCode === 13) {
+            return true;
           }
-        )
-    }
-    );
-    this.setState({ messageList: list });
-  }
-
-  composeMessage() {
-    if (!this.state.message) {
-      return
-    }
-    const newMessage =  {roomID: CHAT_ROOM_ID, senderName: USER_NAME_AS_ID, content: this.state.message}
-    this.appendMessagesToChat([newMessage])
-    this.chatService.createMessage({roomID: CHAT_ROOM_ID, senderName: USER_NAME_AS_ID, content: this.state.message})
-    this.setState({
-      message: ""
-    });
-    this.refs.inputRef.clear()
-  }
-
-  render() {
-    return (
-      <div
-        className='container'>
-        <MessageList
-          lockable={true}
-          className='message-list'
-          lockable={true}
-          toBottomHeight={'100%'}
-          dataSource={this.state.messageList} />
-        <Input
-          placeholder="write anything here"
-          ref='inputRef'
-          multiline={true}
-          onChange={(e) => this.setState({ message: e.target.value })}
-          onKeyPress={(e) => {
-            if (e.shiftKey && e.charCode === 13) {
-              return true;
-            }
-            if (e.charCode === 13) {
-              this.composeMessage();
-              //this.refs.inputRef.clear();
-              e.preventDefault();
-              return false;
-            }
-          }}
-          rightButtons={
-            <Button
-              text='SEND'
-              onClick={this.composeMessage} />
-          } />
-      </div>
-    )
-  }
+          if (e.charCode === 13) {
+            this.composeMessage();
+            //this.refs.inputRef.clear();
+            e.preventDefault();
+            return false;
+          }
+        }}
+        rightButtons={
+          <Button
+            text='SEND'
+            onClick={this.composeMessage} />
+        } />    
+    </div>
+  )
+}
 }
 
 export default Chat;

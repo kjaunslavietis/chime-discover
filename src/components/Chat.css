@@ -34,9 +34,14 @@ button {
 }
 
 .message-list {
-    flex: 1;
     min-width: 140px;
+    overflow: visible; 
+}
+
+.message-list-container {
+    flex: 1;
     overflow: auto;
+    padding: 100;
 }
 
 .input-area {

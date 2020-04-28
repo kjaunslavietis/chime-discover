@@ -51,13 +51,12 @@ class ChatService {
             graphqlOperation(onCreateChatMessage)
         ).subscribe({
             next: (chatMessage) => {
-                console.log("==> chat messages" + JSON.stringify(chatMessage))
                 if (chatMessage.value.data.onCreateChatMessage.roomID === this.conversationId &&
                     chatMessage.value.data.onCreateChatMessage.senderName !== this.senderName)
                     subsriptionCallBack(chatMessage.value.data.onCreateChatMessage)
             },
             error: (error) => {
-                console.log(error)
+                console.log("==>err:" + JSON.stringify(error))
             }
         });
     }
@@ -70,7 +69,6 @@ class ChatService {
         do {
             allMessages = allMessages.concat(messages.data.listChatMessages.items)
             nextToken = messages.data.listChatMessages.nextToken;
-            console.log("==>nexttoke "+ nextToken)
             messages = await API.graphql(graphqlOperation(listChatMessages, {nextToken}));
             
         } while (nextToken)
@@ -86,7 +84,6 @@ class ChatService {
             var dateA = new Date(a.createdAt), dateB = new Date(b.createdAt);
             return dateA - dateB
         })
-        console.log("==>filtered" + JSON.stringify(filteredAndSortedMessages))
         return filteredAndSortedMessages
     }
 

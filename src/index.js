@@ -10,7 +10,8 @@ Amplify.configure(awsExports);
 
 ReactDOM.render(
   <React.StrictMode>
-    <Chat />
+    
+    <Chat userName = "Wilson" roomID = "FAKE-34567654"/>
   </React.StrictMode>,
   document.getElementById('root')
 );
