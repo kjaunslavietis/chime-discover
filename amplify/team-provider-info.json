@@ -54,8 +54,7 @@
         "categories": {
             "function": {
                 "getOrCreateConversation": {},
-                "transcribeSample": {},
-                "extractKeywords": {}
+                "transcribeSample": {}
             },
             "auth": {
                 "chimediscoverb4fac449": {}

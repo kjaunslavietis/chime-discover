@@ -18,7 +18,6 @@ class MeetingInfoModal extends React.Component {
                 <Modal.Title>{conversationName}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <input type="text" name="desiredMeetingId" onChange={e => this.props.updateId('desiredMeetingId', e.target.value)} />
                     <p>
                         <strong>Conversation description:</strong> {conversationDescription}
                     </p>
@@ -29,9 +28,6 @@ class MeetingInfoModal extends React.Component {
                 <Modal.Footer>
                 <Button variant="secondary" onClick={this.props.onClose}>
                     Close
-                </Button>
-                <Button variant="secondary" onClick={this.props.updateId}>
-                    Pass meeting ID
                 </Button>
                 <Button variant="primary" size="lg" onClick={this.props.onJoin}>
                     Join Conversation
