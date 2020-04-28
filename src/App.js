@@ -145,7 +145,7 @@ const App = () => {
           <AppBar position="static" color="transparent" style={{ background: 'rgba(136, 138, 143, 0.15)' }}>
             <Toolbar>
               <IconButton edge="start" color="inherit" aria-label="menu">
-                <img src="https://framapic.org/cddKfQa7ertU/UodmdFuda7u2.png" />
+                <img src={`${process.env.PUBLIC_URL}/logo-removebg-preview(1).png`} />
               </IconButton>
               <Typography variant="h6" color="inherit" className={classes.title}>
                 Chime Discover
