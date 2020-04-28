@@ -146,7 +146,7 @@ export default function RoomCard(props) {
                 <CardActions disableSpacing className={classes.cardActions}>
                     <div className={classes.nbUsers}>
                         <PersonIcon className={classes.personIcon} />
-                        <Typography>{conversation.numberOfUsers} online</Typography>
+                        <Typography>{conversation.attendees.length} online</Typography>
                     </div>
                     {audioActivated ? <MicIcon /> : null}
                 </CardActions>
