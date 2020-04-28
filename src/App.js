@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import SearchIcon from '@material-ui/icons/Search';
@@ -8,11 +8,11 @@ import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import Container from '@material-ui/core/Container';
+import Dialog from '@material-ui/core/Dialog';
 
 import RoomCard from './components/RoomCard';
 import CreateConversation from './components/CreateConversation';
 import ActiveConversation from './components/ActiveConversation';
-import MeetingInfoModal from './components/MeetingInfoModal';
 
 import ConversationService from './services/ConversationService';
 import SearchPage from './components/SearchPage';
@@ -59,21 +59,43 @@ const useStyles = makeStyles((theme) => ({
 
 export default function App() {
 	const classes = useStyles();
-    const [currentPage, setCurrentPage] = React.useState("search");
+	const [isCurrentPageSearch, setIsCurrentPageSearch] = useState(true);
+	const [createDialogOpen, setCreateDialogOpen] = useState(false);
+	const [currentConversation, setCurrentConversation] = useState(null);
+	/*const [conversations, setConversations] = useState([]);
 
-	const handleClickOnCard = (e) => {
-		console.log(e);
-		setCurrentPage(e.meetingId);
+	useEffect(() => {
+		async function loadConversations() {
+			const conversationService = new ConversationService();
+			const allConversations = await conversationService.getAllConversations();
+			setConversations(allConversations);
+		}
+		loadConversations();
+	}, []);*/
+
+	const handleClickOnCard = (conv) => {
+		console.log(conv);
+		setIsCurrentPageSearch(false);
+		setCurrentConversation(conv);
 	};
 
-	const handleClickOnCreate = (e) => {
-		alert("Creating room");
+	const handleJoinRoomOnSearch = (conv) => {
+		console.log(conv);
+		setIsCurrentPageSearch(false);
+		setCurrentConversation(conv);
 	}
 
-	const handleJoinRoomOnSearch = (e) => {
+	const onConversationCreated = (e) => {
 		console.log(e);
-		setCurrentPage(e.meetingId);
 	}
+
+	const handleClickOpen = () => {
+		setCreateDialogOpen(true);
+	};
+	
+	const handleClose = () => {
+		setCreateDialogOpen(false);
+	};
 
 	return (
 		<React.Fragment>
@@ -86,7 +108,7 @@ export default function App() {
 						<Typography variant="h6" color="inherit" className={classes.title}>
 							Chime Discover
           				</Typography>
-						<Button color="inherit" onClick={handleClickOnCreate}>Create a new Conversation</Button>
+						<Button color="inherit" onClick={handleClickOpen}>Create a new Conversation</Button>
 					</Toolbar>
 				</AppBar>
 			</div>
@@ -98,38 +120,57 @@ export default function App() {
 						size="large"
 						className={classes.searchButton}
 						startIcon={<SearchIcon />}
-						onClick={() => setCurrentPage("search")}
+						onClick={() => setIsCurrentPageSearch(true)}
 					>
 						Find new Rooms
       				</Button>
-					{rooms.map((room) => (
+					{conversations.map((conversation) => (
 						<RoomCard 
-							room={room}
-							focus={room.meetingId === currentPage}
-							audioActivated={room.meetingId === currentPage}
+							conversation={conversation}
+							focus={currentConversation && conversation.meetingID === currentConversation.meetingID}
+							audioActivated={currentConversation && conversation.meetingID === currentConversation.meetingID}
 							handleClickOnCard={handleClickOnCard}
 						/>
 					))}
 				</div>
 				<Container maxWidth="xl">
 					<Paper>
-						{currentPage === "search" ? 
-							<SearchPage rooms={rooms} handleJoinRoom={handleJoinRoomOnSearch} />
-							: <Typography>Joining {currentPage}</Typography>
+						{isCurrentPageSearch? 
+							<SearchPage conversations={conversations} handleJoinRoom={handleJoinRoomOnSearch} />
+							: <ActiveConversation conversation={currentConversation} onConversationExited={undefined} />
 						}
 					</Paper>
 				</Container>
 			</div>
+			<Dialog
+				open={createDialogOpen}
+				onClose={handleClose}
+				aria-labelledby="alert-dialog-title"
+				aria-describedby="alert-dialog-description"
+			>
+				<CreateConversation onConversationCreated={onConversationCreated} />
+	  		</Dialog>
 		</React.Fragment>
 	);
 }
 
-const rooms = [
+const mockConversations = [
+	{
+		id: "40d648e3-999a-4967-9ca9-ebb82ea6f958",
+		meetingID: "a7c059f3-7795-4080-8428-7e0a70613ed2",
+		name: "tet",
+		description: "tet",
+		category: "tet",
+		keywords: []
+	}
+];
+
+const conversations = [
     {
         name: "World War II",
-        description: "This room is dedicated to discuss the Second World War.",
+        description: "This room is dedicated to discuss the Second World War",
         category: "History",
-        meetingId: "532",
+        meetingID: "a7c059f3-7795-4080-8428-7e0a70613ed2",
         numberOfUsers: 3,
         keywords: {
             definedKeywords: ["supernatural", "world war two"],
@@ -140,7 +181,7 @@ const rooms = [
         name: "World War III",
         description: "I know not with what weapons World War III will be fought, but World War IV will be fought with sticks and stones.",
         category: "Futurology",
-        meetingId: "533",
+        meetingID: "a7c059f3-7795-4080-8428-7e0a70613ed2",
         numberOfUsers: 6,
         keywords: {
             definedKeywords: ["Science", "History", "Apocalypse"],
@@ -151,7 +192,7 @@ const rooms = [
         name: "Astronomy room",
         description: "Yeah science!",
         category: "Science",
-        meetingId: "534",
+        meetingID: "a7c059f3-7795-4080-8428-7e0a70613ed2",
         numberOfUsers: 10,
         keywords: {
             definedKeywords: ["Theory", "Futurology"],

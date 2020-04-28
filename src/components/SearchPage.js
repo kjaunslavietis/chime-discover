@@ -47,15 +47,15 @@ function extractWordsToScore(names, descriptions, categories, keywords) {
 
 export default function SearchPage(props) {
     const classes = useStyles();
-    const { rooms, handleJoinRoom } = props;
-    const [displayedRooms, setDisplayedRooms] = useState([...Array(rooms.length).keys()]);
+    const { conversations, handleJoinRoom } = props;
+    const [displayedRooms, setDisplayedRooms] = useState([...Array(conversations.length).keys()]);
 
-    const categories = rooms.map(room => room.category);
+    const categories = conversations.map(room => room.category);
     const scoreMap = extractWordsToScore(
-        rooms.map(room => room.name),
-        rooms.map(room => room.description),
+        conversations.map(room => room.name),
+        conversations.map(room => room.description),
         categories,
-        rooms.map(room => room.keywords.definedKeywords.concat(room.keywords.extractedKeywords).join(" ")));    
+        conversations.map(room => room.keywords.definedKeywords.concat(room.keywords.extractedKeywords).join(" ")));    
 
     const onSearch = (ids) => {
         setDisplayedRooms(ids);
@@ -78,15 +78,15 @@ export default function SearchPage(props) {
                                 categories={categories}
                                 onSearch={onSearch}
                                 scoreMap={scoreMap}
-                                nbRooms={rooms.length}
+                                nbRooms={conversations.length}
                             />
                         </div>
                     </Container>
                 </div>
                 <Container className={classes.cardGrid} maxWidth="md">
                     <Grid container spacing={4}>
-                        {rooms.filter((room, index) => displayedRooms.includes(index)).map((room) => (
-                            <Grid item key={room.meetingId} xs={12} sm={6} md={4}>
+                        {conversations.filter((room, index) => displayedRooms.includes(index)).map((room) => (
+                            <Grid item key={room.meetingID} xs={12} sm={6} md={4}>
                                 <SearchCard conversation={room} handleClickOnChip={handleClickOnChip} handleJoinRoom={() => handleJoinRoom(room)} />
                             </Grid>
                         ))}
