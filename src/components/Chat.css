@@ -22,7 +22,7 @@
     height: 60vh;
     min-height: 370px; 
 }
-/* .message-list {
+.message-list {
     min-width: 140px;
     overflow: visible; 
 }
@@ -32,8 +32,3 @@
     overflow: auto;
     padding: 100;
 }
-
-.input-area {
-    height: 50px;
-    background: red;
-} */

@@ -297,7 +297,7 @@ class ActiveConversation extends React.Component {
                     <Row className='chat-participants'>
                         <Col className='chat-ui' sm={8}>
                             <Chat
-                            roomId={this.props.conversation.id}
+                            userName = "Wilson" roomID = {this.props.conversation.id}
                             />
                         </Col>
                         <Col className='participants-ui' sm={4}>
