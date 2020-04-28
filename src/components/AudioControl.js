@@ -10,20 +10,20 @@ class AudioControl extends React.Component {
 
     enableAudioButton() {
         return (
-            <Button variant="secondary" size="lg" block onClick={this.props.enableAudio}>Enable Audio</Button>
+            <Button variant="secondary" size="md" block onClick={this.props.enableAudio}>Enable Audio</Button>
         )
     }
 
     unmuteButton() {
         return (
-            <Button variant="secondary" size="sm" block onClick={this.props.muteOrUnmute}>Unmute</Button>
+            <Button variant="secondary" size="md" block onClick={this.props.muteOrUnmute}>Unmute</Button>
         )
         
     }
 
     muteButton() {
         return (
-            <Button variant="primary" size="sm" block onClick={this.props.muteOrUnmute}>Mute</Button>
+            <Button variant="primary" size="md" block onClick={this.props.muteOrUnmute}>Mute</Button>
         );
     }
 

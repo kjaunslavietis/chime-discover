@@ -180,7 +180,11 @@ const App = () => {
             <Paper>
               {isCurrentPageSearch? 
                 <SearchPage conversations={conversations} handleJoinRoom={handleJoinRoomOnSearch} />
-                : <ActiveConversation conversation={currentConversation} onConversationExited={undefined} />
+                : 
+                <ActiveConversation 
+                attendeesList={conversationService.getAttendees(currentConversation.id)} 
+                conversation={currentConversation}
+                onConversationExited={undefined} />
               }
             </Paper>
           </Container>

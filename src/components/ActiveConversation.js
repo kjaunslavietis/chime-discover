@@ -1,9 +1,9 @@
 import React from 'react';
-import { Container, Button, Spinner, DropdownButton, Row, Col } from 'react-bootstrap';
+import { Container, Button, Spinner, Row, Col } from 'react-bootstrap';
 import { joinMeeting } from './../chime/handlers';
-import OutputDevices from './OutputDevices';
-import InputDevices from './InputDevices';
 import AudioControl from './AudioControl';
+import AttendeesList from './AttendeesList';
+
 import Chat from './Chat';
 
 
@@ -15,7 +15,6 @@ class ActiveConversation extends React.Component {
 
     constructor(props) {
         super(props);
-
         this.exitConversation = this.exitConversation.bind(this);
         this.pushMeetingRecording = this.pushMeetingRecording.bind(this);
         this.enableAudio = this.enableAudio.bind(this);
@@ -41,7 +40,10 @@ class ActiveConversation extends React.Component {
         if(this.mediaRecorder) {
             this.mediaRecorder.onstop = {};
             this.mediaRecorder.audioContext.close();
-            this.mediaRecorder.stop();
+            this.mediaRecorder.stop();    
+        }
+        if(this.state.isAudioEnabled){
+            this.meetingSession.audioVideo.stop();
         }
         this.leaveChimeMeeting();
     }
@@ -51,7 +53,8 @@ class ActiveConversation extends React.Component {
             isMeetingLoading: true
         })
         // call getOrCreateMeeting lambda (or service), get the necessary parameters, use chime SDK to connect to meeting, finally set isMeetingLoading: false
-        console.log(this.props.conversation.meetingID);
+        console.log("MEETING ID: ", this.props.conversation.meetingID);
+        console.log("ROOM ID: ", this.props.conversation.id);
         //TODO take desiredMeetingId from activeConversation after DB is ready
         this.meetingSession = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID);
         await new Promise(r => setTimeout(r, 2000));
@@ -65,7 +68,6 @@ class ActiveConversation extends React.Component {
     }
 
     exitConversation() {
-        this.meetingSession.audioVideo.stop();
         this.state.onConversationExited();
     }
 
@@ -80,17 +82,21 @@ class ActiveConversation extends React.Component {
 
     async listAudioDevices() {
         try {
-            console.log(this.meetingSession);
             const audioInputDevices = await this.meetingSession.audioVideo.listAudioInputDevices();
             const audioOutputDevices = await this.meetingSession.audioVideo.listAudioOutputDevices();
 
             // An array of MediaDeviceInfo objects
+            // Might be needed to change the device
+
+            /*
             audioInputDevices.forEach(mediaDeviceInfo => {
             console.log(`Device ID: ${mediaDeviceInfo.deviceId} Microphone: ${mediaDeviceInfo.label}`);
             });
             audioOutputDevices.forEach(mediaDeviceInfo => {
                 console.log(`Device ID: ${mediaDeviceInfo.deviceId} Microphone: ${mediaDeviceInfo.label}`);
             });
+            */
+            
             const devices = {
                 input: audioInputDevices,
                 output: audioOutputDevices
@@ -267,28 +273,48 @@ class ActiveConversation extends React.Component {
     }
 
     render() {
+        //TODO change to the user name later
+        let randomUser = Math.random().toString(36).substring(7);
         if(this.state.isMeetingLoading) {
             return this.loadingScreen();
         } else {
             this.chooseAudioDevice();
             return (
 
-                <Container fluid>
-                    <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
-                    <Row>
-                        <Chat
-                        roomId={this.props.conversation.id}
-                        />
+                <Container>
+                    <Row className='room-control'>
+                        <Col className='room-title' sm={8}>
+                            <h4>{`Joined meeting: ${this.props.conversation.name}`}</h4>
+                        </Col>
+                        <Col sm={2}>
+                            <AudioControl
+                                isMuted={this.state.isMuted} 
+                                isAudioEnabled={this.state.isAudioEnabled}
+                                enableAudio={this.enableAudio}
+                                muteOrUnmute={this.muteOrUnmute}
+                            />
+
+                        </Col>
+                        <Col sm={2}>
+                            <Button variant="danger" size="md" block onClick={this.exitConversation}>Leave</Button>
+                            <audio id="meeting-audio" ></audio>
+                        </Col>
                     </Row>
-                    <Row>
-                        <AudioControl
-                            isMuted={this.state.isMuted} 
-                            isAudioEnabled={this.state.isAudioEnabled}
-                            enableAudio={this.enableAudio}
-                            muteOrUnmute={this.muteOrUnmute}
-                        />
-                        <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
-                        <audio id="meeting-audio" ></audio>
+                    <Row className="participants-number">
+                        <Col>
+                            <h5>{this.props.attendeesList.length} participants</h5>
+                        </Col>
+                    </Row>
+                    <Row className='chat-participants'>
+                        <Col className='chat-ui' sm={8}>
+                            <Chat
+                            userName = {randomUser}
+                            roomID = {this.props.conversation.id}
+                            />
+                        </Col>
+                        <Col className='participants-ui' sm={4}>
+                            <AttendeesList attendeesList={this.props.attendeesList}/>
+                        </Col>
                     </Row>
                 </Container>
             )

@@ -28,7 +28,6 @@ export async function joinMeeting(oldId, desiredMeetingId) {
       let conversationService = new ConversationService();
       console.log(desiredMeetingId);
       let meetingAndAttendeeInfo = await API.graphql(graphqlOperation(getOrCreateMeeting, {meetingId: desiredMeetingId}));
-      console.log(JSON.stringify(meetingAndAttendeeInfo));
       const meetingResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.meeting;
       const attendeeResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.attendee;
       if(desiredMeetingId != meetingResponse.MeetingId) {
@@ -37,14 +36,12 @@ export async function joinMeeting(oldId, desiredMeetingId) {
       }
       console.log(attendeeResponse);
       console.log(meetingResponse);
-      console.log("Was created:", isCreated);
+      console.log("New meeting was created:", isCreated);
       
       const logger = new ConsoleLogger('SDK', LogLevel.INFO);
       const deviceController = new DefaultDeviceController(logger);
-      console.log(deviceController);
       // You need responses from server-side Chime API. See below for details.
       const configuration = new MeetingSessionConfiguration(meetingResponse, attendeeResponse);
-      console.log(configuration);
 
       // In the usage examples below, you will use this meetingSession object.
       const meetingSession = new DefaultMeetingSession(

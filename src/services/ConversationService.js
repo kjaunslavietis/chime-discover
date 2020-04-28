@@ -45,8 +45,93 @@ class ConversationService {
               meetingId: "f29f4436-9f81-484e-9b1e-14eb0dd06728",
               keywords: ["spongebob", "religion", "mumbai"]
             },
-          ]
+          ];
+
+          this.mockAttendees = [
+            {
+              id: "1",
+              name:"Lorena Wendler"
+            },
+            {
+              id: "2",
+              name:"Liane Mao"
+            },  
+            {
+              id: "3",
+              name:"Emmie Nau"
+            },  
+            {
+              id: "4",
+              name:"Bernie Janes"
+            },  
+            {
+              id: "5",
+              name:"Rubin Mcclung"
+            },  
+            {
+              id: "6",
+              name:"Vina Elzy"
+            },  
+            {
+              id: "7",
+              name:"Rana Raasch"
+            },  
+            {
+              id: "8",
+              name:"Tyrell Wahlstrom"
+            },  
+            {
+              id: "9",
+              name:"Tillie Dixon"
+            },  
+            {
+              id: "10",
+              name:"Carolann Holtzclaw"
+            },  
+            {
+              id: "11",
+              name:"Lorena Wendler"
+            },
+            {
+              id: "12",
+              name:"Liane Mao"
+            },  
+            {
+              id: "13",
+              name:"Emmie Nau"
+            },  
+            {
+              id: "14",
+              name:"Bernie Janes"
+            },  
+            {
+              id: "15",
+              name:"Rubin Mcclung"
+            },  
+            {
+              id: "16",
+              name:"Vina Elzy"
+            },  
+            {
+              id: "17",
+              name:"Rana Raasch"
+            },  
+            {
+              id: "18",
+              name:"Tyrell Wahlstrom"
+            },  
+            {
+              id: "19",
+              name:"Tillie Dixon"
+            },  
+            {
+              id: "20",
+              name:"Carolann Holtzclaw"
+            },  
+          ];
     }
+
+
     async getConversation(meetingId) {
       //TODO test
       try { 
@@ -90,6 +175,11 @@ class ConversationService {
         const newConversation = await API.graphql(graphqlOperation(createRoom,  {input: conversation}))
         console.log(newConversation);
         this.mockConvos.push(conversation);
+    }
+
+    getAttendees(roomId) {
+      //TODO Connect with the list of room attendees
+      return this.mockAttendees;
     }
 }
 
