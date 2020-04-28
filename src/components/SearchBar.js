@@ -80,8 +80,9 @@ export default function SearchBar(props) {
     [...Array(nbRooms).keys()].forEach((value) => fullMap.set(value, 1));
     const [idMap, setIdMap] = useState(fullMap);
     const [selectedCategory, setSelectedCategory] = useState("");
+    const [searchFieldIsEmpty, setSearchFieldIsEmpty] = useState(true);
 
-    const options = categories.map((category) => {
+    const options = [...new Set(categories)].map((category) => {
         const firstLetter = category[0].toUpperCase();
         return {
             firstLetter: /[0-9]/.test(firstLetter) ? '0-9' : firstLetter,
@@ -92,13 +93,15 @@ export default function SearchBar(props) {
     const onSearchChange = (e) => {
         if (e.target.value.length === 0) {
             setIdMap(fullMap);
+            setSearchFieldIsEmpty(true);
         } else {
-            setIdMap(extractScore(scoreMap, e.target.value.toLowerCase().split(" ")));
+            setSearchFieldIsEmpty(false);
+            setIdMap(extractScore(scoreMap, e.target.value.toLowerCase().split(" ").filter(Boolean)));
         }
     }
 
     useEffect(() => {
-        const sortedIdMap = new Map([...idMap.entries()].sort((a, b) => b[1] - a[1]));
+        const sortedIdMap = searchFieldIsEmpty ? new Map([...fullMap.entries()].sort((a, b) => b[1] - a[1])) : new Map([...idMap.entries()].sort((a, b) => b[1] - a[1]));
         if (selectedCategory) {
             sortedIdMap.forEach((value, key, map) => {
                 if (categories[key].toLowerCase() !== selectedCategory.toLowerCase()) {

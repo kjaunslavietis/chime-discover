@@ -13,8 +13,14 @@ import PersonIcon from '@material-ui/icons/Person';
 import HearingIcon from '@material-ui/icons/Hearing';
 import Chip from '@material-ui/core/Chip';
 import Tooltip from '@material-ui/core/Tooltip';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 
 import './search.css';
+
+function Alert(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -38,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     personIcon: {
-        color: 'rgba(0, 0, 0, 0.54)', 
+        color: 'rgba(0, 0, 0, 0.54)',
         fontSize: 30,
     },
     customWidth: {
@@ -50,7 +56,20 @@ export default function SearchCard(props) {
     const classes = useStyles();
     const { conversation, handleClickOnChip, handleJoinRoom } = props;
     const { name, description, category, keywords, meetingId, numberOfUsers, image } = conversation;
-    const { definedKeywords, extractedKeywords } = keywords;
+    const [open, setOpen] = React.useState(false);
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpen(false);
+    };
+
+    const handleOpen = (e) => {
+        setOpen(true);
+        navigator.clipboard.writeText("So sorry, I lied ¯\\_(ツ)_/¯");
+    };
 
     return (
         <Card className={classes.root}>
@@ -78,18 +97,10 @@ export default function SearchCard(props) {
                     variant="outlined"
                     size="small"
                 />
-                {definedKeywords.map((keyword) => (
-                    <Chip
-                        label={keyword}
-                        onClick={handleClickOnChip}
-                        variant="outlined"
-                        size="small"
-                    />
-                ))}
-                {extractedKeywords.map((keyword) => (
+                {keywords.map((keyword) => (
                     <Tooltip
                         title="This keyword has been extracted from the current conversation. Join now if you are interested!"
-                        classes={{tooltip: classes.customWidth}}
+                        classes={{ tooltip: classes.customWidth }}
                     >
                         <Chip
                             label={keyword}
@@ -102,7 +113,7 @@ export default function SearchCard(props) {
                 ))}
             </div>
             <CardActions disableSpacing>
-                <IconButton aria-label="share">
+                <IconButton aria-label="share" onClick={handleOpen}>
                     <ShareIcon />
                 </IconButton>
                 <PersonIcon className={classes.personIcon} />
@@ -111,6 +122,11 @@ export default function SearchCard(props) {
                     <Button size="small" color="primary" onClick={() => handleJoinRoom(meetingId)}>Join Room</Button>
                 </div>
             </CardActions>
+            <Snackbar open={open} autoHideDuration={2000} onClose={handleClose}>
+                <Alert onClose={handleClose} severity="success">
+                    Room link copied to clipboard!
+                </Alert>
+            </Snackbar>
         </Card>
     );
 }
