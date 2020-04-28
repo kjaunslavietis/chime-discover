@@ -121,14 +121,14 @@ export default function RoomCard(props) {
                             variant="outlined"
                             size="small"
                         />
-                        {conversation.keywords.definedKeywords.map((keyword) => (
+                        {/* {conversation.keywords.definedKeywords.map((keyword) => (
                             <Chip
                                 label={keyword}
                                 variant="outlined"
                                 size="small"
                             />
-                        ))}
-                        {conversation.keywords.extractedKeywords.map((keyword) => (
+                        ))} */}
+                        {conversation.keywords.map((keyword) => (
                             <Tooltip
                                 title="This keyword has been extracted from the current conversation. Join now if you are interested!"
                                 classes={{ tooltip: classes.customWidth }}

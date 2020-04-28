@@ -1,4 +1,6 @@
 {
+    "identityPoolName": "chimediscoverb4fac449_identitypool_cd3ab5ef",
+    "allowUnauthenticatedIdentities": true,
     "resourceNameTruncated": "chimedb4fac449",
     "userPoolName": "chimediscoverb4fac449_userpool_b4fac449",
     "autoVerifiedAttributes": [
@@ -10,7 +12,7 @@
     ],
     "smsAuthenticationMessage": "Your authentication code is {####}",
     "smsVerificationMessage": "Your verification code is {####}",
-    "emailVerificationSubject": "Your password",
+    "emailVerificationSubject": "Your verification code",
     "emailVerificationMessage": "Your verification code is {####}",
     "defaultPasswordPolicy": false,
     "passwordPolicyMinLength": 8,
@@ -19,17 +21,19 @@
         "email"
     ],
     "userpoolClientGenerateSecret": true,
-    "userpoolClientRefreshTokenValidity": "30",
+    "userpoolClientRefreshTokenValidity": 30,
     "userpoolClientWriteAttributes": [
-        "email"
+        "email",
+        "phone_number"
     ],
     "userpoolClientReadAttributes": [
-        "email"
+        "email",
+        "phone_number"
     ],
     "userpoolClientLambdaRole": "chimedb4fac449_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": true,
     "resourceName": "chimediscoverb4fac449",
-    "authSelections": "userPoolOnly",
+    "authSelections": "identityPoolAndUserPool",
     "authRoleArn": {
         "Fn::GetAtt": [
             "AuthRole",
@@ -42,7 +46,7 @@
             "Arn"
         ]
     },
-    "useDefault": "manual",
+    "useDefault": "default",
     "triggers": "{}",
     "userPoolGroupList": [
         "users"

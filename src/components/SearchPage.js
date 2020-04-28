@@ -55,7 +55,7 @@ export default function SearchPage(props) {
         conversations.map(room => room.name),
         conversations.map(room => room.description),
         categories,
-        conversations.map(room => room.keywords.definedKeywords.concat(room.keywords.extractedKeywords).join(" ")));    
+        conversations.map(room => room.keywords.join(" ")));    
 
     const onSearch = (ids) => {
         setDisplayedRooms(ids);

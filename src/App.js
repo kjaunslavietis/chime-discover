@@ -17,6 +17,10 @@ import ActiveConversation from './components/ActiveConversation';
 import ConversationService from './services/ConversationService';
 import SearchPage from './components/SearchPage';
 
+import { Auth, Hub } from 'aws-amplify';
+
+import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
+
 import './App.css';
 
 const useStyles = makeStyles((theme) => ({
@@ -57,102 +61,142 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
-export default function App() {
-	const classes = useStyles();
-	const [isCurrentPageSearch, setIsCurrentPageSearch] = useState(true);
-	const [createDialogOpen, setCreateDialogOpen] = useState(false);
-	const [currentConversation, setCurrentConversation] = useState(null);
-	/*const [conversations, setConversations] = useState([]);
 
-	useEffect(() => {
-		async function loadConversations() {
-			const conversationService = new ConversationService();
-			const allConversations = await conversationService.getAllConversations();
-			setConversations(allConversations);
-		}
-		loadConversations();
-	}, []);*/
+const App = () => {
+    const classes = useStyles();
+    const [isCurrentPageSearch, setIsCurrentPageSearch] = useState(true);
+    const [createDialogOpen, setCreateDialogOpen] = useState(false);
+    const [isSignedIn, setIsSignedIn] = useState(false);
+    const [currentConversation, setCurrentConversation] = useState(null);
+    const [conversations, setConversations] = useState([]);
 
-	const handleClickOnCard = (conv) => {
-		console.log(conv);
-		setIsCurrentPageSearch(false);
-		setCurrentConversation(conv);
-	};
+    const conversationService = new ConversationService();
 
-	const handleJoinRoomOnSearch = (conv) => {
-		console.log(conv);
-		setIsCurrentPageSearch(false);
-		setCurrentConversation(conv);
-	}
+    if(!isSignedIn) {
+      Auth.currentAuthenticatedUser({
+        bypassCache: false  // Optional, By default is false. If set to true, this call will send a request to Cognito to get the latest user data
+      }).then(user => {
+        setIsSignedIn(true)
+      })
+      .catch(err => console.log("Not logged in"));
 
-	const onConversationCreated = (e) => {
-		console.log(e);
-	}
+      const authListener = (data) => {
 
-	const handleClickOpen = () => {
-		setCreateDialogOpen(true);
-	};
-	
-	const handleClose = () => {
-		setCreateDialogOpen(false);
-	};
+        switch (data.payload.event) {
+    
+            case 'signIn':
+                setIsSignedIn(true);
+                break;
+            case 'signUp':
+                console.log('user signed up');
+                break;
+            case 'signOut':
+                setIsSignedIn(false);
+                break;
+            case 'signIn_failure':
+                console.log('user sign in failed');
+                break;
+            case 'configured':
+                console.log('the Auth module is configured');
+        }
+      }
+  
+      Hub.listen('auth', authListener);
+    }
+    
+    useEffect(() => {
+      async function loadConversations() {
+          const allConversations = await conversationService.getAllConversations();
+          setConversations(allConversations);
+      }
+      if (isSignedIn) {
+          loadConversations();
+      }    
+    }, [isSignedIn]);
 
-	return (
-		<React.Fragment>
-			<div className={classes.root}>
-				<AppBar position="static" color="transparent" style={{ background: 'rgba(136, 138, 143, 0.15)' }}>
-					<Toolbar>
-						<IconButton edge="start" color="inherit" aria-label="menu">
-							<img src="https://framapic.org/cddKfQa7ertU/UodmdFuda7u2.png" />
-						</IconButton>
-						<Typography variant="h6" color="inherit" className={classes.title}>
-							Chime Discover
-          				</Typography>
-						<Button color="inherit" onClick={handleClickOpen}>Create a new Conversation</Button>
-					</Toolbar>
-				</AppBar>
-			</div>
-			<div className={classes.container} style={{ display: "flex" }}>
-				<div className={classes.sidebar}>
-					<Button
-						variant="contained"
-						color="primary"
-						size="large"
-						className={classes.searchButton}
-						startIcon={<SearchIcon />}
-						onClick={() => setIsCurrentPageSearch(true)}
-					>
-						Find new Rooms
-      				</Button>
-					{conversations.map((conversation) => (
-						<RoomCard 
-							conversation={conversation}
-							focus={currentConversation && conversation.meetingID === currentConversation.meetingID}
-							audioActivated={currentConversation && conversation.meetingID === currentConversation.meetingID}
-							handleClickOnCard={handleClickOnCard}
-						/>
-					))}
-				</div>
-				<Container maxWidth="xl">
-					<Paper>
-						{isCurrentPageSearch? 
-							<SearchPage conversations={conversations} handleJoinRoom={handleJoinRoomOnSearch} />
-							: <ActiveConversation conversation={currentConversation} onConversationExited={undefined} />
-						}
-					</Paper>
-				</Container>
-			</div>
-			<Dialog
-				open={createDialogOpen}
-				onClose={handleClose}
-				aria-labelledby="alert-dialog-title"
-				aria-describedby="alert-dialog-description"
-			>
-				<CreateConversation onConversationCreated={onConversationCreated} />
-	  		</Dialog>
-		</React.Fragment>
-	);
+    const handleClickOnCard = (conv) => {
+      console.log(conv);
+      setIsCurrentPageSearch(false);
+      setCurrentConversation(conv);
+    };
+
+    const handleJoinRoomOnSearch = (conv) => {
+      console.log(conv);
+      setIsCurrentPageSearch(false);
+      setCurrentConversation(conv);
+    }
+
+    const onConversationCreated = (e) => {
+      console.log(e);
+    }
+
+    const handleClickOpen = () => {
+      setCreateDialogOpen(true);
+    };
+    
+    const handleClose = () => {
+      setCreateDialogOpen(false);
+    };
+
+    return (
+      <React.Fragment>
+        <div className={classes.root}>
+          <AppBar position="static" color="transparent" style={{ background: 'rgba(136, 138, 143, 0.15)' }}>
+            <Toolbar>
+              <IconButton edge="start" color="inherit" aria-label="menu">
+                <img src="https://framapic.org/cddKfQa7ertU/UodmdFuda7u2.png" />
+              </IconButton>
+              <Typography variant="h6" color="inherit" className={classes.title}>
+                Chime Discover
+                    </Typography>
+              <Button color="inherit" onClick={handleClickOpen}>Create a new Conversation</Button>
+              <AmplifySignOut />
+            </Toolbar>
+          </AppBar>
+        </div>
+        <div className={classes.container} style={{ display: "flex" }}>
+          <div className={classes.sidebar}>
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              className={classes.searchButton}
+              startIcon={<SearchIcon />}
+              onClick={() => setIsCurrentPageSearch(true)}
+            >
+              Find new Rooms
+                </Button>
+            {conversations.map((conversation) => (
+              <RoomCard 
+                conversation={conversation}
+                focus={currentConversation && conversation.meetingID === currentConversation.meetingID}
+                audioActivated={currentConversation && conversation.meetingID === currentConversation.meetingID}
+                handleClickOnCard={handleClickOnCard}
+              />
+            ))}
+          </div>
+          <Container maxWidth="xl">
+            <Paper>
+              {isCurrentPageSearch? 
+                <SearchPage conversations={conversations} handleJoinRoom={handleJoinRoomOnSearch} />
+                : <ActiveConversation conversation={currentConversation} onConversationExited={undefined} />
+              }
+            </Paper>
+          </Container>
+        </div>
+        <Dialog
+          open={createDialogOpen}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <CreateConversation onConversationCreated={onConversationCreated} />
+          </Dialog>
+      </React.Fragment>
+    );
 }
+
+export default withAuthenticator(App);
 
 const mockConversations = [
 	{
