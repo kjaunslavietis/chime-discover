@@ -120,7 +120,7 @@ exports.handler = async (event) => {
 
                 console.log(JSON.stringify(topThreePhrases));
 
-                let conversationId = record.s3.object.key.split('_')[0];
+                let conversationId = record.s3.object.key.split('_')[0].split('.')[0];
                 console.log(conversationId);
 
                 updateRoom(conversationId, topThreePhrases);
