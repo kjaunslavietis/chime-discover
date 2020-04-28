@@ -70,7 +70,6 @@ export default function SearchPage(props) {
     return (
         <React.Fragment>
             <CssBaseline />
-            <main>
                 <div className={classes.mainContent}>
                     <Container maxWidth="lg">
                         <Typography component="h2" variant="h3" align="center" color="textPrimary" gutterBottom>
@@ -95,7 +94,6 @@ export default function SearchPage(props) {
                         ))}
                     </Grid>
                 </Container>
-            </main>
         </React.Fragment>
     );
 }
