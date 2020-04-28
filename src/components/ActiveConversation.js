@@ -38,7 +38,10 @@ class ActiveConversation extends React.Component {
         if(this.mediaRecorder) {
             this.mediaRecorder.onstop = {};
             this.mediaRecorder.audioContext.close();
-            this.mediaRecorder.stop();
+            this.mediaRecorder.stop();    
+        }
+        if(this.state.isAudioEnabled){
+            this.meetingSession.audioVideo.stop();
         }
         this.leaveChimeMeeting();
     }
@@ -63,7 +66,6 @@ class ActiveConversation extends React.Component {
     }
 
     exitConversation() {
-        this.meetingSession.audioVideo.stop();
         this.state.onConversationExited();
     }
 
