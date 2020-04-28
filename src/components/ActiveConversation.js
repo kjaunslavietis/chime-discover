@@ -264,6 +264,8 @@ class ActiveConversation extends React.Component {
     }
 
     render() {
+        //TODO change to the user name later
+        let randomUser = Math.random().toString(36).substring(7);
         if(this.state.isMeetingLoading) {
             return this.loadingScreen();
         } else {
@@ -285,7 +287,7 @@ class ActiveConversation extends React.Component {
 
                         </Col>
                         <Col sm={2}>
-                            <Button variant="danger" size="md" block onClick={this.exitConversation}>Exit conversation</Button>
+                            <Button variant="danger" size="md" block onClick={this.exitConversation}>Leave</Button>
                             <audio id="meeting-audio" ></audio>
                         </Col>
                     </Row>
@@ -297,7 +299,8 @@ class ActiveConversation extends React.Component {
                     <Row className='chat-participants'>
                         <Col className='chat-ui' sm={8}>
                             <Chat
-                            userName = "Wilson" roomID = {this.props.conversation.id}
+                            userName = {randomUser}
+                            roomID = {this.props.conversation.id}
                             />
                         </Col>
                         <Col className='participants-ui' sm={4}>
