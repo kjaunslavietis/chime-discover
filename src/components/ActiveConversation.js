@@ -48,7 +48,8 @@ class ActiveConversation extends React.Component {
             isMeetingLoading: true
         })
         // call getOrCreateMeeting lambda (or service), get the necessary parameters, use chime SDK to connect to meeting, finally set isMeetingLoading: false
-        console.log(this.props.conversation.meetingID);
+        console.log("MEETING ID: ", this.props.conversation.meetingID);
+        console.log("ROOM ID: ", this.props.conversation.id);
         //TODO take desiredMeetingId from activeConversation after DB is ready
         this.meetingSession = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID);
         await new Promise(r => setTimeout(r, 2000));
@@ -77,17 +78,21 @@ class ActiveConversation extends React.Component {
 
     async listAudioDevices() {
         try {
-            console.log(this.meetingSession);
             const audioInputDevices = await this.meetingSession.audioVideo.listAudioInputDevices();
             const audioOutputDevices = await this.meetingSession.audioVideo.listAudioOutputDevices();
 
             // An array of MediaDeviceInfo objects
+            // Might be needed to change the device
+
+            /*
             audioInputDevices.forEach(mediaDeviceInfo => {
             console.log(`Device ID: ${mediaDeviceInfo.deviceId} Microphone: ${mediaDeviceInfo.label}`);
             });
             audioOutputDevices.forEach(mediaDeviceInfo => {
                 console.log(`Device ID: ${mediaDeviceInfo.deviceId} Microphone: ${mediaDeviceInfo.label}`);
             });
+            */
+            
             const devices = {
                 input: audioInputDevices,
                 output: audioOutputDevices

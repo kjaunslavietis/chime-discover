@@ -18,7 +18,7 @@ class Chat extends React.Component {
     this.onNewMessageCreated = this.onNewMessageCreated.bind(this);
     this.chatService = new ChatService(this.onNewMessageCreated, this.props.roomID, this.props.userName);
     this.composeMessage = this.composeMessage.bind(this)
-    console.log("==> roomid " + props.roomID)
+    console.log("==> roomid in CHAT" + props.roomID)
   }
   
 componentDidMount() {
