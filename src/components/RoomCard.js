@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     browserCardContent: {
-        padding: '5px',
+        padding: '0px 5px 5px 5px',
     },
     browserCardHeader: {
         paddingBottom: '0px',
@@ -69,16 +69,11 @@ const options = [
     'Leave Room'
 ];
 
-export default function RoomCard() {
+export default function RoomCard(props) {
     const classes = useStyles();
+    const { focus, audioActivated, room, handleClickOnCard } = props;
     const [anchorEl, setAnchorEl] = React.useState(null);
-    const [focus, setFocus] = React.useState(false);
     const open = Boolean(anchorEl);
-
-    const numberOfUsers = 4;
-    const category = "Biology";
-    const definedKeywords = ["Nature", "Cool"];
-    const extractedKeywords = ["People", "Conspiracy", "Metal"];
 
     const handleClick = (e) => {
         e.stopPropagation();
@@ -90,13 +85,9 @@ export default function RoomCard() {
         setAnchorEl(null);
     };
 
-    const handleFocusClick = (e) => {
-        setFocus(true);
-    }
-
     return (
         <Card className={focus ? classes.focus : classes.root} >
-            <CardActionArea onClick={handleFocusClick}>
+            <CardActionArea onClick={() => handleClickOnCard(room)}>
                 <CardHeader
                     action={
                         <React.Fragment>
@@ -118,26 +109,26 @@ export default function RoomCard() {
                             </Menu>
                         </React.Fragment>
                     }
-                    title="Let's talk about Lizard"
+                    title={room.name}
                     className={classes.browserCardHeader}
                 />
                 <CardContent className={classes.browserCardContent}>
                     <div className={classes.themeChips}>
                         <Chip
                             avatar={<Avatar>C</Avatar>}
-                            label={category}
+                            label={room.category}
                             color="primary"
                             variant="outlined"
                             size="small"
                         />
-                        {definedKeywords.map((keyword) => (
+                        {room.keywords.definedKeywords.map((keyword) => (
                             <Chip
                                 label={keyword}
                                 variant="outlined"
                                 size="small"
                             />
                         ))}
-                        {extractedKeywords.map((keyword) => (
+                        {room.keywords.extractedKeywords.map((keyword) => (
                             <Tooltip
                                 title="This keyword has been extracted from the current conversation. Join now if you are interested!"
                                 classes={{ tooltip: classes.customWidth }}
@@ -155,9 +146,9 @@ export default function RoomCard() {
                 <CardActions disableSpacing className={classes.cardActions}>
                     <div className={classes.nbUsers}>
                         <PersonIcon className={classes.personIcon} />
-                        <Typography>{numberOfUsers} online</Typography>
+                        <Typography>{room.numberOfUsers} online</Typography>
                     </div>
-                    {focus ? <MicIcon /> : null}
+                    {audioActivated ? <MicIcon /> : null}
                 </CardActions>
             </CardActionArea>
         </Card>

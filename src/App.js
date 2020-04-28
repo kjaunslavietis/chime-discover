@@ -9,7 +9,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import Container from '@material-ui/core/Container';
 
-import Browser from './components/RoomCard';
+import RoomCard from './components/RoomCard';
 import CreateConversation from './components/CreateConversation';
 import ActiveConversation from './components/ActiveConversation';
 import MeetingInfoModal from './components/MeetingInfoModal';
@@ -59,6 +59,21 @@ const useStyles = makeStyles((theme) => ({
 
 export default function App() {
 	const classes = useStyles();
+    const [currentPage, setCurrentPage] = React.useState("search");
+
+	const handleClickOnCard = (e) => {
+		console.log(e);
+		setCurrentPage(e.meetingId);
+	};
+
+	const handleClickOnCreate = (e) => {
+		alert("Creating room");
+	}
+
+	const handleJoinRoomOnSearch = (e) => {
+		console.log(e);
+		setCurrentPage(e.meetingId);
+	}
 
 	return (
 		<React.Fragment>
@@ -70,8 +85,8 @@ export default function App() {
 						</IconButton>
 						<Typography variant="h6" color="inherit" className={classes.title}>
 							Chime Discover
-          </Typography>
-						<Button color="inherit">Create a new Conversation</Button>
+          				</Typography>
+						<Button color="inherit" onClick={handleClickOnCreate}>Create a new Conversation</Button>
 					</Toolbar>
 				</AppBar>
 			</div>
@@ -83,19 +98,25 @@ export default function App() {
 						size="large"
 						className={classes.searchButton}
 						startIcon={<SearchIcon />}
+						onClick={() => setCurrentPage("search")}
 					>
 						Find new Rooms
       				</Button>
-					<Browser />
-					<Browser />
-					<Browser />
-					<Browser />
-					<Browser />
-					<Browser />
+					{rooms.map((room) => (
+						<RoomCard 
+							room={room}
+							focus={room.meetingId === currentPage}
+							audioActivated={room.meetingId === currentPage}
+							handleClickOnCard={handleClickOnCard}
+						/>
+					))}
 				</div>
 				<Container maxWidth="xl">
 					<Paper>
-						<SearchPage />
+						{currentPage === "search" ? 
+							<SearchPage rooms={rooms} handleJoinRoom={handleJoinRoomOnSearch} />
+							: <Typography>Joining {currentPage}</Typography>
+						}
 					</Paper>
 				</Container>
 			</div>
@@ -103,3 +124,38 @@ export default function App() {
 	);
 }
 
+const rooms = [
+    {
+        name: "World War II",
+        description: "This room is dedicated to discuss the Second World War.",
+        category: "History",
+        meetingId: "532",
+        numberOfUsers: 3,
+        keywords: {
+            definedKeywords: ["supernatural", "world war two"],
+            extractedKeywords: ["fiction", "Russia"]
+        },
+    },
+    {
+        name: "World War III",
+        description: "I know not with what weapons World War III will be fought, but World War IV will be fought with sticks and stones.",
+        category: "Futurology",
+        meetingId: "533",
+        numberOfUsers: 6,
+        keywords: {
+            definedKeywords: ["Science", "History", "Apocalypse"],
+            extractedKeywords: ["Zombie"]
+        },
+    },
+    {
+        name: "Astronomy room",
+        description: "Yeah science!",
+        category: "Science",
+        meetingId: "534",
+        numberOfUsers: 10,
+        keywords: {
+            definedKeywords: ["Theory", "Futurology"],
+            extractedKeywords: ["Celestial", "Cool"]
+        },
+    },
+];

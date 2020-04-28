@@ -47,10 +47,8 @@ function extractWordsToScore(names, descriptions, categories, keywords) {
 
 export default function SearchPage(props) {
     const classes = useStyles();
+    const { rooms, handleJoinRoom } = props;
     const [displayedRooms, setDisplayedRooms] = useState([...Array(rooms.length).keys()]);
-    const { conversations, handleJoinRoom } = props; // TODO : replace mock object "rooms" by conversations
-    // handleJoinRoom will return one param (meetingId) when users clicks on Join room button
-
 
     const categories = rooms.map(room => room.category);
     const scoreMap = extractWordsToScore(
@@ -89,7 +87,7 @@ export default function SearchPage(props) {
                     <Grid container spacing={4}>
                         {rooms.filter((room, index) => displayedRooms.includes(index)).map((room) => (
                             <Grid item key={room.meetingId} xs={12} sm={6} md={4}>
-                                <SearchCard conversation={room} handleClickOnChip={handleClickOnChip} handleJoinRoom={handleJoinRoom} />
+                                <SearchCard conversation={room} handleClickOnChip={handleClickOnChip} handleJoinRoom={() => handleJoinRoom(room)} />
                             </Grid>
                         ))}
                     </Grid>
@@ -97,39 +95,3 @@ export default function SearchPage(props) {
         </React.Fragment>
     );
 }
-
-const rooms = [
-    {
-        name: "World War II",
-        description: "This room is dedicated to discuss the Second World War.",
-        category: "History",
-        meetingId: "532",
-        numberOfUsers: 3,
-        keywords: {
-            definedKeywords: ["supernatural", "world war two"],
-            extractedKeywords: ["fiction", "Russia"]
-        },
-    },
-    {
-        name: "World War III",
-        description: "I know not with what weapons World War III will be fought, but World War IV will be fought with sticks and stones.",
-        category: "Futurology",
-        meetingId: "533",
-        numberOfUsers: 6,
-        keywords: {
-            definedKeywords: ["Science", "History", "Apocalypse"],
-            extractedKeywords: ["Zombie"]
-        },
-    },
-    {
-        name: "Astronomy room",
-        description: "Yeah science!",
-        category: "Science",
-        meetingId: "534",
-        numberOfUsers: 10,
-        keywords: {
-            definedKeywords: ["Theory", "Futurology"],
-            extractedKeywords: ["Celestial", "Cool"]
-        },
-    },
-];
