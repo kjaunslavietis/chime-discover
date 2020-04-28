@@ -52,20 +52,22 @@ export default function SearchPage(props) {
     const [categories, setCategories] = useState([]);
     const [scoreMap, setScoreMap] = useState(new Map());
 
+    console.log("updating Search Page");
+
     useEffect(() => {
         setDisplayedRooms([...Array(conversations.length).keys()]);
-        const cat = [...new Set(conversations.map(room => room.category))];
+        const cat = conversations.map(room => room.category);
         setCategories(cat);
         setScoreMap(extractWordsToScore(
             conversations.map(room => room.name),
             conversations.map(room => room.description),
             cat,
             conversations.map(room => room.keywords.join(" "))));
-
       }, [conversations]);  
 
     const onSearch = (ids) => {
         setDisplayedRooms(ids);
+        console.log("ids : " + ids);
     }
 
     const handleClickOnChip = (e) => {
@@ -92,8 +94,8 @@ export default function SearchPage(props) {
                 </div>
                 <Container className={classes.cardGrid} maxWidth="md">
                     <Grid container spacing={4}>
-                        {conversations.filter((room, index) => displayedRooms.includes(index)).map((room) => (
-                            <Grid item key={room.meetingID} xs={12} sm={6} md={4}>
+                        {conversations.filter((room, index) => displayedRooms.includes(index)).map((room, index) => (
+                            <Grid item key={index} xs={12} sm={6} md={4}>
                                 <SearchCard conversation={room} handleClickOnChip={handleClickOnChip} handleJoinRoom={() => handleJoinRoom(room)} />
                             </Grid>
                         ))}

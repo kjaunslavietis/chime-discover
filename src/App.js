@@ -15,6 +15,7 @@ import CreateConversation from './components/CreateConversation';
 import ActiveConversation from './components/ActiveConversation';
 
 import ConversationService from './services/ConversationService';
+import AttendeeService from './services/AttendeeService';
 import SearchPage from './components/SearchPage';
 
 import { Auth, Hub } from 'aws-amplify';
@@ -71,6 +72,7 @@ const App = () => {
     const [conversations, setConversations] = useState([]);
 
     const conversationService = new ConversationService();
+    const attendeeService = new AttendeeService();
 
     if(!isSignedIn) {
       Auth.currentAuthenticatedUser({
@@ -106,7 +108,12 @@ const App = () => {
     
     useEffect(() => {
       async function loadConversations() {
-          const allConversations = await conversationService.getAllConversations();
+          let allConversations = await conversationService.getAllConversations();
+          allConversations = allConversations.map(conversation => {
+            let conversationWithAttendees = conversation;
+            conversationWithAttendees.attendees = attendeeService.getAttendeesForRoom(conversation.id);
+            return conversationWithAttendees;
+          });
           setConversations(allConversations);
       }
       if (isSignedIn) {
@@ -195,50 +202,3 @@ const App = () => {
 }
 
 export default withAuthenticator(App);
-
-const mockConversations = [
-	{
-		id: "40d648e3-999a-4967-9ca9-ebb82ea6f958",
-		meetingID: "a7c059f3-7795-4080-8428-7e0a70613ed2",
-		name: "tet",
-		description: "tet",
-		category: "tet",
-		keywords: []
-	}
-];
-
-const conversations = [
-    {
-        name: "World War II",
-        description: "This room is dedicated to discuss the Second World War",
-        category: "History",
-        meetingID: "a7c059f3-7795-4080-8428-7e0a70613ed2",
-        numberOfUsers: 3,
-        keywords: {
-            definedKeywords: ["supernatural", "world war two"],
-            extractedKeywords: ["fiction", "Russia"]
-        },
-    },
-    {
-        name: "World War III",
-        description: "I know not with what weapons World War III will be fought, but World War IV will be fought with sticks and stones.",
-        category: "Futurology",
-        meetingID: "a7c059f3-7795-4080-8428-7e0a70613ed2",
-        numberOfUsers: 6,
-        keywords: {
-            definedKeywords: ["Science", "History", "Apocalypse"],
-            extractedKeywords: ["Zombie"]
-        },
-    },
-    {
-        name: "Astronomy room",
-        description: "Yeah science!",
-        category: "Science",
-        meetingID: "a7c059f3-7795-4080-8428-7e0a70613ed2",
-        numberOfUsers: 10,
-        keywords: {
-            definedKeywords: ["Theory", "Futurology"],
-            extractedKeywords: ["Celestial", "Cool"]
-        },
-    },
-];
