@@ -8,7 +8,17 @@
         "transcribeSample": {
             "build": true,
             "providerPlugin": "awscloudformation",
-            "service": "Lambda"
+            "service": "Lambda",
+            "dependsOn": [
+                {
+                    "category": "api",
+                    "resourceName": "meetings",
+                    "attributes": [
+                        "GraphQLAPIIdOutput",
+                        "GraphQLAPIEndpointOutput"
+                    ]
+                }
+            ]
         }
     },
     "api": {
@@ -17,13 +27,17 @@
             "providerPlugin": "awscloudformation",
             "output": {
                 "authConfig": {
-                    "additionalAuthenticationProviders": [],
-                    "defaultAuthentication": {
-                        "authenticationType": "API_KEY",
-                        "apiKeyConfig": {
-                            "description": "meetings",
-                            "apiKeyExpirationDays": "365"
+                    "additionalAuthenticationProviders": [
+                        {
+                            "authenticationType": "API_KEY",
+                            "apiKeyConfig": {
+                                "description": "meetings",
+                                "apiKeyExpirationDays": "365"
+                            }
                         }
+                    ],
+                    "defaultAuthentication": {
+                        "authenticationType": "AWS_IAM"
                     }
                 }
             }
