@@ -81,7 +81,7 @@ exports.handler = async (event) => {
               };
 
               try {
-                  const result = await transcribeservice.startTranscriptionJob(params).promise();
+                  await transcribeservice.startTranscriptionJob(params).promise();
               } catch(err) {
                   console.log(err);
               }
@@ -123,7 +123,7 @@ exports.handler = async (event) => {
                 let conversationId = record.s3.object.key.split('_')[0].split('.')[0];
                 console.log(conversationId);
 
-                updateRoom(conversationId, topThreePhrases);
+                await updateRoom(conversationId, topThreePhrases);
             }
         }
 
@@ -131,7 +131,7 @@ exports.handler = async (event) => {
 
     const response = {
         statusCode: 200,
-        body: JSON.stringify('Transcription job started!'),
+        body: JSON.stringify('File processed!'),
     };
     return response;
 };
