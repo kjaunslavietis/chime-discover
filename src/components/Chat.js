@@ -4,7 +4,6 @@ import 'react-chat-elements/dist/main.css'
 import './Chat.css'
 import ChatService from './../services/ChatService'
 import ScrollToBottom from 'react-scroll-to-bottom';
-import { JS } from 'aws-amplify';
 
 
 class Chat extends React.Component {
@@ -18,7 +17,7 @@ class Chat extends React.Component {
     this.onNewMessageCreated = this.onNewMessageCreated.bind(this);
     this.chatService = new ChatService(this.onNewMessageCreated, this.props.roomID, this.props.userName);
     this.composeMessage = this.composeMessage.bind(this)
-    console.log("==> roomid in CHAT" + props.roomID)
+    console.log("==> user from the chat component " + props.userName)
   }
   
 componentDidMount() {
