@@ -6,7 +6,6 @@ import AttendeesList from './AttendeesList';
 
 import Chat from './Chat';
 
-
 import { Mp3MediaRecorder } from 'mp3-mediarecorder';
 import mp3RecorderWorker from 'workerize-loader!./RecorderWorker';  // eslint-disable-line import/no-webpack-loader-syntax
 import { Storage, Auth } from 'aws-amplify';
@@ -28,9 +27,8 @@ class ActiveConversation extends React.Component {
             isAudioEnabled: false,
             isMuted: false
         }
-
-        // this.recorderWorker = mp3RecorderWorker();
         this.mediaRecorder = null;
+        this.MS_BETWEEN_RECORDINGS = 1000 * 60 * 1; // 1 minute
 
         this.joinChimeMeeting();
         this.getUser()
@@ -162,11 +160,21 @@ class ActiveConversation extends React.Component {
 
     async pushMeetingRecording(e) {
         let blob = e.data;
-        if(blob.size > 200 * 1024) {
-            Storage.put(`audioin/${this.props.conversation.id}.mp3`, blob)
+        let key = `audioin/${this.props.conversation.id}.mp3`;
+        if(blob.size > 200 * 1024 && await this.checkShouldPush(key)) {
+            Storage.put(key, blob)
             .then (result => console.log(result))
             .catch(err => console.log(err));
         }
+    }
+
+    async checkShouldPush(key) {
+        let listResult = await Storage.list(key, {maxKeys: 1});
+        if(listResult.length === 0) return true; // if there's no current recording, we should push ours
+        
+        let existingRecording = listResult[0];
+
+        return Date.now() - Date.parse(existingRecording.lastModified) >= this.MS_BETWEEN_RECORDINGS;
     }
 
     async startRecording() {
@@ -177,11 +185,6 @@ class ActiveConversation extends React.Component {
         let audioStream = audioElement.captureStream ? audioElement.captureStream() : audioElement.mozCaptureStream();
 
         let userMediaStream = await this.meetingSession.audioVideo.deviceController.acquireAudioInputStream();
-        // try {
-        //     userMediaStream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
-        // } catch(err) {
-        //     userMediaStream = await navigator.mediaDevices.getUserMedia({audio: true});
-        // }
 
         for(let userTrack of userMediaStream.getTracks()) {
             audioStream.addTrack(userTrack);
@@ -197,7 +200,7 @@ class ActiveConversation extends React.Component {
                 setInterval(() => {
                     console.log(`MediaRecorder state: ${this.mediaRecorder.state}`);
                     this.restartMediaRecorder();
-                }, 60 * 1000);
+                }, this.MS_BETWEEN_RECORDINGS);
         }
 
         this.mediaRecorder.onerror = (e) => {
@@ -205,11 +208,6 @@ class ActiveConversation extends React.Component {
         }
 
         this.mediaRecorder.start();
-
-        // while(this.mediaRecorder.state === 'inactive') {
-        //     this.mediaRecorder.start(); // attempt to start the media recorder - might take several tries due to a race condition bug inside the recorder's worker
-        //     await this.sleep(1000);
-        // }
     }
 
     sleep(ms) {
