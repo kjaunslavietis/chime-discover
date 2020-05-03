@@ -29,7 +29,7 @@ class ActiveConversation extends React.Component {
             isMuted: false
         }
 
-        this.recorderWorker = mp3RecorderWorker();
+        // this.recorderWorker = mp3RecorderWorker();
         this.mediaRecorder = null;
 
         this.joinChimeMeeting();
@@ -176,19 +176,19 @@ class ActiveConversation extends React.Component {
         let audioElement = document.getElementById('meeting-audio');
         let audioStream = audioElement.captureStream ? audioElement.captureStream() : audioElement.mozCaptureStream();
 
-        let userMediaStream;
-        try {
-            userMediaStream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
-        } catch(err) {
-            userMediaStream = await navigator.mediaDevices.getUserMedia({audio: true});
-        }
+        let userMediaStream = await this.meetingSession.audioVideo.deviceController.acquireAudioInputStream();
+        // try {
+        //     userMediaStream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+        // } catch(err) {
+        //     userMediaStream = await navigator.mediaDevices.getUserMedia({audio: true});
+        // }
 
         for(let userTrack of userMediaStream.getTracks()) {
             audioStream.addTrack(userTrack);
         }
 
         this.mediaRecorder = new Mp3MediaRecorder(audioStream, { 
-            worker: this.recorderWorker,
+            worker: mp3RecorderWorker(),
             audioContext: new AudioContext()
             });
 
@@ -204,10 +204,12 @@ class ActiveConversation extends React.Component {
             console.error(`MediaRecorder error: ${JSON.stringify(e)}`);
         }
 
-        while(this.mediaRecorder.state === 'inactive') {
-            this.mediaRecorder.start(); // attempt to start the media recorder - might take several tries due to a race condition bug inside the recorder's worker
-            await this.sleep(1000);
-        }
+        this.mediaRecorder.start();
+
+        // while(this.mediaRecorder.state === 'inactive') {
+        //     this.mediaRecorder.start(); // attempt to start the media recorder - might take several tries due to a race condition bug inside the recorder's worker
+        //     await this.sleep(1000);
+        // }
     }
 
     sleep(ms) {
