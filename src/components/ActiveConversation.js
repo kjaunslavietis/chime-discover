@@ -47,15 +47,22 @@ class ActiveConversation extends React.Component {
 
     // this will be called when the component is un-rendered, eg. the user has chosen to leave the meeting
     componentWillUnmount() {
-        if(this.mediaRecorder) {
-            this.mediaRecorder.onstop = {};
-            this.mediaRecorder.audioContext.close();
-            this.mediaRecorder.stop();    
-        }
+        this.killRecorderForGood();
         if(this.state.isAudioEnabled){
             this.meetingSession.audioVideo.stop();
         }
         this.leaveChimeMeeting();
+    }
+
+    killRecorderForGood() {
+        if(this.mediaRecorder) {
+            if(this.recorderInterval) {
+                clearInterval(this.recorderInterval);
+            }
+            this.mediaRecorder.onstop = {};
+            this.mediaRecorder.audioContext.close();
+            this.mediaRecorder.stop();    
+        }
     }
 
     async joinChimeMeeting() {
@@ -155,7 +162,7 @@ class ActiveConversation extends React.Component {
 
     async pushMeetingRecording(e) {
         let blob = e.data;
-        if(blob.size > 100 * 1024) {
+        if(blob.size > 200 * 1024) {
             Storage.put(`audioin/${this.props.conversation.id}.mp3`, blob)
             .then (result => console.log(result))
             .catch(err => console.log(err));
@@ -163,6 +170,9 @@ class ActiveConversation extends React.Component {
     }
 
     async startRecording() {
+        if(this.mediaRecorder) {
+            return;
+        }
         let audioElement = document.getElementById('meeting-audio');
         let audioStream = audioElement.captureStream ? audioElement.captureStream() : audioElement.mozCaptureStream();
 
@@ -177,32 +187,27 @@ class ActiveConversation extends React.Component {
             audioStream.addTrack(userTrack);
         }
 
-        let mediaRecorder = new Mp3MediaRecorder(audioStream, { 
+        this.mediaRecorder = new Mp3MediaRecorder(audioStream, { 
             worker: this.recorderWorker,
             audioContext: new AudioContext()
-         });
+            });
 
-        // mediaRecorder.ondataavailable = (e) => {
-        //     this.pushMeetingRecording(e);
-        // }
-
-        mediaRecorder.onstart = () => {
-            setInterval(() => {
-                console.log(`MediaRecorder state: ${this.mediaRecorder.state}`);
-                this.restartMediaRecorder();
-            }, 60 * 1000)
+        this.mediaRecorder.onstart = () => {
+            this.recorderInterval = 
+                setInterval(() => {
+                    console.log(`MediaRecorder state: ${this.mediaRecorder.state}`);
+                    this.restartMediaRecorder();
+                }, 60 * 1000);
         }
 
-        mediaRecorder.onerror = (e) => {
+        this.mediaRecorder.onerror = (e) => {
             console.error(`MediaRecorder error: ${JSON.stringify(e)}`);
         }
 
-        while(mediaRecorder.state === 'inactive') {
-            mediaRecorder.start(); // attempt to start the media recorder - might take several tries due to a race condition bug inside the recorder's worker
+        while(this.mediaRecorder.state === 'inactive') {
+            this.mediaRecorder.start(); // attempt to start the media recorder - might take several tries due to a race condition bug inside the recorder's worker
             await this.sleep(1000);
         }
-
-        this.mediaRecorder = mediaRecorder;
     }
 
     sleep(ms) {
@@ -238,7 +243,12 @@ class ActiveConversation extends React.Component {
             
             let observer = {
               audioVideoDidStart: () => {
-                this.startRecording();
+                if(this.props.conversation.canBeAnalyzed) {
+                    console.log("Conversation can be recorded, commencing recording...");
+                    this.startRecording();
+                } else {
+                    console.log("Creator has asked us to not record this room, so leave it alone");
+                }
               }
             };
 
