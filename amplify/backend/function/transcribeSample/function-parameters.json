@@ -1,1 +1,12 @@
-{}
+{
+    "permissions": {
+        "api": {
+            "meetings": [
+                "create",
+                "read",
+                "update",
+                "delete"
+            ]
+        }
+    }
+}

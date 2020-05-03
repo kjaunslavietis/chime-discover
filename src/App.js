@@ -1,166 +1,213 @@
-import React from 'react'
-import './App.css';
-import { Container, Row, Col, Jumbotron, Navbar, Button, Form } from 'react-bootstrap';
-import Browser from './components/Browser';
+import React, { useState, useEffect } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import AppBar from '@material-ui/core/AppBar';
+import SearchIcon from '@material-ui/icons/Search';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import Paper from '@material-ui/core/Paper';
+import Container from '@material-ui/core/Container';
+import Dialog from '@material-ui/core/Dialog';
 
+import RoomCard from './components/RoomCard';
 import CreateConversation from './components/CreateConversation';
 import ActiveConversation from './components/ActiveConversation';
-import MeetingInfoModal from './components/MeetingInfoModal';
 
 import ConversationService from './services/ConversationService';
+import AttendeeService from './services/AttendeeService';
+import SearchPage from './components/SearchPage';
 
-import './App.scss';
+import { Auth, Hub } from 'aws-amplify';
 
-const mockConvos = [
-  {
-    name: "Conversation 1",
-    description: "Conversation 1 description",
-    category: "Conversation 1 category",
-    meetingId: "e5102622-6672-4969-b2ca-f689c85d0be1"
+import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
+
+import './App.css';
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+    marginBottom: theme.spacing(2),
   },
-  {
-    name: "Conversation 2",
-    description: "Conversation 2 description",
-    category: "Conversation 2 category",
-    meetingId: "439589bf-8dac-4082-b4db-f584cf25d747"
+  menuButton: {
+    marginRight: theme.spacing(0),
   },
-  {
-    name: "Conversation 3",
-    description: "Conversation 3 description",
-    category: "Conversation 3 category",
-    meetingId: "439589bf-8dac-4082-b4db-f584cf25d747"
+  title: {
+    flexGrow: 1,
   },
-  {
-    name: "Conversation 4",
-    description: "Conversationm 4 description",
-    category: "Conversation 4 category",
-    meetingId: "f073d4c1-bb52-4bcc-90e4-4d2662773bdd"
+  container: {
+    display: 'flex',
+    flexDirection: 'row',
   },
-  {
-    name: "Conversation 5",
-    description: "Conversation 5 description",
-    category: "Conversation 5 category",
-    meetingId: "f29f4436-9f81-484e-9b1e-14eb0dd06728"
+  column: {
+    marginLeft: '0.5rem',
+    marginRight: '0.5rem',
+    padding: '1rem',
   },
-]
-
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.conversationInfo = this.conversationInfo.bind(this);
-    this.onConversationCreated = this.onConversationCreated.bind(this);
-    this.createConversation = this.createConversation.bind(this);
-    this.joinConversation = this.joinConversation.bind(this);
-    this.onConversationExited = this.onConversationExited.bind(this);
-    this.onConversationSelected = this.onConversationSelected.bind(this);
-
-    this.conversationService = new ConversationService();
-
-    this.state = {
-      conversations: this.conversationService.getAllConversations(),
-      selectedConversation: null,
-      activeConversation: null,
-      mainSlot: this.noConversationSelected(),
-      desiredMeetingId: '',
-    };
+  sidebar: {
+    display: "flex",
+    flexDirection: "column",
+    marginLeft: "10px",
+    marginRight: "10px",
+    minWidth: '350px',
+  },
+  main: {
+    display: "flex",
+    justifyContent: "center",
+    flexGrow: "0.8"
+  },
+  searchButton: {
+    maxWidth: "325px",
+    margin: "5px",
   }
+}));
 
-  noConversationSelected() {
-    return (
-      <Container>
-        <h1>Select conversation</h1>
-        <p>
-          You are not currently in a conversation. Select a conversation from the left to join.
-        </p>
-        <Button variant="primary" size="lg" block onClick={this.createConversation}>
-            Create new conversation
-        </Button>
-      </Container>
-    )
-  }
 
-  joinConversation() {
-    if(this.state.activeConversation) {
-      this.setState({
-        //TODO remove desiredMeetingId when DB is ready
-        mainSlot: <ActiveConversation desiredMeetingId={this.state.desiredMeetingId} conversation={this.state.activeConversation} onConversationExited={this.onConversationExited}/>
-      });
-    }
-  }
+const App = () => {
+  const classes = useStyles();
+  const [isCurrentPageSearch, setIsCurrentPageSearch] = useState(true);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [currentConversation, setCurrentConversation] = useState(null);
+  const [conversations, setConversations] = useState([]);
 
-  onConversationExited() {
-    this.setState({
-      mainSlot: this.noConversationSelected(),
-      activeConversation: null
+  const conversationService = new ConversationService();
+  const attendeeService = new AttendeeService();
+
+  if (!isSignedIn) {
+    Auth.currentAuthenticatedUser({
+      bypassCache: false  // Optional, By default is false. If set to true, this call will send a request to Cognito to get the latest user data
+    }).then(user => {
+      setIsSignedIn(true)
     })
-  }
+      .catch(err => console.log("Not logged in"));
 
-  updateId = (target, value) => {
-    this.setState({ [target]: value });
-    console.log('Passed meeting ID: ', this.state.desiredMeetingId);
-  };
-  
-  conversationInfo() {
-    if(this.state.selectedConversation) {
-      return <MeetingInfoModal 
-        show={true}
-        conversation={this.state.selectedConversation}
-        onClose={() => this.setState({selectedConversation: null})}
-        onJoin={() => this.setState({selectedConversation: null, activeConversation: this.state.selectedConversation}, () => this.joinConversation())}
-        updateId={this.updateId}
-        />
+    const authListener = (data) => {
+
+      switch (data.payload.event) {
+
+        case 'signIn':
+          setIsSignedIn(true);
+          break;
+        case 'signUp':
+          console.log('user signed up');
+          break;
+        case 'signOut':
+          setIsSignedIn(false);
+          break;
+        case 'signIn_failure':
+          console.log('user sign in failed');
+          break;
+        case 'configured':
+          console.log('the Auth module is configured');
+      }
     }
+
+    Hub.listen('auth', authListener);
   }
 
-  createConversation() {
-    this.setState({
-      mainSlot: <CreateConversation onConversationCreated={(newConversation) => {this.onConversationCreated(newConversation)}}/>
+  async function loadConversations() {
+    let allConversations = await conversationService.getAllConversations();
+    allConversations = allConversations.map(conversation => {
+      let conversationWithAttendees = conversation;
+      conversationWithAttendees.attendees = attendeeService.getAttendeesForRoom(conversation.id);
+      return conversationWithAttendees;
     });
+    setConversations(allConversations);
   }
 
-  onConversationCreated(conversation) {
-    console.log(JSON.stringify(conversation));
-    this.conversationService.createConversation(conversation);
-    this.setState({
-      // conversations: this.state.conversations.concat(conversation),
-      selectedConversation: conversation,
-      mainSlot: this.noConversationSelected()
-    });
+  useEffect(() => {
+    if (isSignedIn) {
+      loadConversations();
+    }
+  }, [isSignedIn]);
+
+  const handleClickOnCard = (conv) => {
+    setIsCurrentPageSearch(false);
+    setCurrentConversation(conv);
+  };
+
+  const handleJoinRoomOnSearch = (conv) => {
+    setIsCurrentPageSearch(false);
+    setCurrentConversation(conv);
   }
 
-  onConversationSelected(id) {
-    this.setState({
-      selectedConversation: this.state.conversations[id]
-    });
+  const onConversationCreated = (name, description, category, acceptRecording) => {
+    console.log(name + " " + description + " " + category + " " + acceptRecording);
+    // we don't check for creation error, let's assume everything is always working :-)
+    setCreateDialogOpen(false);
+    conversationService.createConversation({
+      name: name,
+      description: description,
+      category: category,
+      canBeAnalyzed: acceptRecording,
+      meetingId: "",
+      keywords: []
+    }).then(() => loadConversations());
+    // TODO : join the newly created room
   }
 
-  render() {
-    return (
-      <Container fluid>
-        { this.conversationInfo() }
-        <Navbar className="bg-light justify-content-between">
-          <Navbar.Brand>Chime Discover</Navbar.Brand>
-          <Form inline>
-            <Button variant="primary" onClick={this.createConversation} disabled={this.state.activeConversation ? true : false}>Create Conversation</Button>
-          </Form>
-        </Navbar>
-        <Row id="mainRow">
-          <Col id="searchCol" sm={2}>
-            <Browser 
-              conversations={this.state.conversations}
-              onConversationSelected={(id) => this.onConversationSelected(id)}
-              />
-          </Col>
-          <Col id="mainCol" sm={10}>
-            <Jumbotron fluid>
-                {this.state.mainSlot}
-            </Jumbotron>
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
+  const handleClickOpen = () => {
+    setCreateDialogOpen(true);
+  };
+
+  const handleClose = () => {
+    setCreateDialogOpen(false);
+  };
+
+  return (
+    <React.Fragment>
+      <div className={classes.root}>
+        <AppBar position="static" color="transparent" style={{ background: 'rgba(136, 138, 143, 0.15)' }}>
+          <Toolbar>
+            <IconButton edge="start" color="inherit" aria-label="menu">
+              <img src={`${process.env.PUBLIC_URL}/logo-removebg-preview(1).png`} />
+            </IconButton>
+            <Typography variant="h6" color="inherit" className={classes.title}>
+              Chime Discover
+                    </Typography>
+            <Button color="inherit" onClick={handleClickOpen}>Create a new Conversation</Button>
+            <AmplifySignOut />
+          </Toolbar>
+        </AppBar>
+      </div>
+      <div className={classes.container} style={{ display: "flex" }}>
+        <div className={classes.sidebar}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            className={classes.searchButton}
+            startIcon={<SearchIcon />}
+            onClick={() => setIsCurrentPageSearch(true)}
+          >
+            Find new Rooms
+                </Button>
+          {conversations.map((conversation) => (
+            <RoomCard
+              conversation={conversation}
+              focus={currentConversation && conversation.id === currentConversation.id}
+              audioActivated={currentConversation && conversation.id === currentConversation.id}
+              handleClickOnCard={handleClickOnCard}
+            />
+          ))}
+        </div>
+        <Container maxWidth="xl">
+          <Paper>
+            {isCurrentPageSearch ?
+              <SearchPage conversations={conversations} handleJoinRoom={handleJoinRoomOnSearch} />
+              :
+              <ActiveConversation
+                attendeesList={conversationService.getAttendees(currentConversation.id)}
+                conversation={currentConversation}
+                onConversationExited={undefined} />
+            }
+          </Paper>
+        </Container>
+      </div>
+      <CreateConversation handleCreate={onConversationCreated} open={createDialogOpen} handleClose={handleClose} />
+    </React.Fragment>
+  );
 }
 
-export default App;
+export default withAuthenticator(App);

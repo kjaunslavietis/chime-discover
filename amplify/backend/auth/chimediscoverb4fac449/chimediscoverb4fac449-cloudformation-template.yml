@@ -97,7 +97,16 @@ Parameters:
               
   dependsOn:
     Type: CommaDelimitedList
-    
+        
+  userPoolGroups:
+    Type: String
+              
+  adminQueries:
+    Type: String
+              
+  hostedUI:
+    Type: String
+                      
 Conditions:
   ShouldNotCreateEnvResources: !Equals [ !Ref env, NONE ]
 
@@ -192,6 +201,9 @@ Resources:
     Properties:
       ClientName: chimedb4fac449_app_clientWeb
       
+      ReadAttributes: !Ref userpoolClientReadAttributes
+      WriteAttributes: !Ref userpoolClientWriteAttributes
+      
       RefreshTokenValidity: !Ref userpoolClientRefreshTokenValidity
       UserPoolId: !Ref UserPool
     DependsOn: UserPool
@@ -201,6 +213,9 @@ Resources:
     Type: "AWS::Cognito::UserPoolClient"
     Properties:
       ClientName: chimedb4fac449_app_client
+      
+      ReadAttributes: !Ref userpoolClientReadAttributes
+      WriteAttributes: !Ref userpoolClientWriteAttributes
       
       GenerateSecret: !Ref userpoolClientGenerateSecret
       RefreshTokenValidity: !Ref userpoolClientRefreshTokenValidity
@@ -322,7 +337,7 @@ Resources:
   # Always created
     Type: AWS::Cognito::IdentityPool
     Properties: 
-      IdentityPoolName: !If [ShouldNotCreateEnvResources, 'chimediscoverb4fac449_identitypool_b4fac449', !Join ['',['chimediscoverb4fac449_identitypool_b4fac449', '__', !Ref env]]]
+      IdentityPoolName: !If [ShouldNotCreateEnvResources, 'chimediscoverb4fac449_identitypool_cd3ab5ef', !Join ['',['chimediscoverb4fac449_identitypool_cd3ab5ef', '__', !Ref env]]]
       
       CognitoIdentityProviders:
         - ClientId:  !Ref UserPoolClient

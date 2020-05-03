@@ -1,5 +1,5 @@
 {
-    "identityPoolName": "chimediscoverb4fac449_identitypool_b4fac449",
+    "identityPoolName": "chimediscoverb4fac449_identitypool_cd3ab5ef",
     "allowUnauthenticatedIdentities": true,
     "resourceNameTruncated": "chimedb4fac449",
     "userPoolName": "chimediscoverb4fac449_userpool_b4fac449",
@@ -23,13 +23,15 @@
     "userpoolClientGenerateSecret": true,
     "userpoolClientRefreshTokenValidity": 30,
     "userpoolClientWriteAttributes": [
-        "email"
+        "email",
+        "phone_number"
     ],
     "userpoolClientReadAttributes": [
-        "email"
+        "email",
+        "phone_number"
     ],
     "userpoolClientLambdaRole": "chimedb4fac449_userpoolclient_lambda_role",
-    "userpoolClientSetAttributes": false,
+    "userpoolClientSetAttributes": true,
     "resourceName": "chimediscoverb4fac449",
     "authSelections": "identityPoolAndUserPool",
     "authRoleArn": {
@@ -46,10 +48,15 @@
     },
     "useDefault": "default",
     "triggers": "{}",
-    "userPoolGroupList": [],
+    "userPoolGroupList": [
+        "users"
+    ],
     "parentStack": {
         "Ref": "AWS::StackId"
     },
     "permissions": [],
-    "dependsOn": []
+    "dependsOn": [],
+    "userPoolGroups": true,
+    "adminQueries": false,
+    "hostedUI": false
 }

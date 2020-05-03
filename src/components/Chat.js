@@ -4,7 +4,6 @@ import 'react-chat-elements/dist/main.css'
 import './Chat.css'
 import ChatService from './../services/ChatService'
 import ScrollToBottom from 'react-scroll-to-bottom';
-import { JS } from 'aws-amplify';
 
 
 class Chat extends React.Component {
@@ -18,6 +17,7 @@ class Chat extends React.Component {
     this.onNewMessageCreated = this.onNewMessageCreated.bind(this);
     this.chatService = new ChatService(this.onNewMessageCreated, this.props.roomID, this.props.userName);
     this.composeMessage = this.composeMessage.bind(this)
+    console.log("==> user from the chat component " + props.userName)
   }
   
 componentDidMount() {
@@ -73,18 +73,16 @@ composeMessage() {
 render() {
   return (
     <div
-      className='container'>
+      className='chat-frame'>
       <ScrollToBottom className = "message-list-container">
       <MessageList
-        id="messageListElementID"
-        //ref = {this.messageListElement}
         lockable={true}
         className='message-list'
         toBottomHeight={0}
         dataSource={this.state.messageList} />
         </ScrollToBottom>
       <Input
-        placeholder="write anything here"
+        placeholder="write here"
         ref='inputRef'
         multiline={true}
         onChange={(e) => this.setState({ message: e.target.value })}

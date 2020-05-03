@@ -4,14 +4,13 @@ import './index.css';
 import App from './App';
 import Chat from './components/Chat';
 import * as serviceWorker from './serviceWorker';
-import Amplify from "aws-amplify";
+import Amplify, { Storage } from "aws-amplify";
 import awsExports from "./aws-exports";
 Amplify.configure(awsExports);
 
 ReactDOM.render(
   <React.StrictMode>
-    
-    <Chat userName = "Wilson" roomID = "FAKE-34567654"/>
+    <App/>
   </React.StrictMode>,
   document.getElementById('root')
 );

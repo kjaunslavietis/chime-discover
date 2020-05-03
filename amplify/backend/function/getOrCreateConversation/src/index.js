@@ -65,7 +65,7 @@ exports.handler = async (event) => {
         ID: uuid(),
         statusCode: 200,
         meeting: meetingResponse.Meeting,
-        attendee: attendeeResponse.Attendee
+        attendee: attendeeResponse.Attendee,
     };
     return response;
 };

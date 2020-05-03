@@ -1,5 +1,9 @@
 
 type Room @model
+@auth(rules: [
+  { allow: public, provider: apiKey }, 
+  { allow: private, provider: iam }, 
+])
 # @key (fields: ["meetingID"]) 
 # @key (name: "byCategory", fields: ["category","name", "createdAt"])
 # @key (name: "byName", fields: ["name", "createdAt"])

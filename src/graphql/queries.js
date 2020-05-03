@@ -28,6 +28,11 @@ export const getOrCreateMeeting = /* GraphQL */ `
     }
   }
 `;
+export const pushMeetingRecording = /* GraphQL */ `
+  query PushMeetingRecording($base64: String) {
+    pushMeetingRecording(base64: $base64)
+  }
+`;
 export const getChatMessage = /* GraphQL */ `
   query GetChatMessage($id: ID!) {
     getChatMessage(id: $id) {

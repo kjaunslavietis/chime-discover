@@ -1,0 +1,7 @@
+.MuiOutlinedInput-notchedOutline {
+    border-color: rgb(255, 255, 255) !important;
+}
+
+.MuiCardContent-root {
+    padding-bottom: 5px !important;
+}

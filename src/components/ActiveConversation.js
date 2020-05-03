@@ -1,26 +1,68 @@
 import React from 'react';
-import { Container, Button, Spinner } from 'react-bootstrap';
+import { Container, Button, Spinner, Row, Col } from 'react-bootstrap';
 import { joinMeeting } from './../chime/handlers';
+import AudioControl from './AudioControl';
+import AttendeesList from './AttendeesList';
+
+import Chat from './Chat';
+
+
+import { Mp3MediaRecorder } from 'mp3-mediarecorder';
+import mp3RecorderWorker from 'workerize-loader!./RecorderWorker';  // eslint-disable-line import/no-webpack-loader-syntax
+import { Storage, Auth } from 'aws-amplify';
 
 class ActiveConversation extends React.Component {
+
     constructor(props) {
         super(props);
-
         this.exitConversation = this.exitConversation.bind(this);
+        this.pushMeetingRecording = this.pushMeetingRecording.bind(this);
         this.enableAudio = this.enableAudio.bind(this);
-        
+        this.muteOrUnmute = this.muteOrUnmute.bind(this);
+        this.startRecording = this.startRecording.bind(this);
+        this.restartMediaRecorder = this.restartMediaRecorder.bind(this);
+
         this.state = {
             isMeetingLoading: true,
             onConversationExited: this.props.onConversationExited,
-            meetingSession: null,
+            isAudioEnabled: false,
+            isMuted: false
         }
 
+        this.recorderWorker = mp3RecorderWorker();
+        this.mediaRecorder = null;
+
         this.joinChimeMeeting();
+        this.getUser()
     }
+
+    getUser() {
+        Auth.currentAuthenticatedUser({
+          bypassCache: false  // Optional, By default is false. If set to true, this call will send a request to Cognito to get the latest user data
+        }).then(user => {
+          this.userName = user.username;
+        })
+        .catch(err => console.log("Not logged in"));
+      }
 
     // this will be called when the component is un-rendered, eg. the user has chosen to leave the meeting
     componentWillUnmount() {
+        this.killRecorderForGood();
+        if(this.state.isAudioEnabled){
+            this.meetingSession.audioVideo.stop();
+        }
         this.leaveChimeMeeting();
+    }
+
+    killRecorderForGood() {
+        if(this.mediaRecorder) {
+            if(this.recorderInterval) {
+                clearInterval(this.recorderInterval);
+            }
+            this.mediaRecorder.onstop = {};
+            this.mediaRecorder.audioContext.close();
+            this.mediaRecorder.stop();    
+        }
     }
 
     async joinChimeMeeting() {
@@ -28,9 +70,10 @@ class ActiveConversation extends React.Component {
             isMeetingLoading: true
         })
         // call getOrCreateMeeting lambda (or service), get the necessary parameters, use chime SDK to connect to meeting, finally set isMeetingLoading: false
-        console.log(this.props.desiredMeetingId);
+        console.log("MEETING ID: ", this.props.conversation.meetingID);
+        console.log("ROOM ID: ", this.props.conversation.id);
         //TODO take desiredMeetingId from activeConversation after DB is ready
-        this.state.meetingSession = await joinMeeting(this.props.desiredMeetingId);
+        this.meetingSession = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID);
         await new Promise(r => setTimeout(r, 2000));
         this.setState({
             isMeetingLoading: false
@@ -56,17 +99,21 @@ class ActiveConversation extends React.Component {
 
     async listAudioDevices() {
         try {
-            console.log(this.state.meetingSession);
-            const audioInputDevices = await this.state.meetingSession.audioVideo.listAudioInputDevices();
-            const audioOutputDevices = await this.state.meetingSession.audioVideo.listAudioOutputDevices();
+            const audioInputDevices = await this.meetingSession.audioVideo.listAudioInputDevices();
+            const audioOutputDevices = await this.meetingSession.audioVideo.listAudioOutputDevices();
 
             // An array of MediaDeviceInfo objects
+            // Might be needed to change the device
+
+            /*
             audioInputDevices.forEach(mediaDeviceInfo => {
             console.log(`Device ID: ${mediaDeviceInfo.deviceId} Microphone: ${mediaDeviceInfo.label}`);
             });
             audioOutputDevices.forEach(mediaDeviceInfo => {
                 console.log(`Device ID: ${mediaDeviceInfo.deviceId} Microphone: ${mediaDeviceInfo.label}`);
             });
+            */
+            
             const devices = {
                 input: audioInputDevices,
                 output: audioOutputDevices
@@ -87,7 +134,7 @@ class ActiveConversation extends React.Component {
                 }
               };
               
-              this.state.meetingSession.audioVideo.addDeviceChangeObserver(observer);
+              this.meetingSession.audioVideo.addDeviceChangeObserver(observer);
             return devices;
         }
         catch(err){
@@ -102,56 +149,197 @@ class ActiveConversation extends React.Component {
             const audioInputDeviceInfo = devices.input;
             const inputDeviceId = audioInputDeviceInfo[0].deviceId;
             console.log('Input audio device: ', audioInputDeviceInfo[0]);
-            await this.state.meetingSession.audioVideo.chooseAudioInputDevice(inputDeviceId);
+            await this.meetingSession.audioVideo.chooseAudioInputDevice(inputDeviceId);
             const audioOutputDeviceInfo = devices.output;
             const outputDeviceId = audioOutputDeviceInfo[0].deviceId;
             console.log('Ouput audio device: ', audioOutputDeviceInfo[0]);
-            await this.state.meetingSession.audioVideo.chooseAudioOutputDevice(outputDeviceId);
+            await this.meetingSession.audioVideo.chooseAudioOutputDevice(outputDeviceId);
         }
         catch(err) {
             console.error(err);
         }
     }
 
+    async pushMeetingRecording(e) {
+        let blob = e.data;
+        if(blob.size > 200 * 1024) {
+            Storage.put(`audioin/${this.props.conversation.id}.mp3`, blob)
+            .then (result => console.log(result))
+            .catch(err => console.log(err));
+        }
+    }
+
+    async startRecording() {
+        if(this.mediaRecorder) {
+            return;
+        }
+        let audioElement = document.getElementById('meeting-audio');
+        let audioStream = audioElement.captureStream ? audioElement.captureStream() : audioElement.mozCaptureStream();
+
+        let userMediaStream;
+        try {
+            userMediaStream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+        } catch(err) {
+            userMediaStream = await navigator.mediaDevices.getUserMedia({audio: true});
+        }
+
+        for(let userTrack of userMediaStream.getTracks()) {
+            audioStream.addTrack(userTrack);
+        }
+
+        this.mediaRecorder = new Mp3MediaRecorder(audioStream, { 
+            worker: this.recorderWorker,
+            audioContext: new AudioContext()
+            });
+
+        this.mediaRecorder.onstart = () => {
+            this.recorderInterval = 
+                setInterval(() => {
+                    console.log(`MediaRecorder state: ${this.mediaRecorder.state}`);
+                    this.restartMediaRecorder();
+                }, 60 * 1000);
+        }
+
+        this.mediaRecorder.onerror = (e) => {
+            console.error(`MediaRecorder error: ${JSON.stringify(e)}`);
+        }
+
+        while(this.mediaRecorder.state === 'inactive') {
+            this.mediaRecorder.start(); // attempt to start the media recorder - might take several tries due to a race condition bug inside the recorder's worker
+            await this.sleep(1000);
+        }
+    }
+
+    sleep(ms) {
+        return new Promise((resolve) => {
+          setTimeout(resolve, ms);
+        });
+      }   
+
+    async restartMediaRecorder() { // stops and restarts the media recorder forcing it to emit the recording
+        if(this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+            this.mediaRecorder.onstop = () => {
+                this.mediaRecorder.onstop = () => {};
+                this.sleep(1000).then(() => {
+                    this.mediaRecorder.start();
+                }); //allow media recorder some time to stop properly
+            };
+
+            this.mediaRecorder.ondataavailable = (e) => { // ensures we only get data when we need it
+                this.pushMeetingRecording(e);
+                this.mediaRecorder.ondataavailable = {};
+            }
+            this.mediaRecorder.stop();
+        }
+    }
+
     enableAudio() {
         try {
             const audioElement = document.getElementById('meeting-audio');
-            this.state.meetingSession.audioVideo.bindAudioElement(audioElement);
+            this.setState({
+                isAudioEnabled: true
+            });
+            this.meetingSession.audioVideo.bindAudioElement(audioElement);
             
-            const observer = {
+            let observer = {
               audioVideoDidStart: () => {
-                console.log('Started');
+                if(this.props.conversation.canBeAnalyzed) {
+                    console.log("Conversation can be recorded, commencing recording...");
+                    this.startRecording();
+                } else {
+                    console.log("Creator has asked us to not record this room, so leave it alone");
+                }
               }
             };
+
+            observer.audioVideoDidStart = observer.audioVideoDidStart.bind(this);
             
-            this.state.meetingSession.audioVideo.addObserver(observer);
+            this.meetingSession.audioVideo.addObserver(observer);
             
-            this.state.meetingSession.audioVideo.start();
+            this.meetingSession.audioVideo.start();
+
             console.log("Audio has started");
+
         }
         catch(err) {
             console.error(err);
         }
     }   
 
+    muteOrUnmute() {
+        try {
+            // Mute
+            if(this.state.isMuted) {
+                const unmuted = this.meetingSession.audioVideo.realtimeUnmuteLocalAudio();
+                if (unmuted) {
+                    console.log('Unmuted');
+                    this.setState({
+                        isMuted: false
+                    });
+                } 
+            // Unmute
+            } else {
+                this.meetingSession.audioVideo.realtimeMuteLocalAudio();
+                console.log('Muted');
+                this.setState({
+                    isMuted: true
+                });
+            }
+
+        }
+        catch(err) {
+            console.error(err);
+        }
+    }
+
     render() {
+        //TODO change to the user name later
+        let randomUser = Math.random().toString(36).substring(7);
         if(this.state.isMeetingLoading) {
             return this.loadingScreen();
         } else {
             this.chooseAudioDevice();
             return (
-                // layout should be something like
-                // meeting controls on top
-                // active participants and their status (talking/not talking, muted/not muted) on the right
-                // chat in the middle / bottom
+
                 <Container>
-                    
-                    <p>{`Joined meeting: ${this.props.conversation.name}`}</p>
-                    <Button variant="secondary" size="lg" block onClick={this.enableAudio}>Enable Audio</Button>
-                    <Button variant="danger" size="lg" block onClick={this.exitConversation}>Exit conversation</Button>
-                    <audio id="meeting-audio" ></audio>
+                    <Row className='room-control'>
+                        <Col className='room-title' sm={8}>
+                            <h4>{`Joined meeting: ${this.props.conversation.name}`}</h4>
+                        </Col>
+                        <Col sm={2}>
+                            <AudioControl
+                                isMuted={this.state.isMuted} 
+                                isAudioEnabled={this.state.isAudioEnabled}
+                                enableAudio={this.enableAudio}
+                                muteOrUnmute={this.muteOrUnmute}
+                            />
+
+                        </Col>
+                        <Col sm={2}>
+                            <Button variant="danger" size="md" block onClick={this.exitConversation}>Leave</Button>
+                            <audio id="meeting-audio" ></audio>
+                        </Col>
+                    </Row>
+                    <Row className="participants-number">
+                        <Col>
+                            <h5>{this.props.attendeesList.length} participants</h5>
+                        </Col>
+                    </Row>
+                    <Row className='chat-participants'>
+                        <Col className='chat-ui' sm={8}>
+                            <Chat
+                            // userName = {randomUser}
+                            userName = {this.userName}
+                            roomID = {this.props.conversation.id}
+                            />
+                        </Col>
+                        <Col className='participants-ui' sm={4}>
+                            <AttendeesList attendeesList={this.props.attendeesList}/>
+                        </Col>
+                    </Row>
                 </Container>
             )
+
         }
     }
 }
