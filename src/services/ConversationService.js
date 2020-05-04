@@ -137,6 +137,7 @@ class ConversationService {
           graphqlOperation(onUpdateRoom)
       ).subscribe({
         next: (updateData) => callback(updateData.value.data.onUpdateRoom)
+        
       });
 
       return subscription;

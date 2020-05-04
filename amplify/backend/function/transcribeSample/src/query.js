@@ -3,6 +3,10 @@ module.exports = {
       updateRoom(input: $input) {
         id
         keywords
+        name
+        description
+        category
+        meetingID
       }
     }
     `
