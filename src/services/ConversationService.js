@@ -1,6 +1,7 @@
 import { API, graphqlOperation } from 'aws-amplify'
 import { listRooms, getRoom} from './../graphql/queries'
 import { createRoom, updateRoom} from './../graphql/mutations'
+import { onCreateRoom, onUpdateRoom, onDeleteRoom } from './../graphql/subscriptions';
 
 class ConversationService {
     constructor() {
@@ -131,6 +132,35 @@ class ConversationService {
           ];
     }
 
+    subscribeToUpdates(callback) {
+      const subscription = API.graphql(
+          graphqlOperation(onUpdateRoom)
+      ).subscribe({
+        next: (updateData) => callback(updateData.value.data.onUpdateRoom)
+      });
+
+      return subscription;
+    }
+
+    subscribeToDeletes(callback) {
+      const subscription = API.graphql(
+          graphqlOperation(onDeleteRoom)
+      ).subscribe({
+        next: (deleteData) => callback(deleteData.value.data.onDeleteRoom)
+      });
+
+      return subscription;
+    }
+
+    subscribeToCreates(callback) {
+      const subscription = API.graphql(
+          graphqlOperation(onCreateRoom)
+      ).subscribe({
+          next: (createData) => callback(createData.value.data.onCreateRoom)
+      });
+
+      return subscription;
+    }
 
     async getConversation(meetingId) {
       //TODO test
@@ -153,7 +183,9 @@ class ConversationService {
             conversations = await API.graphql(graphqlOperation(listRooms, {nextToken}));
             
         } while (nextToken)
+
         return allConversations;
+
         } catch (err) {
             console.log("==>err:" + JSON.stringify(err))
         }
