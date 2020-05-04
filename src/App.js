@@ -50,6 +50,10 @@ const styles = (theme) => ({
     marginLeft: "10px",
     marginRight: "10px",
     minWidth: '350px',
+    overflowY: 'scroll',
+    maxHeight: '90vh',
+    flex: "none",
+    direction: 'rtl',
   },
   main: {
     display: "flex",
@@ -94,14 +98,15 @@ class App extends React.Component {
 
   async loadConversations() {
     let allConversations = await this.conversationService.getAllConversations();
+    if(allConversations) {
+      let conversationMap = new Map();
+      for(let nextConversation of allConversations) {
+        nextConversation.attendees = this.attendeeService.getAttendeesForRoom(nextConversation.id);
+        conversationMap.set(nextConversation.id, nextConversation);
+      }
 
-    let conversationMap = new Map();
-    for(let nextConversation of allConversations) {
-      nextConversation.attendees = this.attendeeService.getAttendeesForRoom(nextConversation.id);
-      conversationMap.set(nextConversation.id, nextConversation);
+      this.setState({conversations: conversationMap});
     }
-
-    this.setState({conversations: conversationMap});
   }
 
   async setupSubscriptions() {
@@ -173,6 +178,12 @@ class App extends React.Component {
 
   conversationArray = () => Array.from(this.state.conversations.values());
 
+  handleSignOut = () => {
+    Auth.signOut()
+    .then(data => console.log(data))
+    .catch(err => console.log(err));
+  }
+
   render() {
     const { classes } = this.props;
 
@@ -220,13 +231,14 @@ class App extends React.Component {
                 Chime Discover
                       </Typography>
               <Button color="inherit" onClick={this.handleClickOpen}>Create a new Conversation</Button>
-              <AmplifySignOut />
+              <Button color="inherit" onClick={this.handleSignOut}>Sign Out</Button>
             </Toolbar>
           </AppBar>
         </div>
-        <div className={classes.container} style={{ display: "flex" }}>
+        <div className={classes.container} >
           <div className={classes.sidebar}>
             <Button
+              style={{direction:'ltr'}}
               variant="contained"
               color="primary"
               size="large"

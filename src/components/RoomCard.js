@@ -24,13 +24,16 @@ const useStyles = makeStyles((theme) => ({
         maxWidth: 325,
         minWidth: 300,
         margin: '5px',
+        overflow: 'visible',
+        direction: 'ltr'
     },
     focus: {
         maxWidth: 325,
         minWidth: 300,
         margin: '5px',
-        marginLeft: '25px',
-        backgroundColor: "#c4c4c41f"
+        backgroundColor: "#6868681f",
+        overflow: 'visible',
+        direction: 'ltr'
     },
     personIcon: {
         color: 'rgba(6, 100, 21, 0.78)',
