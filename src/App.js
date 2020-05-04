@@ -66,7 +66,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-
 const App = () => {
   const classes = useStyles();
   const [isCurrentPageSearch, setIsCurrentPageSearch] = useState(true);
@@ -112,12 +111,14 @@ const App = () => {
 
   async function loadConversations() {
     let allConversations = await conversationService.getAllConversations();
-    allConversations = allConversations.map(conversation => {
-      let conversationWithAttendees = conversation;
-      conversationWithAttendees.attendees = attendeeService.getAttendeesForRoom(conversation.id);
-      return conversationWithAttendees;
-    });
-    setConversations(allConversations);
+    if (allConversations) {
+      allConversations = allConversations.map(conversation => {
+        let conversationWithAttendees = conversation;
+        conversationWithAttendees.attendees = attendeeService.getAttendeesForRoom(conversation.id);
+        return conversationWithAttendees;
+      });
+      setConversations(allConversations);
+    }
   }
 
   useEffect(() => {
@@ -159,6 +160,12 @@ const App = () => {
     setCreateDialogOpen(false);
   };
 
+  const handleSignOut = () => {
+    Auth.signOut()
+    .then(data => console.log(data))
+    .catch(err => console.log(err));
+  }
+
   return (
     <React.Fragment>
       <div className={classes.root}>
@@ -171,7 +178,7 @@ const App = () => {
               Chime Discover
                     </Typography>
             <Button color="inherit" onClick={handleClickOpen}>Create a new Conversation</Button>
-            <AmplifySignOut />
+            <Button color="inherit" onClick={handleSignOut}>Sign Out</Button>
           </Toolbar>
         </AppBar>
       </div>
