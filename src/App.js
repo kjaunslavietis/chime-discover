@@ -50,6 +50,10 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "10px",
     marginRight: "10px",
     minWidth: '350px',
+    overflowY: 'scroll',
+    maxHeight: '90vh',
+    flex: "none",
+    direction: 'rtl',
   },
   main: {
     display: "flex",
@@ -171,9 +175,10 @@ const App = () => {
           </Toolbar>
         </AppBar>
       </div>
-      <div className={classes.container} style={{ display: "flex" }}>
+      <div className={classes.container}>
         <div className={classes.sidebar}>
           <Button
+            style={{direction:'ltr'}}
             variant="contained"
             color="primary"
             size="large"
@@ -182,7 +187,7 @@ const App = () => {
             onClick={() => setIsCurrentPageSearch(true)}
           >
             Find new Rooms
-                </Button>
+          </Button>
           {conversations.map((conversation) => (
             <RoomCard
               conversation={conversation}
