@@ -180,7 +180,10 @@ class App extends React.Component {
 
   handleSignOut = () => {
     Auth.signOut()
-    .then(data => console.log(data))
+    .then(data => {
+      this.setState({isSignedIn: false});
+      console.log(data)}
+      )
     .catch(err => console.log(err));
   }
 
