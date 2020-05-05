@@ -1,59 +1,19 @@
 import { listChatMessages } from './../graphql/queries';
-import { onCreateChatMessage } from './../graphql/subscriptions';
+import { subscribeToGiveRoom } from './../graphql/subscriptions';
 import { createChatMessage,} from './../graphql/mutations';
-
-
-
 import { API, graphqlOperation } from 'aws-amplify'
-
-const { v4: uuid } = require('uuid');
 
 class ChatService {
     constructor(subsriptionCallBack, conversationId, senderName) {
-        this.mockMessages = {
-            0: [
-                {
-                    author: uuid(),
-                    message: 'hello1', 
-                    timestamp: 3124112123412
-                },
-                {
-                    author: uuid(),
-                    message: 'hello2', 
-                    timestamp: 312412417
-                },
-                {
-                    author: uuid(),
-                    message: 'hello3', 
-                    timestamp: 312531244123412
-                },
-                {
-                    author: uuid(),
-                    message: 'hello4', 
-                    timestamp: 31241243462
-                },
-                {
-                    author: uuid(),
-                    message: 'hello5', 
-                    timestamp: 3124756345636346
-                },
-                {
-                    author: uuid(),
-                    message: 'hello6', 
-                    timestamp: 31241123123123123123
-                },
-            ]
-        }
         this.conversationId = conversationId;
         this.senderName = senderName;
         this.subsriptionCallBack = subsriptionCallBack;
         const subscription = API.graphql(
-            graphqlOperation(onCreateChatMessage)
+            graphqlOperation(subscribeToGiveRoom, {roomID: conversationId})
         ).subscribe({
             next: (chatMessage) => {
-                if (chatMessage.value.data.onCreateChatMessage.roomID === this.conversationId &&
-                    chatMessage.value.data.onCreateChatMessage.senderName !== this.senderName)
-                    subsriptionCallBack(chatMessage.value.data.onCreateChatMessage)
+                if (chatMessage.value.data.subscribeToGiveRoom.senderName !== this.senderName)
+                    subsriptionCallBack(chatMessage.value.data.subscribeToGiveRoom)
             },
             error: (error) => {
                 console.log("==>err:" + JSON.stringify(error))

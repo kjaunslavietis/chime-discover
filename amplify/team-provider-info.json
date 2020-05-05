@@ -13,7 +13,12 @@
         },
         "categories": {
             "function": {
-                "getOrCreateConversation": {}
+                "getOrCreateConversation": {},
+                "transcribeSample": {}
+            },
+            "auth": {
+                "chimediscoverb4fac449": {},
+                "userPoolGroups": {}
             }
         }
     },
@@ -80,6 +85,30 @@
             "function": {
                 "getOrCreateConversation": {},
                 "transcribeSample": {}
+            }
+        }
+    },
+    "chatapi": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-chime-discover-chatapi-04307-authRole",
+            "UnauthRoleArn": "arn:aws:iam::845108551121:role/amplify-chime-discover-chatapi-04307-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::845108551121:role/amplify-chime-discover-chatapi-04307-authRole",
+            "Region": "eu-central-1",
+            "DeploymentBucketName": "amplify-chime-discover-chatapi-04307-deployment",
+            "UnauthRoleName": "amplify-chime-discover-chatapi-04307-unauthRole",
+            "StackName": "amplify-chime-discover-chatapi-04307",
+            "StackId": "arn:aws:cloudformation:eu-central-1:845108551121:stack/amplify-chime-discover-chatapi-04307/a0f04ab0-8e58-11ea-af48-02205d104246",
+            "AmplifyAppId": "d3op8vw0uhd7qe"
+        },
+        "categories": {
+            "auth": {
+                "chimediscoverb4fac449": {},
+                "userPoolGroups": {}
+            },
+            "function": {
+                "getOrCreateConversation": {},
+                "transcribeSample": {},
+                "meetings": {}
             }
         }
     }
