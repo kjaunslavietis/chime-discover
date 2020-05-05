@@ -22,6 +22,8 @@ import { Auth, Hub } from 'aws-amplify';
 
 import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
 
+import { Map } from 'immutable';
+
 import './App.css';
 
 const styles = (theme) => ({
@@ -84,6 +86,7 @@ class App extends React.Component {
 
     this.createConversationSubscription = null;
     this.updateConversationSubscription = null;
+    this.deleteConversationSubscription = null;
 
     this.doInitialLoad = this.doInitialLoad.bind(this);
     this.cancelSubscriptions = this.cancelSubscriptions.bind(this);
@@ -102,7 +105,7 @@ class App extends React.Component {
       let conversationMap = new Map();
       for(let nextConversation of allConversations) {
         nextConversation.attendees = this.attendeeService.getAttendeesForRoom(nextConversation.id);
-        conversationMap.set(nextConversation.id, nextConversation);
+        conversationMap = conversationMap.set(nextConversation.id, nextConversation);
       }
 
       this.setState({conversations: conversationMap});
@@ -123,6 +126,12 @@ class App extends React.Component {
         this.setState({conversations: this.state.conversations.set(updatedConvo.id, updatedConvo)});
       });
     }
+
+    if(!this.deleteConversationSubscription) {
+      this.deleteConversationSubscription = this.conversationService.subscribeToDeletes((deletedConvo) => {
+        this.setState({conversations: this.state.conversations.delete(deletedConvo.id)});
+      });
+    }
   }
 
   cancelSubscriptions() {
@@ -134,6 +143,11 @@ class App extends React.Component {
     if(this.updateConversationSubscription) {
       this.updateConversationSubscription.unsubscribe();
       this.updateConversationSubscription = null;
+    }
+
+    if(this.deleteConversationSubscription) {
+      this.deleteConversationSubscription.unsubscribe();
+      this.deleteConversationSubscription = null;
     }
   }
 

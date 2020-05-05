@@ -80,6 +80,7 @@ export default function SearchBar(props) {
     [...Array(nbRooms).keys()].forEach((value) => fullMap.set(value, 1));
     const [idMap, setIdMap] = useState(fullMap);
     const [selectedCategory, setSelectedCategory] = useState("");
+    // const [searchTerm, setSearchTerm] = useState("");
     const [searchFieldIsEmpty, setSearchFieldIsEmpty] = useState(true);
 
     const options = [...new Set(categories)].map((category) => {
@@ -93,9 +94,11 @@ export default function SearchBar(props) {
     const onSearchChange = (e) => {
         if (e.target.value.length === 0) {
             setIdMap(fullMap);
+            // setSearchTerm("");
             setSearchFieldIsEmpty(true);
         } else {
             setSearchFieldIsEmpty(false);
+            // setSearchTerm(e.target.value);
             setIdMap(extractScore(scoreMap, e.target.value.toLowerCase().split(" ").filter(Boolean)));
         }
     }

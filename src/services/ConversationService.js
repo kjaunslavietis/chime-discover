@@ -136,7 +136,10 @@ class ConversationService {
       const subscription = API.graphql(
           graphqlOperation(onUpdateRoom)
       ).subscribe({
-        next: (updateData) => callback(updateData.value.data.onUpdateRoom)
+        next: (updateData) => {
+          console.log(`updateData: ${JSON.stringify(updateData)}`)
+          callback(updateData.value.data.onUpdateRoom)
+        }
         
       });
 
@@ -147,7 +150,10 @@ class ConversationService {
       const subscription = API.graphql(
           graphqlOperation(onDeleteRoom)
       ).subscribe({
-        next: (deleteData) => callback(deleteData.value.data.onDeleteRoom)
+        next: (deleteData) => {
+          console.log(`deleteData: ${JSON.stringify(deleteData)}`)
+          callback(deleteData.value.data.onDeleteRoom)
+        }
       });
 
       return subscription;
@@ -157,7 +163,10 @@ class ConversationService {
       const subscription = API.graphql(
           graphqlOperation(onCreateRoom)
       ).subscribe({
-          next: (createData) => callback(createData.value.data.onCreateRoom)
+          next: (createData) => {
+            console.log(`createData: ${JSON.stringify(createData)}`)
+            callback(createData.value.data.onCreateRoom)
+          }
       });
 
       return subscription;
