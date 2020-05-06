@@ -23,24 +23,38 @@ class ChatService {
 
     async getMessagesForConversation() {
         try {
-        let messages = await API.graphql(graphqlOperation(listChatMessages));
+        let messages = await API.graphql(graphqlOperation(listChatMessages, {filter: {
+            roomID: {
+                eq: this.conversationId
+            }
+        }}));
         let nextToken ;
         let allMessages = []
+        
         do {
             allMessages = allMessages.concat(messages.data.listChatMessages.items)
             nextToken = messages.data.listChatMessages.nextToken;
-            messages = await API.graphql(graphqlOperation(listChatMessages, {nextToken}));
+            messages = await API.graphql(graphqlOperation(listChatMessages, 
+                {
+                    filter: {
+                        roomID: {
+                            eq: this.conversationId
+                        }
+                    }, 
+                    nextToken: nextToken
+                }
+                ));
             
         } while (nextToken)
-        return this.filterAndSort(allMessages);
+        return this.sortMessages(allMessages);
         } catch (err) {
             console.log("==>err:" + JSON.stringify(err))
             return []
         }
     }
 
-    filterAndSort(allMessages) {
-        const filteredAndSortedMessages = allMessages.filter(element => element.roomID === this.conversationId).sort((a,b) => {
+    sortMessages(allMessages) {
+        const filteredAndSortedMessages = allMessages.sort((a,b) => {
             var dateA = new Date(a.createdAt), dateB = new Date(b.createdAt);
             return dateA - dateB
         })
