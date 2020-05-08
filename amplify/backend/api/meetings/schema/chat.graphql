@@ -7,3 +7,9 @@ type ChatMessage @model {
     mediaThumbnail: String
     createdAt: AWSDateTime
 }
+
+
+type Subscription {
+    subscribeToGiveRoom(roomID: ID!): ChatMessage
+            @aws_subscribe(mutations: ["createChatMessage"])
+}
