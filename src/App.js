@@ -165,6 +165,13 @@ class App extends React.Component {
     })
   }
 
+  handleBackToSearch = () => {
+    this.setState({
+      isCurrentPageSearch: true,
+      currentConversation: null
+    })
+  }
+
   onConversationCreated = (name, description, category, acceptRecording) => {
     console.log(name + " " + description + " " + category + " " + acceptRecording);
     // we don't check for creation error, let's assume everything is always working :-)
@@ -282,7 +289,7 @@ class App extends React.Component {
                 <ActiveConversation
                   attendeesList={this.conversationService.getAttendees(this.state.currentConversation.id)}
                   conversation={this.state.currentConversation}
-                  onConversationExited={undefined} />
+                  onConversationExited={this.handleBackToSearch} />
               }
             </Paper>
           </Container>

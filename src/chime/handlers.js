@@ -10,18 +10,6 @@ import {
     MeetingSessionConfiguration
 } from 'amazon-chime-sdk-js';
   
-
-export async function createMeeting() {
-    //TODO finalize if it's needed, so far only joinMeeting is used
-    try {
-      const desiredMeetingId = null;
-      let meetingAndAttendeeInfo = await API.graphql(graphqlOperation(getOrCreateMeeting, {meetingId: desiredMeetingId}));
-      console.log(JSON.stringify(meetingAndAttendeeInfo));
-    } catch(err) {
-      console.error(JSON.stringify(err));
-    }
-  }
-  
 export async function joinMeeting(oldId, desiredMeetingId) {
     try {
       let isCreated = false;
