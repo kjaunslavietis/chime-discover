@@ -57,7 +57,8 @@ class ActiveConversation extends React.Component {
         if(prevProps.conversation.id !== this.props.conversation.id) {
             console.log("Switching the room");
             this.setState({
-                isAudioEnabled: false
+                isAudioEnabled: false,
+                isMuted: false
             });
             this.killRecorderForGood();
             if(this.state.isAudioEnabled){
