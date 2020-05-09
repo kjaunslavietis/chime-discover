@@ -25,8 +25,7 @@ class ActiveConversation extends React.Component {
             isMeetingLoading: true,
             onConversationExited: this.props.onConversationExited,
             isAudioEnabled: false,
-            isMuted: false,
-            recordingStarted: false
+            isMuted: false
         }
         this.mediaRecorder = null;
         this.MS_BETWEEN_RECORDINGS = 1000 * 60 * 1; // 1 minute
@@ -61,9 +60,7 @@ class ActiveConversation extends React.Component {
                 isAudioEnabled: false,
                 isMuted: false
             });
-            if(this.state.recordingStarted) {
-                this.killRecorderForGood();
-            }
+            this.killRecorderForGood();
             if(this.state.isAudioEnabled){
                 this.meetingSession.audioVideo.stop();
             }
@@ -74,7 +71,7 @@ class ActiveConversation extends React.Component {
     }
 
     killRecorderForGood() {
-        if(this.mediaRecorder) {
+        if(this.mediaRecorder && this.mediaRecorder.state==='recording') {
             if(this.recorderInterval) {
                 clearInterval(this.recorderInterval);
             }
@@ -268,9 +265,6 @@ class ActiveConversation extends React.Component {
                     if(this.props.conversation.canBeAnalyzed) {
                         console.log("Conversation can be recorded, commencing recording...");
                         this.startRecording();
-                        this.setState({
-                            recordingStarted: true
-                        });
                     } else {
                         console.log("Creator has asked us to not record this room, so leave it alone");
                     }
