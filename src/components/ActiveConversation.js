@@ -52,6 +52,10 @@ class ActiveConversation extends React.Component {
         this.leaveChimeMeeting();
     }
 
+    componentDidMount() {
+        this.enableAudio();
+    }
+
     // on switching the meeting
     componentDidUpdate(prevProps) {
         if(prevProps.conversation.id !== this.props.conversation.id) {
@@ -66,7 +70,6 @@ class ActiveConversation extends React.Component {
             }
             this.leaveChimeMeeting();
             this.joinChimeMeeting();
-            this.getUser() 
         }
     }
 
