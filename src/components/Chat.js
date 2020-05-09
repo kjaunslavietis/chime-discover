@@ -57,7 +57,6 @@ class Chat extends React.Component {
         roomID: this.props.roomID,
         messageList: [],
       });
-      console.log('state: ', this.state);
       this.chatService.updateConversationId(this.props.roomID);
       this.chatService.getMessagesForConversation().then(chatMessages => {
         this.appendMessagesToChat(chatMessages)

@@ -52,6 +52,20 @@ class ActiveConversation extends React.Component {
         this.leaveChimeMeeting();
     }
 
+    //on switching the meeting
+    componentDidUpdate(prevProps) {
+        if(prevProps.conversation.id !== this.props.conversation.id) {
+            console.log("switching the room");
+            this.killRecorderForGood();
+            if(this.state.isAudioEnabled){
+                this.meetingSession.audioVideo.stop();
+            }
+            this.leaveChimeMeeting();
+            this.joinChimeMeeting();
+            this.getUser() 
+        }
+    }
+
     killRecorderForGood() {
         if(this.mediaRecorder) {
             if(this.recorderInterval) {
