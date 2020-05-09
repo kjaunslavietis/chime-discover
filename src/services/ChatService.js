@@ -21,6 +21,10 @@ class ChatService {
         });
     }
 
+    updateConversationId(newId) {
+        this.conversationId = newId;
+    }
+
     async getMessagesForConversation() {
         try {
         let messages = await API.graphql(graphqlOperation(listChatMessages, {filter: {

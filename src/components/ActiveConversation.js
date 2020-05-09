@@ -25,7 +25,8 @@ class ActiveConversation extends React.Component {
             isMeetingLoading: true,
             onConversationExited: this.props.onConversationExited,
             isAudioEnabled: false,
-            isMuted: false
+            isMuted: false,
+            recordingStarted: false
         }
         this.mediaRecorder = null;
         this.MS_BETWEEN_RECORDINGS = 1000 * 60 * 1; // 1 minute
@@ -50,6 +51,26 @@ class ActiveConversation extends React.Component {
             this.meetingSession.audioVideo.stop();
         }
         this.leaveChimeMeeting();
+    }
+
+    // on switching the meeting
+    componentDidUpdate(prevProps) {
+        if(prevProps.conversation.id !== this.props.conversation.id) {
+            console.log("Switching the room");
+            this.setState({
+                isAudioEnabled: false,
+                isMuted: false
+            });
+            if(this.state.recordingStarted) {
+                this.killRecorderForGood();
+            }
+            if(this.state.isAudioEnabled){
+                this.meetingSession.audioVideo.stop();
+            }
+            this.leaveChimeMeeting();
+            this.joinChimeMeeting();
+            this.getUser() 
+        }
     }
 
     killRecorderForGood() {
@@ -235,30 +256,35 @@ class ActiveConversation extends React.Component {
 
     enableAudio() {
         try {
-            const audioElement = document.getElementById('meeting-audio');
-            this.setState({
-                isAudioEnabled: true
-            });
-            this.meetingSession.audioVideo.bindAudioElement(audioElement);
-            
-            let observer = {
-              audioVideoDidStart: () => {
-                if(this.props.conversation.canBeAnalyzed) {
-                    console.log("Conversation can be recorded, commencing recording...");
-                    this.startRecording();
-                } else {
-                    console.log("Creator has asked us to not record this room, so leave it alone");
+            if (!this.state.isAudioEnabled) {
+                const audioElement = document.getElementById('meeting-audio');
+                this.setState({
+                    isAudioEnabled: true
+                });
+                this.meetingSession.audioVideo.bindAudioElement(audioElement);
+                
+                let observer = {
+                audioVideoDidStart: () => {
+                    if(this.props.conversation.canBeAnalyzed) {
+                        console.log("Conversation can be recorded, commencing recording...");
+                        this.startRecording();
+                        this.setState({
+                            recordingStarted: true
+                        });
+                    } else {
+                        console.log("Creator has asked us to not record this room, so leave it alone");
+                    }
                 }
-              }
-            };
+                };
 
-            observer.audioVideoDidStart = observer.audioVideoDidStart.bind(this);
-            
-            this.meetingSession.audioVideo.addObserver(observer);
-            
-            this.meetingSession.audioVideo.start();
+                observer.audioVideoDidStart = observer.audioVideoDidStart.bind(this);
+                
+                this.meetingSession.audioVideo.addObserver(observer);
+                
+                this.meetingSession.audioVideo.start();
 
-            console.log("Audio has started");
+                console.log("Audio has started");
+            }
 
         }
         catch(err) {

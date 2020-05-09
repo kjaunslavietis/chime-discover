@@ -17,13 +17,16 @@ class Chat extends React.Component {
       message: "",
       messageList: [],
       showingEmojiPocker: false,
+      roomID: this.props.roomID,
     };
 
     this.onNewMessageCreated = this.onNewMessageCreated.bind(this);
-    this.chatService = new ChatService(this.onNewMessageCreated, this.props.roomID, this.props.userName);
+    this.chatService = new ChatService(this.onNewMessageCreated, this.state.roomID, this.props.userName);
     this.composeMessage = this.composeMessage.bind(this)
     this.addEmoji = this.addEmoji.bind(this)
-    console.log("==>user from the chat component " + props.userName)
+    console.log("==>user from the chat component " + this.props.userName)
+    console.log("==>room id " + this.state.roomID)
+
   }
 
   componentDidMount() {
@@ -45,7 +48,21 @@ class Chat extends React.Component {
 
   onNewMessageCreated(chatMessage) {
     this.appendMessagesToChat([chatMessage])
+  }
 
+  //Update chat on switching the room
+  async componentDidUpdate(prevProps, prevState) {
+    if(prevProps.roomID !== this.props.roomID) {
+      this.setState({
+        roomID: this.props.roomID,
+        messageList: [],
+      });
+      this.chatService.updateConversationId(this.props.roomID);
+      this.chatService.getMessagesForConversation().then(chatMessages => {
+        this.appendMessagesToChat(chatMessages)
+      })
+      console.log("==>room id updated to " + this.props.roomID)
+    }
   }
 
   appendMessagesToChat(newMessages) {
@@ -69,7 +86,7 @@ class Chat extends React.Component {
     if (!this.state.message) {
       return
     }
-    const newMessage = { roomID: this.props.roomID, senderName: this.props.userName, content: this.state.message }
+    const newMessage = { roomID: this.state.roomID, senderName: this.props.userName, content: this.state.message }
     this.appendMessagesToChat([newMessage])
     this.chatService.createMessage(newMessage)
     this.setState({
