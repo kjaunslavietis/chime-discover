@@ -14,6 +14,7 @@ class ActiveConversation extends React.Component {
 
     constructor(props) {
         super(props);
+        this.exitConversation = this.exitConversation.bind(this);
         this.pushMeetingRecording = this.pushMeetingRecording.bind(this);
         this.enableAudio = this.enableAudio.bind(this);
         this.muteOrUnmute = this.muteOrUnmute.bind(this);
@@ -79,6 +80,10 @@ class ActiveConversation extends React.Component {
 
     leaveChimeMeeting() {
         console.log("Left chime meeting");
+    }
+
+    exitConversation() {
+        this.state.onConversationExited();
     }
 
     loadingScreen() {
@@ -288,6 +293,8 @@ class ActiveConversation extends React.Component {
     }
 
     render() {
+        //TODO change to the user name later
+        let randomUser = Math.random().toString(36).substring(7);
         if(this.state.isMeetingLoading) {
             return this.loadingScreen();
         } else {
@@ -309,7 +316,7 @@ class ActiveConversation extends React.Component {
 
                         </Col>
                         <Col sm={2}>
-                            <Button variant="danger" size="md" block onClick={this.state.onConversationExited()}>Leave</Button>
+                            <Button variant="danger" size="md" block onClick={this.exitConversation}>Leave</Button>
                             <audio id="meeting-audio" ></audio>
                         </Col>
                     </Row>
@@ -321,6 +328,7 @@ class ActiveConversation extends React.Component {
                     <Row className='chat-participants'>
                         <Col className='chat-ui' sm={8}>
                             <Chat
+                            // userName = {randomUser}
                             userName = {this.userName}
                             roomID = {this.props.conversation.id}
                             />
