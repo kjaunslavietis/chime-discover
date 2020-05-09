@@ -54,8 +54,7 @@ const styles = (theme) => ({
     minWidth: '350px',
     overflowY: 'scroll',
     maxHeight: '90vh',
-    flex: "none",
-    direction: 'rtl',
+    flex: "none"
   },
   main: {
     display: "flex",
@@ -248,6 +247,22 @@ class App extends React.Component {
     this.setState({createDialogOpen: false})
   };
 
+  conversationHistory = () => {
+    let conversationHistoryArray = this.conversationHistoryArray();
+    if(conversationHistoryArray && conversationHistoryArray.length > 0) {
+        return conversationHistoryArray.map((conversation) => (
+          <RoomCard
+            conversation={conversation}
+            focus={this.state.currentConversation && conversation.id === this.state.currentConversation.id}
+            audioActivated={this.state.currentConversation && conversation.id === this.state.currentConversation.id}
+            handleClickOnCard={this.handleClickOnCard}
+          />
+        ))
+    } else {
+      return <p><em>Looks like you haven't joined any conversations yet. <br /> Go on, pick one!</em></p>
+    }
+  }
+
   conversationArray = () => Array.from(this.state.conversations.values());
 
   conversationHistoryArray = () => {
@@ -326,7 +341,7 @@ class App extends React.Component {
         </div>
         <div className={classes.container} >
           <div className={classes.sidebar}>
-            <Button
+            {/* <Button
               style={{direction:'ltr'}}
               variant="contained"
               color="primary"
@@ -336,15 +351,10 @@ class App extends React.Component {
               onClick={() => this.setState({isCurrentPageSearch: true})}
             >
               Find new Rooms
-                  </Button>
-            {this.conversationHistoryArray().map((conversation) => (
-              <RoomCard
-                conversation={conversation}
-                focus={this.state.currentConversation && conversation.id === this.state.currentConversation.id}
-                audioActivated={this.state.currentConversation && conversation.id === this.state.currentConversation.id}
-                handleClickOnCard={this.handleClickOnCard}
-              />
-            ))}
+                  </Button> */}
+            {
+              this.conversationHistory()
+            }
           </div>
           <Container maxWidth="xl">
             <Paper>
