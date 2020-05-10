@@ -1,5 +1,5 @@
 import { API, graphqlOperation } from 'aws-amplify'
-import { getOrCreateMeeting} from './../graphql/queries'
+import { getOrCreateMeeting, listMeetingAttendees} from './../graphql/queries'
 import ConversationService from './../services/ConversationService';
 
 import {
@@ -44,5 +44,11 @@ export async function joinMeeting(oldId, desiredMeetingId) {
     } catch(err) {
       console.error(err);
     }
+  }
+
+  export async function getMeetingAttendees(meetingId) {
+    let meetingAttendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: meetingId}));
+    console.log("==> attendees updated " + JSON.stringify(meetingAttendeesResponse.attendees));
+    return meetingAttendeesResponse.attendees
   }
 

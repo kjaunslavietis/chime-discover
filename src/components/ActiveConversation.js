@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container, Button, Spinner, Row, Col } from 'react-bootstrap';
-import { joinMeeting } from './../chime/handlers';
+import { joinMeeting, getMeetingAttendees } from './../chime/handlers';
 import AudioControl from './AudioControl';
 import AttendeesList from './AttendeesList';
 
@@ -45,6 +45,10 @@ class ActiveConversation extends React.Component {
         .catch(err => console.log("Not logged in"));
       }
 
+      componentDidMount() {
+        this.timer = setInterval(() => { this.updatedMeetingAttendeesList()}, 1000)
+      }
+
     // this will be called when the component is un-rendered, eg. the user has chosen to leave the meeting
     componentWillUnmount() {
         this.killRecorderForGood();
@@ -52,6 +56,7 @@ class ActiveConversation extends React.Component {
             this.meetingSession.audioVideo.stop();
         }
         this.leaveChimeMeeting();
+        clearInterval(this.timer)
     }
 
     // on switching the meeting
@@ -70,6 +75,15 @@ class ActiveConversation extends React.Component {
             this.leaveChimeMeeting();
             this.getUser() 
             this.joinChimeMeeting();
+        }
+    }
+
+    async updatedMeetingAttendeesList() {
+        const attendeesList = await getMeetingAttendees(this.props.conversation.meetingID);
+        if (attendeesList) {
+            this.setState({
+                attendeesList: attendeesList
+            })
         }
     }
 
@@ -101,6 +115,9 @@ class ActiveConversation extends React.Component {
             this.setState({
                 attendeesList: this.meetingSession.attendeesList
             }) 
+            console.log("==> attendees from session" + JSON.stringify(this.meetingSession.attendeesList))
+        } else {
+            console.log("Nooo meeting session")
         }
     }
 
@@ -350,7 +367,7 @@ class ActiveConversation extends React.Component {
                     </Row>
                     <Row className="participants-number">
                         <Col>
-                            <h5>{this.props.attendeesList.length} participants</h5>
+            <h5>{this.state.attendeesList.length} participant{this.state.attendeesList.length == 1 ? "" : "s"}</h5>
                         </Col>
                     </Row>
                     <Row className='chat-participants'>
