@@ -54,7 +54,11 @@ const styles = (theme) => ({
     minWidth: '350px',
     overflowY: 'scroll',
     maxHeight: '90vh',
-    flex: "none"
+    flex: "none",
+    direction: 'rtl'
+  },
+  sidebarContent: {
+    direction: 'ltr'
   },
   main: {
     display: "flex",
@@ -341,20 +345,22 @@ class App extends React.Component {
         </div>
         <div className={classes.container} >
           <div className={classes.sidebar}>
-            {/* <Button
-              style={{direction:'ltr'}}
-              variant="contained"
-              color="primary"
-              size="large"
-              className={classes.searchButton}
-              startIcon={<SearchIcon />}
-              onClick={() => this.setState({isCurrentPageSearch: true})}
-            >
-              Find new Rooms
-                  </Button> */}
-            {
-              this.conversationHistory()
-            }
+            <div className={classes.sidebarContent}>
+              {/* <Button
+                style={{direction:'ltr'}}
+                variant="contained"
+                color="primary"
+                size="large"
+                className={classes.searchButton}
+                startIcon={<SearchIcon />}
+                onClick={() => this.setState({isCurrentPageSearch: true})}
+              >
+                Find new Rooms
+                    </Button> */}
+              {
+                this.conversationHistory()
+              }
+            </div>
           </div>
           <Container maxWidth="xl">
             <Paper>
