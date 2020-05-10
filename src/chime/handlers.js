@@ -18,6 +18,7 @@ export async function joinMeeting(oldId, desiredMeetingId) {
       let meetingAndAttendeeInfo = await API.graphql(graphqlOperation(getOrCreateMeeting, {meetingId: desiredMeetingId}));
       const meetingResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.meeting;
       const attendeeResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.attendee;
+      const attendeesList = meetingAndAttendeeInfo.data.getOrCreateMeeting.attendees;
       if(desiredMeetingId != meetingResponse.MeetingId) {
         isCreated = true;
         await conversationService.updateConversation(oldId, meetingResponse.MeetingId)
@@ -35,7 +36,8 @@ export async function joinMeeting(oldId, desiredMeetingId) {
       const meetingSession = new DefaultMeetingSession(
         configuration,
         logger,
-        deviceController
+        deviceController, 
+        attendeesList
       );
       console.log(meetingSession);
       return meetingSession;

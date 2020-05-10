@@ -10,7 +10,7 @@ class AttendeesList extends React.Component {
     render() {
         let attendeesListCard = this.props.attendeesList.map((item, key) =>
             <ListGroup.Item>
-                {item.name}
+                {item.ExternalUserId}
             </ListGroup.Item>
         );
 

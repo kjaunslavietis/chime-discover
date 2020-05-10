@@ -25,13 +25,15 @@ class ActiveConversation extends React.Component {
             isMeetingLoading: true,
             onConversationExited: this.props.onConversationExited,
             isAudioEnabled: false,
-            isMuted: false
+            isMuted: false,
+            attendeesList = []
         }
         this.mediaRecorder = null;
         this.MS_BETWEEN_RECORDINGS = 1000 * 60 * 1; // 1 minute
 
-        this.joinChimeMeeting();
         this.getUser()
+        this.joinChimeMeeting();
+        
     }
 
     getUser() {
@@ -64,9 +66,10 @@ class ActiveConversation extends React.Component {
             if(this.state.isAudioEnabled){
                 this.meetingSession.audioVideo.stop();
             }
+            
             this.leaveChimeMeeting();
-            this.joinChimeMeeting();
             this.getUser() 
+            this.joinChimeMeeting();
         }
     }
 
@@ -94,6 +97,11 @@ class ActiveConversation extends React.Component {
         this.setState({
             isMeetingLoading: false
         })
+        if (this.meetingSession) {
+            this.setState({
+                attendeesList: this.meetingSession.attendeesList
+            }) 
+        }
     }
 
     leaveChimeMeeting() {
@@ -354,7 +362,7 @@ class ActiveConversation extends React.Component {
                             />
                         </Col>
                         <Col className='participants-ui' sm={4}>
-                            <AttendeesList attendeesList={this.props.attendeesList}/>
+                            <AttendeesList attendeesList={this.state.attendeesList}/>
                         </Col>
                     </Row>
                 </Container>

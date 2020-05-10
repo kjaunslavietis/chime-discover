@@ -68,7 +68,7 @@
 				"Timeout": "25",
 				"Code": {
 					"S3Bucket": "amplify-chime-discover-chatapi-04307-deployment",
-					"S3Key": "amplify-builds/listMeetingAttendees-69662f76706c4550624f-build.zip"
+					"S3Key": "amplify-builds/listMeetingAttendees-74364e6e527149645650-build.zip"
 				}
 			}
 		},
