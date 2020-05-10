@@ -47,8 +47,12 @@ export async function joinMeeting(oldId, desiredMeetingId) {
   }
 
   export async function getMeetingAttendees(meetingId) {
+    try {
     let meetingAttendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: meetingId}));
-    console.log("==> attendees updated " + JSON.stringify(meetingAttendeesResponse.attendees));
+    console.log("==> attendees updated " + JSON.stringify(meetingAttendeesResponse.attendees))
     return meetingAttendeesResponse.attendees
+    } catch(err) {
+      console.log(err)
+    } 
   }
 
