@@ -26,9 +26,17 @@ type AttendeeAndMeeting {
   attendee: Attendee
   statusCode: Int
   error: AWSJSON
+  attendees: [Attendee] # all attendees who are in the meeting, at least the requester is there.
+}
+
+type AttendeesListing {
+  statusCode: Int
+  error: AWSJSON
+  attendees: [Attendee] # all attendees who are in the meeting, at least the requester is there.
 }
 
 type Query {
-  getOrCreateMeeting(meetingId: String): AttendeeAndMeeting @function(name: "getOrCreateConversation-${env}")
+  getOrCreateMeeting(meetingId: String, userId: String): AttendeeAndMeeting @function(name: "getOrCreateConversation-${env}")
   pushMeetingRecording(base64: String): AWSJSON @function(name: "pushMeetingRecording-${env}")
+  listMeetingAttendees(meetingId: String): AttendeesListing @function(name: "listMeetingAttendees-${env}")
 }
