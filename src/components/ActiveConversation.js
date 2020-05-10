@@ -26,7 +26,7 @@ class ActiveConversation extends React.Component {
             onConversationExited: this.props.onConversationExited,
             isAudioEnabled: false,
             isMuted: false,
-            attendeesList = []
+            attendeesList: []
         }
         this.mediaRecorder = null;
         this.MS_BETWEEN_RECORDINGS = 1000 * 60 * 1; // 1 minute
