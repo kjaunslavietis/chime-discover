@@ -16,7 +16,7 @@ exports.handler = async (event) => {
                 MeetingId: meetingId,
                 NextToken: allAttendeesResponse.NextToken
             }).promise();
-            allAttendees.push(allAttendeesResponse.Attendees);
+            allAttendees.concat(allAttendeesResponse.Attendees);
         } catch (err) {
             console.log(`Listing Attendees error: ${err} \n ${err.stack}`);
             return {
