@@ -9,18 +9,6 @@
 		},
 		"env": {
 			"Type": "String"
-		},
-		"storagesampleTranscriptionsBucketName": {
-			"Type": "String",
-			"Default": "storagesampleTranscriptionsBucketName"
-		},
-		"apimeetingsGraphQLAPIIdOutput": {
-			"Type": "String",
-			"Default": "apimeetingsGraphQLAPIIdOutput"
-		},
-		"apimeetingsGraphQLAPIEndpointOutput": {
-			"Type": "String",
-			"Default": "apimeetingsGraphQLAPIEndpointOutput"
 		}
 	},
 	"Conditions": {
@@ -45,12 +33,12 @@
 				"FunctionName": {
 					"Fn::If": [
 						"ShouldNotCreateEnvResources",
-						"transcribeSample",
+						"listMeetingAttendees",
 						{
 							"Fn::Join": [
 								"",
 								[
-									"transcribeSample",
+									"listMeetingAttendees",
 									"-",
 									{
 										"Ref": "env"
@@ -67,21 +55,6 @@
 						},
 						"REGION": {
 							"Ref": "AWS::Region"
-						},
-						"ROLE_FOR_TRANSCRIBE": {
-							"Fn::GetAtt": [
-								"LambdaExecutionRole",
-								"Arn"
-							]
-						},
-						"STORAGE_SAMPLETRANSCRIPTIONS_BUCKETNAME": {
-							"Ref": "storagesampleTranscriptionsBucketName"
-						},
-						"API_MEETINGS_GRAPHQLAPIIDOUTPUT": {
-							"Ref": "apimeetingsGraphQLAPIIdOutput"
-						},
-						"API_MEETINGS_GRAPHQLAPIENDPOINTOUTPUT": {
-							"Ref": "apimeetingsGraphQLAPIEndpointOutput"
 						}
 					}
 				},
@@ -95,7 +68,7 @@
 				"Timeout": "25",
 				"Code": {
 					"S3Bucket": "amplify-chime-discover-chatapi-04307-deployment",
-					"S3Key": "amplify-builds/transcribeSample-594f76792b6876305876-build.zip"
+					"S3Key": "amplify-builds/listMeetingAttendees-69662f76706c4550624f-build.zip"
 				}
 			}
 		},
@@ -105,12 +78,12 @@
 				"RoleName": {
 					"Fn::If": [
 						"ShouldNotCreateEnvResources",
-						"chimediscoverLambdaRole4a15db62",
+						"chimediscoverLambdaRole86812a62",
 						{
 							"Fn::Join": [
 								"",
 								[
-									"chimediscoverLambdaRole4a15db62",
+									"chimediscoverLambdaRole86812a62",
 									"-",
 									{
 										"Ref": "env"
@@ -179,92 +152,27 @@
 						},
 						{
 							"Action": [
-								"s3:PutObject",
-								"s3:GetObject",
-								"s3:ListBucket",
-								"s3:DeleteObject"
+								"chime:CreateMeeting",
+								"chime:DeleteMeeting",
+								"chime:GetMeeting",
+								"chime:ListMeetings",
+								"chime:CreateAttendee",
+								"chime:BatchCreateAttendee",
+								"chime:DeleteAttendee",
+								"chime:GetAttendee",
+								"chime:ListAttendees",
+								"chime:ListAttendeeTags",
+								"chime:ListMeetingTags",
+								"chime:ListTagsForResource",
+								"chime:TagAttendee",
+								"chime:TagMeeting",
+								"chime:TagResource",
+								"chime:UntagAttendee",
+								"chime:UntagMeeting",
+								"chime:UntagResource"
 							],
-							"Resource": "*",
-							"Effect": "Allow"
-						},
-						{
 							"Effect": "Allow",
-							"Action": [
-								"transcribe:*"
-							],
 							"Resource": "*"
-						},
-						{
-							"Effect": "Allow",
-							"Action": [
-								"comprehend:*"
-							],
-							"Resource": "*"
-						},
-						{
-							"Effect": "Allow",
-							"Action": [
-								"iam:PassRole"
-							],
-							"Resource": {
-								"Fn::GetAtt": [
-									"LambdaExecutionRole",
-									"Arn"
-								]
-							}
-						}
-					]
-				}
-			}
-		},
-		"AmplifyResourcesPolicy": {
-			"DependsOn": [
-				"LambdaExecutionRole"
-			],
-			"Type": "AWS::IAM::Policy",
-			"Properties": {
-				"PolicyName": "amplify-lambda-execution-policy",
-				"Roles": [
-					{
-						"Ref": "LambdaExecutionRole"
-					}
-				],
-				"PolicyDocument": {
-					"Version": "2012-10-17",
-					"Statement": [
-						{
-							"Effect": "Allow",
-							"Action": [
-								"appsync:Create*",
-								"appsync:StartSchemaCreation",
-								"appsync:GraphQL",
-								"appsync:Get*",
-								"appsync:List*",
-								"appsync:Update*",
-								"appsync:Delete*"
-							],
-							"Resource": [
-								{
-									"Fn::Join": [
-										"",
-										[
-											"arn:aws:appsync:",
-											{
-												"Ref": "AWS::Region"
-											},
-											":",
-											{
-												"Ref": "AWS::AccountId"
-											},
-											":apis/",
-											{
-												"Ref": "apimeetingsGraphQLAPIIdOutput"
-											},
-											"/*"
-										]
-									]
-								}
-							]
 						}
 					]
 				}

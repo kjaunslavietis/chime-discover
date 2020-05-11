@@ -172,13 +172,14 @@ class ConversationService {
       return subscription;
     }
 
-    async getConversation(meetingId) {
+    async getConversation(id) {
       //TODO test
       try { 
-        const conversation = await API.graphql(graphqlOperation(getRoom, {meetingID: meetingId}));
-        return conversation;
+        const conversation = await API.graphql(graphqlOperation(getRoom, {id: id}));
+        return conversation.data.getRoom;
       } catch(err) {
         console.error(err);
+        return null;
       }
     }
     async getAllConversations() {

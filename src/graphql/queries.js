@@ -2,8 +2,8 @@
 // this is an auto generated file. This will be overwritten
 
 export const getOrCreateMeeting = /* GraphQL */ `
-  query GetOrCreateMeeting($meetingId: String) {
-    getOrCreateMeeting(meetingId: $meetingId) {
+  query GetOrCreateMeeting($meetingId: String, $userId: String) {
+    getOrCreateMeeting(meetingId: $meetingId, userId: $userId) {
       meeting {
         ExternalMeetingId
         MediaPlacement {
@@ -25,12 +25,30 @@ export const getOrCreateMeeting = /* GraphQL */ `
       }
       statusCode
       error
+      attendees {
+        AttendeeId
+        ExternalUserId
+        JoinToken
+      }
     }
   }
 `;
 export const pushMeetingRecording = /* GraphQL */ `
   query PushMeetingRecording($base64: String) {
     pushMeetingRecording(base64: $base64)
+  }
+`;
+export const listMeetingAttendees = /* GraphQL */ `
+  query ListMeetingAttendees($meetingId: String) {
+    listMeetingAttendees(meetingId: $meetingId) {
+      statusCode
+      error
+      attendees {
+        AttendeeId
+        ExternalUserId
+        JoinToken
+      }
+    }
   }
 `;
 export const getChatMessage = /* GraphQL */ `

@@ -20,9 +20,9 @@ import SearchPage from './components/SearchPage';
 
 import { Auth, Hub } from 'aws-amplify';
 
-import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
+import { withAuthenticator } from '@aws-amplify/ui-react';
 
-import { Map } from 'immutable';
+import { Map, Set } from 'immutable';
 
 import './App.css';
 
@@ -55,7 +55,10 @@ const styles = (theme) => ({
     overflowY: 'scroll',
     maxHeight: '90vh',
     flex: "none",
-    direction: 'rtl',
+    direction: 'rtl'
+  },
+  sidebarContent: {
+    direction: 'ltr'
   },
   main: {
     display: "flex",
@@ -78,7 +81,8 @@ class App extends React.Component {
       createDialogOpen: false,
       isSignedIn: false,
       currentConversation: null,
-      conversations: new Map()
+      conversations: new Map(),
+      conversationHistory: new Map()
     }
 
     this.conversationService = new ConversationService();
@@ -96,7 +100,40 @@ class App extends React.Component {
 
   doInitialLoad() {
     this.loadConversations().then(() => console.log('Conversations loaded'));
+    this.loadHistory().then(() => console.log('History loaded'));
     this.setupSubscriptions().then(() => console.log('Subscriptions created'));
+  }
+
+  async loadHistory() {
+    let idsFromHistory = this.getHistoryFromLocalStorage();
+    let stillValidIds = Set();
+    let conversationHistory = Map();
+    for(let nextId of idsFromHistory.values()) {
+      let matchedConversation = await this.conversationService.getConversation(nextId);
+      if(matchedConversation) {
+        stillValidIds = stillValidIds.add(nextId);
+        matchedConversation.attendees = this.attendeeService.getAttendeesForRoom(nextId);
+        conversationHistory = conversationHistory.set(nextId, matchedConversation);
+      }
+    }
+
+    this.saveHistoryToLocalStorage(stillValidIds);
+    this.setState({conversationHistory: conversationHistory});
+  }
+
+  getHistoryFromLocalStorage() {
+    let historyArray = JSON.parse(localStorage.getItem('conversationHistory') || "[]");
+    return Set(historyArray);
+  }
+
+  saveHistoryToLocalStorage(historySet) {
+    let historyArray = Array.from(historySet || Set());
+    if(historyArray.length > 20) {
+      historyArray = historyArray.slice(historyArray.length - 20);
+    }
+
+    let historyString = JSON.stringify(historyArray);
+    localStorage.setItem('conversationHistory', historyString);
   }
 
   async loadConversations() {
@@ -123,12 +160,21 @@ class App extends React.Component {
     if(!this.updateConversationSubscription) {
       this.updateConversationSubscription = this.conversationService.subscribeToUpdates((updatedConvo) => {
         updatedConvo.attendees = this.attendeeService.getAttendeesForRoom(updatedConvo.id);
+        if(this.state.conversationHistory.has(updatedConvo.id)) {
+          this.setState({conversationHistory: this.state.conversationHistory.set(updatedConvo.id, updatedConvo)});
+        }
+
         this.setState({conversations: this.state.conversations.set(updatedConvo.id, updatedConvo)});
       });
     }
 
     if(!this.deleteConversationSubscription) {
       this.deleteConversationSubscription = this.conversationService.subscribeToDeletes((deletedConvo) => {
+        if(this.state.conversationHistory.has(deletedConvo.id)) {
+          this.setState({conversationHistory: this.state.conversationHistory.delete(deletedConvo.id)});
+          let previousStoredHistory = this.getHistoryFromLocalStorage();
+          this.saveHistoryToLocalStorage(previousStoredHistory.delete(deletedConvo.id));
+        }
         this.setState({conversations: this.state.conversations.delete(deletedConvo.id)});
       });
     }
@@ -152,17 +198,25 @@ class App extends React.Component {
   }
 
   handleClickOnCard = (conv) => {
-    this.setState({
-      isCurrentPageSearch: false,
-      currentConversation: conv
-    })
+    this.joinRoom(conv);
   };
 
   handleJoinRoomOnSearch = (conv) => {
+    this.joinRoom(conv);
+  }
+
+  joinRoom = (conv) => {
     this.setState({
       isCurrentPageSearch: false,
-      currentConversation: conv
-    })
+      currentConversation: conv,
+      conversationHistory: this.state.conversationHistory.set(conv.id, conv)
+    });
+
+    let previousStoredHistory = this.getHistoryFromLocalStorage();
+    if(previousStoredHistory.has(conv.id)) {
+      previousStoredHistory = previousStoredHistory.delete(conv.id);
+    }
+    this.saveHistoryToLocalStorage(previousStoredHistory.add(conv.id));
   }
 
   handleBackToSearch = () => {
@@ -197,7 +251,37 @@ class App extends React.Component {
     this.setState({createDialogOpen: false})
   };
 
+  conversationHistory = () => {
+    let conversationHistoryArray = this.conversationHistoryArray();
+    if(conversationHistoryArray && conversationHistoryArray.length > 0) {
+        return conversationHistoryArray.map((conversation) => (
+          <RoomCard
+            conversation={conversation}
+            focus={this.state.currentConversation && conversation.id === this.state.currentConversation.id}
+            audioActivated={this.state.currentConversation && conversation.id === this.state.currentConversation.id}
+            handleClickOnCard={this.handleClickOnCard}
+          />
+        ))
+    } else {
+      return <p><em>Looks like you haven't joined any conversations yet. <br /> Go on, pick one!</em></p>
+    }
+  }
+
   conversationArray = () => Array.from(this.state.conversations.values());
+
+  conversationHistoryArray = () => {
+     // doing it this way ensures we preserve the order of history, which we couldn't do by just calling values() on the map
+    let storedIds = this.getHistoryFromLocalStorage();
+    let historyArray = [];
+    for(let nextId of storedIds.values()) {
+      let conversationRecord = this.state.conversationHistory.get(nextId);
+      if(conversationRecord) {
+        historyArray.push(conversationRecord);
+      }
+    }
+
+    return historyArray.reverse();
+  }
 
   handleSignOut = () => {
     Auth.signOut()
@@ -261,25 +345,22 @@ class App extends React.Component {
         </div>
         <div className={classes.container} >
           <div className={classes.sidebar}>
-            <Button
-              style={{direction:'ltr'}}
-              variant="contained"
-              color="primary"
-              size="large"
-              className={classes.searchButton}
-              startIcon={<SearchIcon />}
-              onClick={() => this.setState({isCurrentPageSearch: true})}
-            >
-              Find new Rooms
-                  </Button>
-            {this.conversationArray().map((conversation) => (
-              <RoomCard
-                conversation={conversation}
-                focus={this.state.currentConversation && conversation.id === this.state.currentConversation.id}
-                audioActivated={this.state.currentConversation && conversation.id === this.state.currentConversation.id}
-                handleClickOnCard={this.handleClickOnCard}
-              />
-            ))}
+            <div className={classes.sidebarContent}>
+              {/* <Button
+                style={{direction:'ltr'}}
+                variant="contained"
+                color="primary"
+                size="large"
+                className={classes.searchButton}
+                startIcon={<SearchIcon />}
+                onClick={() => this.setState({isCurrentPageSearch: true})}
+              >
+                Find new Rooms
+                    </Button> */}
+              {
+                this.conversationHistory()
+              }
+            </div>
           </div>
           <Container maxWidth="xl">
             <Paper>
