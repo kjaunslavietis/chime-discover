@@ -81,6 +81,7 @@ class App extends React.Component {
       isCurrentPageSearch: true,
       createDialogOpen: false,
       isSignedIn: false,
+      userName: null,
       currentConversation: null,
       conversations: new Map(),
       conversationHistory: new Map()
@@ -313,7 +314,7 @@ class App extends React.Component {
       Auth.currentAuthenticatedUser({
         bypassCache: false  // Optional, By default is false. If set to true, this call will send a request to Cognito to get the latest user data
       }).then(user => {
-        this.setState({isSignedIn: true}, this.doInitialLoad);
+        this.setState({isSignedIn: true, userName: user.username}, this.doInitialLoad);
       })
         .catch(err => console.log("Not logged in"));
   
@@ -382,8 +383,8 @@ class App extends React.Component {
                 <SearchPage conversations={this.conversationArray()} handleJoinRoom={this.handleJoinRoomOnSearch} />
                 :
                 <ActiveConversation
-                  attendeesList={this.conversationService.getAttendees(this.state.currentConversation.id)}
                   conversation={this.state.currentConversation}
+                  userName={this.state.userName}
                   onConversationExited={this.handleBackToSearch} />
               }
             </Paper>

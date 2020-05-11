@@ -10,20 +10,23 @@ import {
     MeetingSessionConfiguration
 } from 'amazon-chime-sdk-js';
   
-export async function joinMeeting(oldId, desiredMeetingId) {
+export async function joinMeeting(oldId, desiredMeetingId, userName) {
     try {
       let isCreated = false;
       let conversationService = new ConversationService();
       console.log(desiredMeetingId);
-      let meetingAndAttendeeInfo = await API.graphql(graphqlOperation(getOrCreateMeeting, {meetingId: desiredMeetingId}));
+      console.log(userName);
+      let meetingAndAttendeeInfo = await API.graphql(graphqlOperation(getOrCreateMeeting, {meetingId: desiredMeetingId, userId: userName}));
       const meetingResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.meeting;
       const attendeeResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.attendee;
+      const attendeesList = meetingAndAttendeeInfo.data.getOrCreateMeeting.attendees;
       if(desiredMeetingId != meetingResponse.MeetingId) {
         isCreated = true;
         await conversationService.updateConversation(oldId, meetingResponse.MeetingId)
       }
       console.log(attendeeResponse);
       console.log(meetingResponse);
+      console.log('Attendees: ',attendeesList);
       console.log("New meeting was created:", isCreated);
       
       const logger = new ConsoleLogger('SDK', LogLevel.INFO);
@@ -37,8 +40,10 @@ export async function joinMeeting(oldId, desiredMeetingId) {
         logger,
         deviceController
       );
-      console.log(meetingSession);
-      return meetingSession;
+      return {
+        meeting: meetingSession, 
+        attendees: attendeesList
+      };
     } catch(err) {
       console.error(err);
     }
