@@ -30,8 +30,8 @@ class ActiveConversation extends React.Component {
         this.mediaRecorder = null;
         this.MS_BETWEEN_RECORDINGS = 1000 * 60 * 1; // 1 minute
 
-        this.joinChimeMeeting();
         this.getUser()
+        this.joinChimeMeeting();
     }
 
     getUser() {
@@ -88,7 +88,7 @@ class ActiveConversation extends React.Component {
         console.log("MEETING ID: ", this.props.conversation.meetingID);
         console.log("ROOM ID: ", this.props.conversation.id);
         //TODO take desiredMeetingId from activeConversation after DB is ready
-        this.meetingSession = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID);
+        this.meetingSession = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID, this.userName);
         await new Promise(r => setTimeout(r, 2000));
         this.setState({
             isMeetingLoading: false
