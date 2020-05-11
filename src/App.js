@@ -18,11 +18,12 @@ import ConversationService from './services/ConversationService';
 import AttendeeService from './services/AttendeeService';
 import SearchPage from './components/SearchPage';
 
-import { Auth, Hub } from 'aws-amplify';
-
+import { Storage, Auth, Hub } from 'aws-amplify';
 import { withAuthenticator } from '@aws-amplify/ui-react';
 
 import { Map, Set } from 'immutable';
+
+import { v4 as uuidv4 } from 'uuid';
 
 import './App.css';
 
@@ -226,19 +227,32 @@ class App extends React.Component {
     })
   }
 
-  onConversationCreated = (name, description, category, acceptRecording) => {
+  onConversationCreated = (name, description, category, acceptRecording, image) => {
     console.log(name + " " + description + " " + category + " " + acceptRecording);
     // we don't check for creation error, let's assume everything is always working :-)
     this.setState({
       createDialogOpen: false
     })
+
+    let imageKey = null;
+    if(image) {
+      imageKey = `images/${uuidv4()}`;
+      Storage.put(imageKey, image)
+      .then (result => {
+        console.log(result)
+      })
+      .catch(err => console.log(err));
+    }
+
     this.conversationService.createConversation({
       name: name,
       description: description,
       category: category,
       canBeAnalyzed: acceptRecording,
       meetingId: "",
-      keywords: []
+      imageUrl: imageKey,
+      keywords: [],
+
     }).then(() => {});
     // TODO : join the newly created room
   }

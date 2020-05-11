@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+
+import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -7,14 +9,24 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Checkbox from '@material-ui/core/Checkbox';
-import ConversationService from './../services/ConversationService';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
+import { DropzoneArea } from 'material-ui-dropzone'
+
+const useStyles = makeStyles((theme) => ({
+	imageUpload: {
+	  minHeight: "auto"
+	}
+  }))
+
 export default function CreateConversation(props) {
+    const classes = useStyles();
+
 	const { open, handleClose, handleCreate } = props;
 	const [name, setName] = useState("");
 	const [description, setDescription] = useState("");
 	const [category, setCategory] = useState("");
+	const [image, setImage] = useState(null);
 	const [nameIsMissing, setNameIsMissing] = useState(false);
 	const [descriptionIsMissing, setDescriptionIsMissing] = useState(false);
 	const [categoryIsMissing, setCategoryIsMissing] = useState(false);
@@ -36,7 +48,7 @@ export default function CreateConversation(props) {
 		}
 
 		if (!error) {
-			handleCreate(name, description, category, checked);
+			handleCreate(name, description, category, checked, image);
 		}
 	}
 
@@ -53,6 +65,10 @@ export default function CreateConversation(props) {
 	const onCategoryChange = (e) => {
 		setCategoryIsMissing(false);
 		setCategory(e.target.value);
+	}
+
+	const onImageChange = (e) => {
+		setImage(e && e.length > 0 ? e[0] : null);
 	}
 
 	const handleCheck = (event) => {
@@ -96,6 +112,14 @@ export default function CreateConversation(props) {
 					helperText={categoryIsMissing ? "Category is missing" : ""}
 					onChange={onCategoryChange}
 					fullWidth
+				/>
+				<DropzoneArea
+					onChange={onImageChange}
+					acceptedFiles={["image/*"]}
+					filesLimit={1}
+					dropzoneText={"An image (optional)"}
+					showAlerts={false}
+					dropzoneClass={classes.imageUpload}
 				/>
 				<div style={{marginTop: "10px"}}>
 					<FormControlLabel

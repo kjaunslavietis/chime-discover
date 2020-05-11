@@ -16,6 +16,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 
+import { Storage } from 'aws-amplify';
+
 import './search.css';
 
 function Alert(props) {
@@ -55,8 +57,22 @@ const useStyles = makeStyles((theme) => ({
 export default function SearchCard(props) {
     const classes = useStyles();
     const { conversation, handleClickOnChip, handleJoinRoom } = props;
-    const { name, description, category, keywords, meetingId, numberOfUsers, image } = conversation;
+    const { name, description, category, keywords, meetingId, numberOfUsers, imageUrl } = conversation;
     const [open, setOpen] = React.useState(false);
+
+    const [image, setImage] = React.useState(null);
+
+    React.useEffect(() => {
+        if(imageUrl) {
+            Storage.get(imageUrl)
+                .then(data => {
+                    setImage(data);
+                })
+                .catch(err => {
+                    console.error("Error loading image for conversation " + conversation.id);
+                })
+        }
+    }, [])
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {

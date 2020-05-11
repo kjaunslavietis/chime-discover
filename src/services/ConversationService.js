@@ -222,6 +222,7 @@ class ConversationService {
             canBeAnalyzed: conversation.canBeAnalyzed,
             keywords: conversation.keywords,
             category: conversation.category,
+            imageUrl: conversation.imageUrl,
             meetingID: "blank"
           }}
         ));
