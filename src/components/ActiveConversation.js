@@ -30,7 +30,7 @@ class ActiveConversation extends React.Component {
         this.mediaRecorder = null;
         this.MS_BETWEEN_RECORDINGS = 1000 * 60 * 1; // 1 minute
 
-        this.getUser()
+        // this.getUser()
         this.joinChimeMeeting();
     }
 
@@ -88,7 +88,9 @@ class ActiveConversation extends React.Component {
         console.log("MEETING ID: ", this.props.conversation.meetingID);
         console.log("ROOM ID: ", this.props.conversation.id);
         //TODO take desiredMeetingId from activeConversation after DB is ready
-        this.meetingSession = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID, this.userName);
+        const meetingSessions = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID, this.props.userName);
+        this.meetingSession = meetingSessions.meeting;
+        this.attendeesList = meetingSessions.attendees;
         await new Promise(r => setTimeout(r, 2000));
         this.setState({
             isMeetingLoading: false
@@ -341,19 +343,19 @@ class ActiveConversation extends React.Component {
                     </Row>
                     <Row className="participants-number">
                         <Col>
-                            <h5>{this.props.attendeesList.length} participants</h5>
+                            <h5>{this.attendeesList.length} participants</h5>
                         </Col>
                     </Row>
                     <Row className='chat-participants'>
                         <Col className='chat-ui' sm={8}>
                             <Chat
                             // userName = {randomUser}
-                            userName = {this.userName}
+                            userName = {this.props.userName}
                             roomID = {this.props.conversation.id}
                             />
                         </Col>
                         <Col className='participants-ui' sm={4}>
-                            <AttendeesList attendeesList={this.props.attendeesList}/>
+                            <AttendeesList attendeesList={this.attendeesList}/>
                         </Col>
                     </Row>
                 </Container>
