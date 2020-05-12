@@ -314,6 +314,8 @@ class App extends React.Component {
       Auth.currentAuthenticatedUser({
         bypassCache: false  // Optional, By default is false. If set to true, this call will send a request to Cognito to get the latest user data
       }).then(user => {
+        //moved setting the userName from ActiveConversation.js
+        //TODO: now userName is null right after log in; after refreshing it's fine => solve it
         this.setState({isSignedIn: true, userName: user.username}, this.doInitialLoad);
       })
         .catch(err => console.log("Not logged in"));

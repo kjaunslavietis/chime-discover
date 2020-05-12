@@ -28,13 +28,10 @@ export async function joinMeeting(oldId, desiredMeetingId, userName) {
       console.log(meetingResponse);
       console.log('Attendees: ',attendeesList);
       console.log("New meeting was created:", isCreated);
-      
+      //The rest of the function needs to be executed in HTTPS, it will return errors in HTTP
       const logger = new ConsoleLogger('SDK', LogLevel.INFO);
       const deviceController = new DefaultDeviceController(logger);
-      // You need responses from server-side Chime API. See below for details.
       const configuration = new MeetingSessionConfiguration(meetingResponse, attendeeResponse);
-
-      // In the usage examples below, you will use this meetingSession object.
       const meetingSession = new DefaultMeetingSession(
         configuration,
         logger,

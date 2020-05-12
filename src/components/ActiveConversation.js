@@ -34,6 +34,8 @@ class ActiveConversation extends React.Component {
         this.joinChimeMeeting();
     }
 
+    //Moved to App.js for now, because this.userName should be set before this.joinChimeMeeting()
+    //And this function seems to be async
     getUser() {
         Auth.currentAuthenticatedUser({
           bypassCache: false  // Optional, By default is false. If set to true, this call will send a request to Cognito to get the latest user data
@@ -87,7 +89,6 @@ class ActiveConversation extends React.Component {
         // call getOrCreateMeeting lambda (or service), get the necessary parameters, use chime SDK to connect to meeting, finally set isMeetingLoading: false
         console.log("MEETING ID: ", this.props.conversation.meetingID);
         console.log("ROOM ID: ", this.props.conversation.id);
-        //TODO take desiredMeetingId from activeConversation after DB is ready
         const meetingSessions = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID, this.props.userName);
         this.meetingSession = meetingSessions.meeting;
         this.attendeesList = meetingSessions.attendees;
@@ -314,14 +315,11 @@ class ActiveConversation extends React.Component {
     }
 
     render() {
-        //TODO change to the user name later
-        let randomUser = Math.random().toString(36).substring(7);
         if(this.state.isMeetingLoading) {
             return this.loadingScreen();
         } else {
             this.chooseAudioDevice();
             return (
-
                 <Container>
                     <Row className='room-control'>
                         <Col className='room-title' sm={8}>
@@ -334,7 +332,6 @@ class ActiveConversation extends React.Component {
                                 enableAudio={this.enableAudio}
                                 muteOrUnmute={this.muteOrUnmute}
                             />
-
                         </Col>
                         <Col sm={2}>
                             <Button variant="danger" size="md" block onClick={this.exitConversation}>Leave</Button>
