@@ -13,10 +13,11 @@ import Dialog from '@material-ui/core/Dialog';
 import RoomCard from './components/RoomCard';
 import CreateConversation from './components/CreateConversation';
 import ActiveConversation from './components/ActiveConversation';
+import SearchPage from './components/SearchPage';
 
 import ConversationService from './services/ConversationService';
 import AttendeeService from './services/AttendeeService';
-import SearchPage from './components/SearchPage';
+import CategoriesService from './services/CategoriesService';
 
 import { Storage, Auth, Hub } from 'aws-amplify';
 import { withAuthenticator } from '@aws-amplify/ui-react';
@@ -84,11 +85,13 @@ class App extends React.Component {
       userName: null,
       currentConversation: null,
       conversations: new Map(),
-      conversationHistory: new Map()
+      conversationHistory: new Map(),
+      categories: []
     }
 
     this.conversationService = new ConversationService();
     this.attendeeService = new AttendeeService();
+    this.categoriesService = new CategoriesService();
 
     this.createConversationSubscription = null;
     this.updateConversationSubscription = null;
@@ -96,14 +99,27 @@ class App extends React.Component {
 
     this.doInitialLoad = this.doInitialLoad.bind(this);
     this.cancelSubscriptions = this.cancelSubscriptions.bind(this);
+
+    
   }
 
-
+  componentDidMount() {
+    this.getAllCategories()
+  }
 
   doInitialLoad() {
     this.loadConversations().then(() => console.log('Conversations loaded'));
     this.loadHistory().then(() => console.log('History loaded'));
     this.setupSubscriptions().then(() => console.log('Subscriptions created'));
+  }
+
+  async getAllCategories() {
+    this.categoriesService.getCategories().then(categories => {
+      const compatibleCategories = categories.map((e , index) => ({title: e.name, id: index}));
+      this.setState({
+        categories: compatibleCategories
+      })
+    })
   }
 
   async loadHistory() {
@@ -392,7 +408,7 @@ class App extends React.Component {
             </Paper>
           </Container>
         </div>
-        <CreateConversation handleCreate={this.onConversationCreated} open={this.state.createDialogOpen} handleClose={this.handleClose} />
+        <CreateConversation handleCreate={this.onConversationCreated} open={this.state.createDialogOpen} handleClose={this.handleClose} categories = {this.state.categories} />
       </React.Fragment>
   )
   }

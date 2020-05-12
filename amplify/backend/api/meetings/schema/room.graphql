@@ -4,9 +4,6 @@ type Room @model
   { allow: public, provider: apiKey }, 
   { allow: private, provider: iam }, 
 ])
-# @key (fields: ["meetingID"]) 
-# @key (name: "byCategory", fields: ["category","name", "createdAt"])
-# @key (name: "byName", fields: ["name", "createdAt"])
  {
   id: ID!
   meetingID: String!
@@ -18,4 +15,9 @@ type Room @model
   lastActiveDate: AWSDateTime
   canBeAnalyzed: Boolean
   keywords: [String]!
+}
+
+type Category @model {
+  id: ID!
+  name: String!
 }
