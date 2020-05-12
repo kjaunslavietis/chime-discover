@@ -17,8 +17,7 @@ type Room @model
   keywords: [String]!
 }
 
-type Category @model
- {
+type Category @model {
   id: ID!
   name: String!
 }

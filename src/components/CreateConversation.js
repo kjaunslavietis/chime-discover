@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
 export default function CreateConversation(props) {
 	const classes = useStyles();
 
-	const { open, handleClose, handleCreate } = props;
+	const { open, handleClose, handleCreate, categories} = props;
 	const [name, setName] = useState("");
 	const [description, setDescription] = useState("");
 	const [category, setCategory] = useState("");
@@ -33,26 +33,26 @@ export default function CreateConversation(props) {
 	const [descriptionIsMissing, setDescriptionIsMissing] = useState(false);
 	const [categoryIsMissing, setCategoryIsMissing] = useState(false);
 	const [checked, setChecked] = useState(false);
-	const categories = [
-		{
-		  id: 0,
-		  title: 'New York',
-		  selected: false,
-		  key: 'location'
-		},
-		{
-		  id: 1,
-		  title: 'Dublin',
-		  selected: false,
-		  key: 'location'
-		},
-		{
-		  id: 2,
-		  title: 'Istanbul',
-		  selected: false,
-		  key: 'location'
-		}
-	  ]
+	// const categories = [
+	// 	{
+	// 	  id: 0,
+	// 	  title: 'New York',
+	// 	  selected: false,
+	// 	  key: 'location'
+	// 	},
+	// 	{
+	// 	  id: 1,
+	// 	  title: 'Dublin',
+	// 	  selected: false,
+	// 	  key: 'location'
+	// 	},
+	// 	{
+	// 	  id: 2,
+	// 	  title: 'Istanbul',
+	// 	  selected: false,
+	// 	  key: 'location'
+	// 	}
+	//   ]
 
 	const handleClickOnCreate = () => {
 		let error = false;
@@ -83,12 +83,7 @@ export default function CreateConversation(props) {
 		setDescriptionIsMissing(false);
 		setDescription(e.target.value);
 	}
-
-	const onCategoryChange = (e) => {
-		setCategoryIsMissing(false);
-		setCategory(e.target.value);
-	}
-
+	
 	const onImageChange = (e) => {
 		setImage(e && e.length > 0 ? e[0] : null);
 	}
@@ -98,6 +93,7 @@ export default function CreateConversation(props) {
 	};
 
 	const resetThenSet = (id, key) => {
+		console.log("ALLL CATAS" + JSON.stringify(categories))
 		setCategoryIsMissing(false);
 		setCategory(categories[id].title);
 	  }
@@ -130,20 +126,7 @@ export default function CreateConversation(props) {
 					onChange={onDescriptionChange}
 					fullWidth
 				/>
-				{/* <TextField
-					margin="dense"
-					id="category"
-					label="A category"
-					value={category}
-					error={categoryIsMissing}
-					helperText={categoryIsMissing ? "Category is missing" : ""}
-					onChange={onCategoryChange}
-					disabled={true}
-					fullWidth
-				/> */}
-
 				<Dropdown 
-					className ={classes.imageUpload}
 					searchable={["Search for category", "No matching category"]}
 					title = {category ? category : "Search for categoty"}
 					list={categories}
