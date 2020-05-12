@@ -10,17 +10,19 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-
+import { Dropdown } from 'reactjs-dropdown-component';
 import { DropzoneArea } from 'material-ui-dropzone'
+
+import './dropdown.sass';
 
 const useStyles = makeStyles((theme) => ({
 	imageUpload: {
-	  minHeight: "auto"
+		minHeight: "auto",
 	}
-  }))
+}))
 
 export default function CreateConversation(props) {
-    const classes = useStyles();
+	const classes = useStyles();
 
 	const { open, handleClose, handleCreate } = props;
 	const [name, setName] = useState("");
@@ -31,18 +33,38 @@ export default function CreateConversation(props) {
 	const [descriptionIsMissing, setDescriptionIsMissing] = useState(false);
 	const [categoryIsMissing, setCategoryIsMissing] = useState(false);
 	const [checked, setChecked] = useState(false);
+	const categories = [
+		{
+		  id: 0,
+		  title: 'New York',
+		  selected: false,
+		  key: 'location'
+		},
+		{
+		  id: 1,
+		  title: 'Dublin',
+		  selected: false,
+		  key: 'location'
+		},
+		{
+		  id: 2,
+		  title: 'Istanbul',
+		  selected: false,
+		  key: 'location'
+		}
+	  ]
 
 	const handleClickOnCreate = () => {
 		let error = false;
-		if (!name.replace(/ /g,"")) {
+		if (!name.replace(/ /g, "")) {
 			setNameIsMissing(true);
 			error = true;
 		}
-		if (!description.replace(/ /g,"")) {
+		if (!description.replace(/ /g, "")) {
 			setDescriptionIsMissing(true);
 			error = true;
 		}
-		if (!category.replace(/ /g,"")) {
+		if (!category.replace(/ /g, "")) {
 			setCategoryIsMissing(true);
 			error = true;
 		}
@@ -73,7 +95,12 @@ export default function CreateConversation(props) {
 
 	const handleCheck = (event) => {
 		setChecked(event.target.checked);
-	  };
+	};
+
+	const resetThenSet = (id, key) => {
+		setCategoryIsMissing(false);
+		setCategory(categories[id].title);
+	  }
 
 	return (
 		<Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
@@ -103,7 +130,7 @@ export default function CreateConversation(props) {
 					onChange={onDescriptionChange}
 					fullWidth
 				/>
-				<TextField
+				{/* <TextField
 					margin="dense"
 					id="category"
 					label="A category"
@@ -111,8 +138,18 @@ export default function CreateConversation(props) {
 					error={categoryIsMissing}
 					helperText={categoryIsMissing ? "Category is missing" : ""}
 					onChange={onCategoryChange}
+					disabled={true}
 					fullWidth
+				/> */}
+
+				<Dropdown 
+					className ={classes.imageUpload}
+					searchable={["Search for category", "No matching category"]}
+					title = {category ? category : "Search for categoty"}
+					list={categories}
+					resetThenSet={resetThenSet}
 				/>
+
 				<DropzoneArea
 					onChange={onImageChange}
 					acceptedFiles={["image/*"]}
@@ -121,7 +158,7 @@ export default function CreateConversation(props) {
 					showAlerts={false}
 					dropzoneClass={classes.imageUpload}
 				/>
-				<div style={{marginTop: "10px"}}>
+				<div style={{ marginTop: "10px" }}>
 					<FormControlLabel
 						control={
 							<Checkbox
