@@ -53,7 +53,11 @@ class ActiveConversation extends React.Component {
         //     this.meetingSession.audioVideo.stop();
         // }
         console.log("Stopping the audio");
-        this.meetingSession.audioVideo.stop();
+        try {
+            this.meetingSession.audioVideo.stop();
+        } catch(err) {
+            console.error(err);
+        }
         if (this.audioVideoObserver) {
             this.meetingSession.audioVideo.removeObserver(this.audioVideoObserver);
             console.log('AudioVideo observer removed');
@@ -378,7 +382,7 @@ class ActiveConversation extends React.Component {
                         </Col>
                         <Col sm={2}>
                             <Button variant="danger" size="md" block onClick={this.exitConversation}>Leave</Button>
-                            <audio id="meeting-audio" ></audio>
+                            {/* <audio id="meeting-audio" ></audio> */}
                         </Col>
                     </Row>
                     <Row className="participants-number">
