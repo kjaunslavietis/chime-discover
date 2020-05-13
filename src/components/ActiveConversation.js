@@ -3,6 +3,7 @@ import { Container, Button, Spinner, Row, Col } from 'react-bootstrap';
 import { joinMeeting } from './../chime/handlers';
 import AudioControl from './AudioControl';
 import AttendeesList from './AttendeesList';
+import { MeetingSessionStatusCode } from 'amazon-chime-sdk-js';
 
 import Chat from './Chat';
 
@@ -37,11 +38,9 @@ class ActiveConversation extends React.Component {
     // this will be called when the component is un-rendered, eg. the user has chosen to leave the meeting
     componentWillUnmount() {
         this.killRecorderForGood();
-        if(this.state.isAudioEnabled){
-            this.meetingSession.audioVideo.stop();
-        }
         this.leaveChimeMeeting();
     }
+
 
     // on switching the meeting
     componentDidUpdate(prevProps) {
@@ -52,9 +51,6 @@ class ActiveConversation extends React.Component {
                 isMuted: false
             });
             this.killRecorderForGood();
-            if(this.state.isAudioEnabled){
-                this.meetingSession.audioVideo.stop();
-            }
             this.leaveChimeMeeting();
             this.joinChimeMeeting();
         }
@@ -88,6 +84,22 @@ class ActiveConversation extends React.Component {
     }
 
     leaveChimeMeeting() {
+        console.log("Stopping the audio");
+        this.meetingSession.audioVideo.chooseAudioInputDevice(null); //red circle should disappear after this line
+        try {
+            this.meetingSession.audioVideo.stop();
+            this.meetingSession.audioVideo.unbindAudioElement();
+        } catch(err) {
+            console.error(err);
+        }
+        if (this.audioVideoObserver) {
+            this.meetingSession.audioVideo.removeDeviceChangeObserver(this.audioVideoObserver);
+            console.log('AudioVideo observer removed');
+        }
+        if (this.deviceChangeObserver) {
+            this.meetingSession.audioVideo.removeObserver(this.deviceChangeObserver);
+            console.log('DeviceChange observer removed');
+        }
         console.log("Left chime meeting");
     }
 
@@ -126,7 +138,7 @@ class ActiveConversation extends React.Component {
                 output: audioOutputDevices
             }
 
-            const observer = {
+            this.deviceChangeObserver = {
                 audioInputsChanged: freshAudioInputDeviceList => {
                   // An array of MediaDeviceInfo objects
                   freshAudioInputDeviceList.forEach(mediaDeviceInfo => {
@@ -141,7 +153,7 @@ class ActiveConversation extends React.Component {
                 }
               };
               
-              this.meetingSession.audioVideo.addDeviceChangeObserver(observer);
+              this.meetingSession.audioVideo.addDeviceChangeObserver(this.deviceChangeObserver);
             return devices;
         }
         catch(err){
@@ -251,20 +263,39 @@ class ActiveConversation extends React.Component {
                 });
                 this.meetingSession.audioVideo.bindAudioElement(audioElement);
                 
-                let observer = {
-                audioVideoDidStart: () => {
-                    if(this.props.conversation.canBeAnalyzed) {
-                        console.log("Conversation can be recorded, commencing recording...");
-                        this.startRecording();
-                    } else {
-                        console.log("Creator has asked us to not record this room, so leave it alone");
-                    }
-                }
+                this.audioVideoObserver = {
+                    audioVideoDidStart: () => {
+                        if(this.props.conversation.canBeAnalyzed) {
+                            console.log("Conversation can be recorded, commencing recording...");
+                            this.startRecording();
+                        } else {
+                            console.log("Creator has asked us to not record this room, so leave it alone");
+                        }
+                    },
+                    audioVideoDidStop: sessionStatus => {
+                        const sessionStatusCode = sessionStatus.statusCode();
+                        // See the "Stopping a session" section for details.
+                        if (sessionStatusCode === MeetingSessionStatusCode.Left) {
+                            /*
+                              - You called meetingSession.audioVideo.stop().
+                              - When closing a browser window or page, Chime SDK attempts to leave the session.
+                            */
+                            console.log('You left the session');
+                        } else {
+                            console.log('Stopped with a session status code: ', sessionStatusCode);
+                        }
+                    },
+                    audioVideoDidStartConnecting: reconnecting => {
+                        if (reconnecting) {
+                          // e.g. the WiFi connection is dropped.
+                          console.log('Attempting to reconnect');
+                        }
+                    }              
                 };
 
-                observer.audioVideoDidStart = observer.audioVideoDidStart.bind(this);
+                this.audioVideoObserver.audioVideoDidStart = this.audioVideoObserver.audioVideoDidStart.bind(this);
                 
-                this.meetingSession.audioVideo.addObserver(observer);
+                this.meetingSession.audioVideo.addObserver(this.audioVideoObserver);
                 
                 this.meetingSession.audioVideo.start();
 

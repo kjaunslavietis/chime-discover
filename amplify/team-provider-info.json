@@ -59,7 +59,8 @@
         "categories": {
             "function": {
                 "getOrCreateConversation": {},
-                "transcribeSample": {}
+                "transcribeSample": {},
+                "listMeetingAttendees": {}
             },
             "auth": {
                 "chimediscoverb4fac449": {}
