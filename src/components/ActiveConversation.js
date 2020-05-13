@@ -49,19 +49,6 @@ class ActiveConversation extends React.Component {
     // this will be called when the component is un-rendered, eg. the user has chosen to leave the meeting
     componentWillUnmount() {
         this.killRecorderForGood();
-        // if(this.state.isAudioEnabled){
-        //     this.meetingSession.audioVideo.stop();
-        // }
-        // console.log("Stopping the audio");
-        // this.meetingSession.audioVideo.stop();
-        // if (this.audioVideoObserver) {
-        //     this.meetingSession.audioVideo.removeObserver(this.audioVideoObserver);
-        //     console.log('AudioVideo observer removed');
-        // }
-        // if (this.deviceChangeObserver) {
-        //     this.meetingSession.audioVideo.removeObserver(this.deviceChangeObserver);
-        //     console.log('DeviceChange observer removed');
-        // }
         this.leaveChimeMeeting();
     }
 
@@ -75,9 +62,6 @@ class ActiveConversation extends React.Component {
                 isMuted: false
             });
             this.killRecorderForGood();
-            // if(this.state.isAudioEnabled){
-            //     this.meetingSession.audioVideo.stop();
-            // }
             this.leaveChimeMeeting();
             this.joinChimeMeeting();
         }
