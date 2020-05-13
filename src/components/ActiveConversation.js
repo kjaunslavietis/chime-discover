@@ -365,7 +365,7 @@ class ActiveConversation extends React.Component {
         if(this.state.isMeetingLoading) {
             return this.loadingScreen();
         } else {
-            this.chooseAudioDevice();
+            // this.chooseAudioDevice();
             return (
                 <Container>
                     <Row className='room-control'>
@@ -382,7 +382,7 @@ class ActiveConversation extends React.Component {
                         </Col>
                         <Col sm={2}>
                             <Button variant="danger" size="md" block onClick={this.exitConversation}>Leave</Button>
-                            {/* <audio id="meeting-audio" ></audio> */}
+                            <audio id="meeting-audio" ></audio>
                         </Col>
                     </Row>
                     <Row className="participants-number">
