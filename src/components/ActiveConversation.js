@@ -111,13 +111,16 @@ class ActiveConversation extends React.Component {
     }
 
     leaveChimeMeeting() {
-        if(this.state.isAudioEnabled){
-            this.meetingSession.audioVideo.stop();
-        }
         console.log("Stopping the audio");
-        this.meetingSession.audioVideo.stop();
+        this.meetingSession.audioVideo.chooseAudioInputDevice(null); //red circle should disappear after this line
+        try {
+            this.meetingSession.audioVideo.stop();
+            this.meetingSession.audioVideo.unbindAudioElement();
+        } catch(err) {
+            console.error(err);
+        }
         if (this.audioVideoObserver) {
-            this.meetingSession.audioVideo.removeObserver(this.audioVideoObserver);
+            this.meetingSession.audioVideo.removeDeviceChangeObserver(this.audioVideoObserver);
             console.log('AudioVideo observer removed');
         }
         if (this.deviceChangeObserver) {
