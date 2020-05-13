@@ -1,5 +1,8 @@
 import React from 'react';
 import { Container, Button, Spinner, Row, Col } from 'react-bootstrap';
+import { API, graphqlOperation } from 'aws-amplify'
+import { listMeetingAttendees} from './../graphql/queries'
+
 import { joinMeeting } from './../chime/handlers';
 import AudioControl from './AudioControl';
 import AttendeesList from './AttendeesList';
@@ -26,7 +29,8 @@ class ActiveConversation extends React.Component {
             isMeetingLoading: true,
             onConversationExited: this.props.onConversationExited,
             isAudioEnabled: false,
-            isMuted: false
+            isMuted: false,
+            attendeesList: []
         }
         this.mediaRecorder = null;
         this.MS_BETWEEN_RECORDINGS = 1000 * 60 * 1; // 1 minute
@@ -50,9 +54,14 @@ class ActiveConversation extends React.Component {
     componentWillUnmount() {
         this.killRecorderForGood();
         this.leaveChimeMeeting();
+        clearInterval(this.interval);
     }
 
+    componentDidMount() {
+        //Update attendees list every 3 seconds
+        const promise = this.updateMeetingAttendees();
 
+    }
     // on switching the meeting
     componentDidUpdate(prevProps) {
         if(prevProps.conversation.id !== this.props.conversation.id) {
@@ -65,6 +74,18 @@ class ActiveConversation extends React.Component {
             this.leaveChimeMeeting();
             this.joinChimeMeeting();
         }
+    }
+    async updateMeetingAttendees() {
+        //Update attendees list every 3 seconds
+        let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.props.conversation.meetingID}));
+        let newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees;
+        return await new Promise(() => {
+            this.timer = setInterval(() => {
+                this.setState({
+                    attendeesList: newAttendeesList
+                }); console.log("Update attendees list every 3 seconds, new list: ", newAttendeesList); 
+            }, 3 * 1000);
+        })
     }
 
     killRecorderForGood() {
@@ -87,7 +108,10 @@ class ActiveConversation extends React.Component {
         console.log("ROOM ID: ", this.props.conversation.id);
         const meetingSessions = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID, this.props.userName);
         this.meetingSession = meetingSessions.meeting;
-        this.attendeesList = meetingSessions.attendees;
+        // this.attendeesList = meetingSessions.attendees;
+        this.setState({
+            attendeesList: meetingSessions.attendees
+        })
         await new Promise(r => setTimeout(r, 2000));
         this.setState({
             isMeetingLoading: false
@@ -371,7 +395,7 @@ class ActiveConversation extends React.Component {
                     </Row>
                     <Row className="participants-number">
                         <Col>
-                            <h5>{this.attendeesList.length} participants</h5>
+                            <h5>{this.state.attendeesList.length} participants</h5>
                         </Col>
                     </Row>
                     <Row className='chat-participants'>
@@ -383,7 +407,7 @@ class ActiveConversation extends React.Component {
                             />
                         </Col>
                         <Col className='participants-ui' sm={4}>
-                            <AttendeesList attendeesList={this.attendeesList}/>
+                            <AttendeesList attendeesList={this.state.attendeesList}/>
                         </Col>
                     </Row>
                 </Container>
