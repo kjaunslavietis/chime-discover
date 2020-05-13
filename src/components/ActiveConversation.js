@@ -75,17 +75,27 @@ class ActiveConversation extends React.Component {
             this.joinChimeMeeting();
         }
     }
-    async updateMeetingAttendees() {
+    updateMeetingAttendees() {
         //Update attendees list every 3 seconds
-        let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.props.conversation.meetingID}));
-        let newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees;
-        return await new Promise(() => {
-            this.timer = setInterval(() => {
-                this.setState({
-                    attendeesList: newAttendeesList
-                }); console.log("Update attendees list every 3 seconds, new list: ", newAttendeesList); 
-            }, 3 * 1000);
-        })
+        // let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.props.conversation.meetingID}));
+        // let newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees;
+        // console.log(newAttendeesList);
+        // return await new Promise(() => {
+        //     this.timer = setInterval(() => {
+        //         this.setState({
+        //             attendeesList: newAttendeesList
+        //         }); console.log("Update attendees list every 3 seconds, new list: ", newAttendeesList); 
+        //     }, 3 * 1000);
+        // })
+        this.timer = setInterval(async () => {
+            let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.props.conversation.meetingID}));
+            let newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees;
+            console.log(newAttendeesList);
+
+            this.setState({
+                attendeesList: newAttendeesList
+            }); console.log("Update attendees list every 3 seconds, new list: ", newAttendeesList);
+        }, 3 * 1000);
     }
 
     killRecorderForGood() {

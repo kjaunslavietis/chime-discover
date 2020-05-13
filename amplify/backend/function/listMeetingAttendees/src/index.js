@@ -25,6 +25,7 @@ exports.handler = async (event) => {
             };
         }
     } while (allAttendeesResponse.NextToken);
+    console.log(JSON.stringify(allAttendees));
 
     const response = {
         statusCode: 200,
