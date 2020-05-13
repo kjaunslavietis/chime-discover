@@ -365,7 +365,7 @@ class ActiveConversation extends React.Component {
         if(this.state.isMeetingLoading) {
             return this.loadingScreen();
         } else {
-            // this.chooseAudioDevice();
+            this.chooseAudioDevice();
             return (
                 <Container>
                     <Row className='room-control'>
