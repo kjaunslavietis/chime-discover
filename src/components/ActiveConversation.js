@@ -52,23 +52,16 @@ class ActiveConversation extends React.Component {
         // if(this.state.isAudioEnabled){
         //     this.meetingSession.audioVideo.stop();
         // }
-        console.log("Stopping the audio");
-        this.meetingSession.audioVideo.chooseAudioInputDevice(null); //red circle should disappear after this line
-
-        try {
-            this.meetingSession.audioVideo.stop();
-            this.meetingSession.audioVideo.unbindAudioElement();
-        } catch(err) {
-            console.error(err);
-        }
-        if (this.audioVideoObserver) {
-            this.meetingSession.audioVideo.removeDeviceChangeObserver(this.audioVideoObserver);
-            console.log('AudioVideo observer removed');
-        }
-        if (this.deviceChangeObserver) {
-            this.meetingSession.audioVideo.removeObserver(this.deviceChangeObserver);
-            console.log('DeviceChange observer removed');
-        }
+        // console.log("Stopping the audio");
+        // this.meetingSession.audioVideo.stop();
+        // if (this.audioVideoObserver) {
+        //     this.meetingSession.audioVideo.removeObserver(this.audioVideoObserver);
+        //     console.log('AudioVideo observer removed');
+        // }
+        // if (this.deviceChangeObserver) {
+        //     this.meetingSession.audioVideo.removeObserver(this.deviceChangeObserver);
+        //     console.log('DeviceChange observer removed');
+        // }
         this.leaveChimeMeeting();
     }
 
@@ -82,9 +75,9 @@ class ActiveConversation extends React.Component {
                 isMuted: false
             });
             this.killRecorderForGood();
-            if(this.state.isAudioEnabled){
-                this.meetingSession.audioVideo.stop();
-            }
+            // if(this.state.isAudioEnabled){
+            //     this.meetingSession.audioVideo.stop();
+            // }
             this.leaveChimeMeeting();
             this.joinChimeMeeting();
         }
@@ -118,6 +111,19 @@ class ActiveConversation extends React.Component {
     }
 
     leaveChimeMeeting() {
+        if(this.state.isAudioEnabled){
+            this.meetingSession.audioVideo.stop();
+        }
+        console.log("Stopping the audio");
+        this.meetingSession.audioVideo.stop();
+        if (this.audioVideoObserver) {
+            this.meetingSession.audioVideo.removeObserver(this.audioVideoObserver);
+            console.log('AudioVideo observer removed');
+        }
+        if (this.deviceChangeObserver) {
+            this.meetingSession.audioVideo.removeObserver(this.deviceChangeObserver);
+            console.log('DeviceChange observer removed');
+        }
         console.log("Left chime meeting");
     }
 
@@ -186,7 +192,7 @@ class ActiveConversation extends React.Component {
             const audioInputDeviceInfo = devices.input;
             const inputDeviceId = audioInputDeviceInfo[0].deviceId;
             console.log('Input audio device: ', audioInputDeviceInfo[0]);
-            await this.meetingSession.audioVideo.chooseAudioInputDevice(inputDeviceId); //red circle appears after this line
+            await this.meetingSession.audioVideo.chooseAudioInputDevice(inputDeviceId);
             const audioOutputDeviceInfo = devices.output;
             const outputDeviceId = audioOutputDeviceInfo[0].deviceId;
             console.log('Ouput audio device: ', audioOutputDeviceInfo[0]);
