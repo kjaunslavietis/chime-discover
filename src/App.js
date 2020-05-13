@@ -314,34 +314,21 @@ class App extends React.Component {
     return historyArray.reverse();
   }
 
-  handleSignOut = () => {
-    Auth.signOut()
-    .then(data => {
-      this.setState({isSignedIn: false});
-      console.log(data)}
-      )
-    .catch(err => console.log(err));
-  }
-
-  render() {
-    const { classes } = this.props;
-
+  doAuth = () => {
     if (!this.state.isSignedIn) {
       Auth.currentAuthenticatedUser({
         bypassCache: false  // Optional, By default is false. If set to true, this call will send a request to Cognito to get the latest user data
       }).then(user => {
-        //moved setting the userName from ActiveConversation.js
-        //TODO: now userName is null right after log in; after refreshing it's fine => solve it
         this.setState({isSignedIn: true, userName: user.username}, this.doInitialLoad);
       })
-        .catch(err => console.log("Not logged in"));
+      .catch(err => console.log("Not logged in"));
   
       const authListener = (data) => {
   
         switch (data.payload.event) {
   
           case 'signIn':
-            this.setState({isSignedIn: true}, this.doInitialLoad);
+            this.setState({isSignedIn: true, userName: data.payload.data.username}, this.doInitialLoad);
             break;
           case 'signUp':
             console.log('user signed up');
@@ -359,6 +346,21 @@ class App extends React.Component {
   
       Hub.listen('auth', authListener);
     }
+  }
+
+  handleSignOut = () => {
+    Auth.signOut()
+    .then(data => {
+      this.setState({isSignedIn: false});
+      console.log(data)}
+      )
+    .catch(err => console.log(err));
+  }
+
+  render() {
+    this.doAuth();
+
+    const { classes } = this.props;
 
     return (
       <React.Fragment>

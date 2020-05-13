@@ -34,17 +34,6 @@ class ActiveConversation extends React.Component {
         this.joinChimeMeeting();
     }
 
-    //Moved to App.js for now, because this.userName should be set before this.joinChimeMeeting()
-    //And this function seems to be async
-    getUser() {
-        Auth.currentAuthenticatedUser({
-          bypassCache: false  // Optional, By default is false. If set to true, this call will send a request to Cognito to get the latest user data
-        }).then(user => {
-          this.userName = user.username;
-        })
-        .catch(err => console.log("Not logged in"));
-      }
-
     // this will be called when the component is un-rendered, eg. the user has chosen to leave the meeting
     componentWillUnmount() {
         this.killRecorderForGood();
@@ -346,7 +335,6 @@ class ActiveConversation extends React.Component {
                     <Row className='chat-participants'>
                         <Col className='chat-ui' sm={8}>
                             <Chat
-                            // userName = {randomUser}
                             userName = {this.props.userName}
                             roomID = {this.props.conversation.id}
                             />
