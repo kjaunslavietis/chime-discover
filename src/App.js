@@ -410,7 +410,7 @@ class App extends React.Component {
             </Paper>
           </Container>
         </div>
-        <CreateConversation handleCreate={this.onConversationCreated} open={this.state.createDialogOpen} handleClose={this.handleClose} categories = {this.state.categories} />
+        <CreateConversation handleCreate={this.onConversationCreated} open={this.state.createDialogOpen} handleClose={this.handleClose} categories = {this.state.categories.map(category => category.title)} />
       </React.Fragment>
   )
   }
