@@ -53,7 +53,7 @@ class ActiveConversation extends React.Component {
         //     this.meetingSession.audioVideo.stop();
         // }
         console.log("Stopping the audio");
-        await this.meetingSession.audioVideo.chooseAudioInputDevice(null); //red circle should disappear after this line
+        this.meetingSession.audioVideo.chooseAudioInputDevice(null); //red circle should disappear after this line
 
         try {
             this.meetingSession.audioVideo.stop();
