@@ -52,10 +52,6 @@ class ActiveConversation extends React.Component {
         // if(this.state.isAudioEnabled){
         //     this.meetingSession.audioVideo.stop();
         // }
-        this.leaveChimeMeeting();
-    }
-
-    componentDidUnmount() {
         console.log("Stopping the audio");
         this.meetingSession.audioVideo.stop();
         if (this.audioVideoObserver) {
@@ -66,6 +62,20 @@ class ActiveConversation extends React.Component {
             this.meetingSession.audioVideo.removeObserver(this.deviceChangeObserver);
             console.log('DeviceChange observer removed');
         }
+        this.leaveChimeMeeting();
+    }
+
+    componentDidUnmount() {
+        // console.log("Stopping the audio");
+        // this.meetingSession.audioVideo.stop();
+        // if (this.audioVideoObserver) {
+        //     this.meetingSession.audioVideo.removeObserver(this.audioVideoObserver);
+        //     console.log('AudioVideo observer removed');
+        // }
+        // if (this.deviceChangeObserver) {
+        //     this.meetingSession.audioVideo.removeObserver(this.deviceChangeObserver);
+        //     console.log('DeviceChange observer removed');
+        // }
     }
 
     // on switching the meeting
