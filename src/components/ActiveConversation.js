@@ -53,6 +53,8 @@ class ActiveConversation extends React.Component {
         //     this.meetingSession.audioVideo.stop();
         // }
         console.log("Stopping the audio");
+        await this.meetingSession.audioVideo.chooseAudioInputDevice(null); //red circle should disappear after this line
+
         try {
             this.meetingSession.audioVideo.stop();
             this.meetingSession.audioVideo.unbindAudioElement();
@@ -70,18 +72,6 @@ class ActiveConversation extends React.Component {
         this.leaveChimeMeeting();
     }
 
-    componentDidUnmount() {
-        // console.log("Stopping the audio");
-        // this.meetingSession.audioVideo.stop();
-        // if (this.audioVideoObserver) {
-        //     this.meetingSession.audioVideo.removeObserver(this.audioVideoObserver);
-        //     console.log('AudioVideo observer removed');
-        // }
-        // if (this.deviceChangeObserver) {
-        //     this.meetingSession.audioVideo.removeObserver(this.deviceChangeObserver);
-        //     console.log('DeviceChange observer removed');
-        // }
-    }
 
     // on switching the meeting
     componentDidUpdate(prevProps) {
@@ -196,11 +186,11 @@ class ActiveConversation extends React.Component {
             const audioInputDeviceInfo = devices.input;
             const inputDeviceId = audioInputDeviceInfo[0].deviceId;
             console.log('Input audio device: ', audioInputDeviceInfo[0]);
-            await this.meetingSession.audioVideo.chooseAudioInputDevice(null); //red circle appears after th=his line
-            // const audioOutputDeviceInfo = devices.output;
-            // const outputDeviceId = audioOutputDeviceInfo[0].deviceId;
-            // console.log('Ouput audio device: ', audioOutputDeviceInfo[0]);
-            // await this.meetingSession.audioVideo.chooseAudioOutputDevice(outputDeviceId);
+            await this.meetingSession.audioVideo.chooseAudioInputDevice(inputDeviceId); //red circle appears after this line
+            const audioOutputDeviceInfo = devices.output;
+            const outputDeviceId = audioOutputDeviceInfo[0].deviceId;
+            console.log('Ouput audio device: ', audioOutputDeviceInfo[0]);
+            await this.meetingSession.audioVideo.chooseAudioOutputDevice(outputDeviceId);
         }
         catch(err) {
             console.error(err);
