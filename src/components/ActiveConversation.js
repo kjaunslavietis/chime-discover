@@ -192,9 +192,9 @@ class ActiveConversation extends React.Component {
         try {
             const devices = await this.listAudioDevices();
             //chose the first ones by default for now
-            // const audioInputDeviceInfo = devices.input;
-            // const inputDeviceId = audioInputDeviceInfo[0].deviceId;
-            // console.log('Input audio device: ', audioInputDeviceInfo[0]);
+            const audioInputDeviceInfo = devices.input;
+            const inputDeviceId = audioInputDeviceInfo[0].deviceId;
+            console.log('Input audio device: ', audioInputDeviceInfo[0]);
             // await this.meetingSession.audioVideo.chooseAudioInputDevice(inputDeviceId);
             // const audioOutputDeviceInfo = devices.output;
             // const outputDeviceId = audioOutputDeviceInfo[0].deviceId;
