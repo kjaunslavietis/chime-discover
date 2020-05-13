@@ -30,7 +30,8 @@ class ActiveConversation extends React.Component {
             onConversationExited: this.props.onConversationExited,
             isAudioEnabled: false,
             isMuted: false,
-            attendeesList: []
+            attendeesList: [],
+            meetingId: null //update after joining the meeting
         }
         this.mediaRecorder = null;
         this.MS_BETWEEN_RECORDINGS = 1000 * 60 * 1; // 1 minute
@@ -88,13 +89,16 @@ class ActiveConversation extends React.Component {
         //     }, 3 * 1000);
         // })
         this.timer = setInterval(async () => {
-            let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.props.conversation.meetingID}));
-            let newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees;
-            console.log(newAttendeesList);
+            if (this.state.meetingId) {
+                let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.state.meetingId}));
+                let newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees;
+                console.log(newAttendeesList);
 
-            this.setState({
-                attendeesList: newAttendeesList
-            }); console.log("Update attendees list every 3 seconds, new list: ", newAttendeesList);
+                this.setState({
+                    attendeesList: newAttendeesList
+                }); 
+                console.log("Update attendees list every 3 seconds, new list: ", newAttendeesList);
+            }
         }, 3 * 1000);
     }
 
@@ -120,7 +124,8 @@ class ActiveConversation extends React.Component {
         this.meetingSession = meetingSessions.meeting;
         // this.attendeesList = meetingSessions.attendees;
         this.setState({
-            attendeesList: meetingSessions.attendees
+            attendeesList: meetingSessions.attendees,
+            meetingId: meetingSessions.meetingId
         })
         await new Promise(r => setTimeout(r, 2000));
         this.setState({

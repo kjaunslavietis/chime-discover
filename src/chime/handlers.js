@@ -20,9 +20,10 @@ export async function joinMeeting(oldId, desiredMeetingId, userName) {
       const meetingResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.meeting;
       const attendeeResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.attendee;
       const attendeesList = meetingAndAttendeeInfo.data.getOrCreateMeeting.attendees;
-      if(desiredMeetingId != meetingResponse.MeetingId) {
+      const meetingId = meetingResponse.MeetingId;
+      if(desiredMeetingId != meetingId) {
         isCreated = true;
-        await conversationService.updateConversation(oldId, meetingResponse.MeetingId)
+        await conversationService.updateConversation(oldId, meetingId)
       }
       console.log(attendeeResponse);
       console.log(meetingResponse);
@@ -39,6 +40,7 @@ export async function joinMeeting(oldId, desiredMeetingId, userName) {
       );
       return {
         meeting: meetingSession, 
+        meetingId: meetingId,
         attendees: attendeesList
       };
     } catch(err) {
