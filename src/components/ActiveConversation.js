@@ -55,11 +55,12 @@ class ActiveConversation extends React.Component {
         console.log("Stopping the audio");
         try {
             this.meetingSession.audioVideo.stop();
+            this.meetingSession.audioVideo.unbindAudioElement();
         } catch(err) {
             console.error(err);
         }
         if (this.audioVideoObserver) {
-            this.meetingSession.audioVideo.removeObserver(this.audioVideoObserver);
+            this.meetingSession.audioVideo.removeDeviceChangeObserver(this.audioVideoObserver);
             console.log('AudioVideo observer removed');
         }
         if (this.deviceChangeObserver) {
@@ -195,7 +196,7 @@ class ActiveConversation extends React.Component {
             const audioInputDeviceInfo = devices.input;
             const inputDeviceId = audioInputDeviceInfo[0].deviceId;
             console.log('Input audio device: ', audioInputDeviceInfo[0]);
-            await this.meetingSession.audioVideo.chooseAudioInputDevice(inputDeviceId);
+            await this.meetingSession.audioVideo.chooseAudioInputDevice(null); //red circle appears after th=his line
             // const audioOutputDeviceInfo = devices.output;
             // const outputDeviceId = audioOutputDeviceInfo[0].deviceId;
             // console.log('Ouput audio device: ', audioOutputDeviceInfo[0]);
