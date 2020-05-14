@@ -10,6 +10,7 @@ exports.handler = async (event) => {
     let meetingId = event.arguments.meetingId;
     let allAttendeesResponse = {};
     let allAttendees = [];
+    console.log(meetingId);
     do {
         try {
             allAttendeesResponse = await chime.listAttendees({
