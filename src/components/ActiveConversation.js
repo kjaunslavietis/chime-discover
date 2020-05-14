@@ -1,18 +1,52 @@
 import React from 'react';
-import { Container, Button, Spinner, Row, Col } from 'react-bootstrap';
 import { API, graphqlOperation } from 'aws-amplify'
 import { listMeetingAttendees} from './../graphql/queries'
 
+import { withStyles } from '@material-ui/styles';
+import Container from '@material-ui/core/Container';
+import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
+import Divider from '@material-ui/core/Divider';
+import Paper from '@material-ui/core/Paper';
+import Slider from '@material-ui/core/Slider';
+import VolumeDown from '@material-ui/icons/VolumeDown';
+import VolumeUp from '@material-ui/icons/VolumeUp';
+import CallEnd from '@material-ui/icons/CallEnd';
+import Fab from '@material-ui/core/Fab';
+import MicNone from '@material-ui/icons/MicNone';
+import Mic from '@material-ui/icons/Mic';
+import MicOff from '@material-ui/icons/MicOff';
+import VolumeOff from '@material-ui/icons/VolumeOff';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListSubheader from '@material-ui/core/ListSubheader';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import Avatar from '@material-ui/core/Avatar';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import IconButton from '@material-ui/core/IconButton';
+import CommentIcon from '@material-ui/icons/Comment';
+
+import Chat from './Chat';
 import { joinMeeting } from './../chime/handlers';
 import AudioControl from './AudioControl';
 import AttendeesList from './AttendeesList';
+
 import { MeetingSessionStatusCode } from 'amazon-chime-sdk-js';
-
-import Chat from './Chat';
-
 import { Mp3MediaRecorder } from 'mp3-mediarecorder';
 import mp3RecorderWorker from 'workerize-loader!./RecorderWorker';  // eslint-disable-line import/no-webpack-loader-syntax
 import { Storage, Auth } from 'aws-amplify';
+
+import './ActiveConversation.css';
+
+const styles = theme => ({
+    slider: {
+      marginTop: '10px'
+    },
+  });
+  
 
 class ActiveConversation extends React.Component {
 
@@ -24,6 +58,7 @@ class ActiveConversation extends React.Component {
         this.muteOrUnmute = this.muteOrUnmute.bind(this);
         this.startRecording = this.startRecording.bind(this);
         this.restartMediaRecorder = this.restartMediaRecorder.bind(this);
+        this.handleVolumeChange = this.handleVolumeChange.bind(this);
 
         this.state = {
             isMeetingLoading: true,
@@ -31,7 +66,8 @@ class ActiveConversation extends React.Component {
             isAudioEnabled: false,
             isMuted: false,
             attendeesList: [],
-            meetingId: null //update after joining the meeting
+            meetingId: null, //update after joining the meeting
+            volume: 50
         }
         this.mediaRecorder = null;
         this.MS_BETWEEN_RECORDINGS = 1000 * 60 * 1; // 1 minute
@@ -39,17 +75,6 @@ class ActiveConversation extends React.Component {
         // this.getUser()
         this.joinChimeMeeting();
     }
-
-    //Moved to App.js for now, because this.userName should be set before this.joinChimeMeeting()
-    //And this function seems to be async
-    getUser() {
-        Auth.currentAuthenticatedUser({
-          bypassCache: false  // Optional, By default is false. If set to true, this call will send a request to Cognito to get the latest user data
-        }).then(user => {
-          this.userName = user.username;
-        })
-        .catch(err => console.log("Not logged in"));
-      }
 
     // this will be called when the component is un-rendered, eg. the user has chosen to leave the meeting
     componentWillUnmount() {
@@ -151,9 +176,11 @@ class ActiveConversation extends React.Component {
 
     loadingScreen() {
         return (
-            <Container>
-                <Spinner animation="grow" size="lg"/>
-                <h4>Joining meeting...</h4>
+            <Container maxWidth="sm">
+                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "200px" }}>
+                    <CircularProgress />
+                    <Typography style={{ paddingLeft: "20px" }} variant="h5">Joining meeting...</Typography>
+                </div>
             </Container>
         );
     }
@@ -342,6 +369,7 @@ class ActiveConversation extends React.Component {
                 this.meetingSession.audioVideo.start();
 
                 console.log("Audio has started");
+                audioElement.volume = 0.5;
             }
 
         }
@@ -351,6 +379,7 @@ class ActiveConversation extends React.Component {
     }   
 
     muteOrUnmute() {
+        console.log("Trying to unmute/mute");
         try {
             // Mute
             if(this.state.isMuted) {
@@ -376,52 +405,98 @@ class ActiveConversation extends React.Component {
         }
     }
 
+    handleVolumeChange(event, newValue) {
+        const audioElement = document.getElementById('meeting-audio');
+        audioElement.volume = newValue/100.0;
+        this.setState({
+            volume: newValue
+        });
+    }
+
     render() {
-        if(this.state.isMeetingLoading) {
+        const { classes } = this.props;
+        if (this.state.isMeetingLoading) {
             return this.loadingScreen();
         } else {
             this.chooseAudioDevice();
             return (
-                <Container>
-                    <Row className='room-control'>
-                        <Col className='room-title' sm={8}>
-                            <h4>{`Joined meeting: ${this.props.conversation.name}`}</h4>
-                        </Col>
-                        <Col sm={2}>
-                            <AudioControl
-                                isMuted={this.state.isMuted} 
-                                isAudioEnabled={this.state.isAudioEnabled}
-                                enableAudio={this.enableAudio}
-                                muteOrUnmute={this.muteOrUnmute}
-                            />
-                        </Col>
-                        <Col sm={2}>
-                            <Button variant="danger" size="md" block onClick={this.exitConversation}>Leave</Button>
-                            <audio id="meeting-audio" ></audio>
-                        </Col>
-                    </Row>
-                    <Row className="participants-number">
-                        <Col>
-                            <h5>{this.state.attendeesList.length} participants</h5>
-                        </Col>
-                    </Row>
-                    <Row className='chat-participants'>
-                        <Col className='chat-ui' sm={8}>
-                            <Chat
-                            // userName = {randomUser}
+                <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", padding: "30px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", flex: '1', marginRight: '20px' }}>
+                        <Typography variant="h6" gutterBottom>
+                            {`You're in ${this.props.conversation.name}`}
+                        </Typography>
+                        <Divider />
+                        <Chat
                             userName = {this.props.userName}
                             roomID = {this.props.conversation.id}
-                            />
-                        </Col>
-                        <Col className='participants-ui' sm={4}>
-                            <AttendeesList attendeesList={this.state.attendeesList}/>
-                        </Col>
-                    </Row>
-                </Container>
-            )
+                        />
+                    </div>
+                    <audio id="meeting-audio"></audio>
 
+                    <div style={{ display: "flex", flexDirection: "column", minWidth: "300px" }}>
+                        <div style={{ minWidth: '300px', display: "flex", flexDirection:"row", justifyContent: "center", padding:"10px"}}>
+                            <div style={{minWidth:"200px", marginLeft: "5px"}}>
+                                        <Grid container spacing={2} className={classes.slider}>
+                                            <Grid item>
+                                                <VolumeDown />
+                                            </Grid>
+                                            <Grid item xs>
+                                                <Slider value={this.state.volume} onChange={this.handleVolumeChange} aria-labelledby="continuous-slider" />
+                                            </Grid>
+                                            <Grid item>
+                                                <VolumeUp />
+                                            </Grid>
+                                        </Grid>
+                            </div>
+                            <div style={{marginLeft: "20px", padding:"8px"}}>
+                                    {this.state.isMuted ? 
+                                        <Fab size="medium" color="primary" onClick={this.muteOrUnmute}>
+                                            <Mic />
+                                        </Fab>
+                                    :
+                                        <Fab size="medium" onClick={this.muteOrUnmute}>
+                                            <MicOff />
+                                        </Fab>
+                                    }
+                            </div>
+                            <div style={{marginLeft: "5px", padding:"8px"}}>
+                                    <Fab size="medium" color="secondary" onClick={this.exitConversation}>
+                                        <CallEnd />
+                                    </Fab>
+                            </div>
+                        </div>
+                        <div style={{ minHeight: '650px', minWidth: '300px'}}>
+                            <List subheader={<ListSubheader disableSticky>Room Participants ({this.stats.attendeesList ? this.stats.attendeesList.length : 0})</ListSubheader>} style={{maxHeight: '70vh', overflow: 'auto'}}>
+                                {this.stats.attendeesList.map((value, key) => {
+                                    const labelId = `checkbox-list-secondary-label-${key}`;
+                                    return (
+                                    <React.Fragment>
+                                        <ListItem key={key} button>
+                                            <ListItemAvatar>
+                                            <Avatar
+                                                alt={`Avatar n°${key + 1}`}
+                                                src={key%2 === 0 ? "https://randomuser.me/api/portraits/men/" + key + ".jpg" 
+                                                : "https://randomuser.me/api/portraits/women/" + key + ".jpg"}
+                                            />
+                                            </ListItemAvatar>
+                                            <ListItemText id={labelId} primary={value.ExternalUserId} />
+                                        </ListItem>
+                                        <Divider variant="inset" />
+                                    </React.Fragment>
+                                    );
+                                })}
+                            </List>
+                        </div>
+                    </div>
+                </div>
+            )
         }
     }
 }
 
-export default ActiveConversation;
+const mock = {
+    first_name: ['Aaliyah', 'Aaron', 'Abagail', 'Abbey', 'Abbie', 'Abbigail', 'Abby', 'Abdiel', 'Abdul', 'Abdullah', 'Abe', 'Abel', 'Abelardo', 'Abigail', 'Abigale', 'Abigayle', 'Abner', 'Abraham', 'Ada', 'Adah', 'Adalberto', 'Adaline', 'Adam', 'Adan', 'Addie', 'Addison', 'Adela', 'Adelbert', 'Adele', 'Adelia', 'Adeline', 'Adell', 'Adella', 'Adelle', 'Aditya', 'Adolf', 'Adolfo', 'Adolph', 'Adolphus', 'Adonis', 'Adrain', 'Adrian', 'Adriana', 'Adrianna', 'Adriel', 'Adrien', 'Adrienne', 'Afton', 'Aglae', 'Agnes', 'Agustin', 'Agustina', 'Ahmad', 'Ahmed', 'Aida', 'Aidan', 'Aiden', 'Aileen', 'Aimee', 'Aisha', 'Aiyana', 'Akeem', 'Al', 'Alaina', 'Alan', 'Alana', 'Alanis', 'Alanna', 'Alayna', 'Alba', 'Albert', 'Alberta', 'Albertha', 'Alberto', 'Albin', 'Albina', 'Alda', 'Alden', 'Alec', 'Aleen', 'Alejandra', 'Alejandrin', 'Alek', 'Alena', 'Alene', 'Alessandra', 'Alessandro'],
+    last_name: ['Abbott', 'Abernathy', 'Abshire', 'Adams', 'Altenwerth', 'Anderson', 'Ankunding', 'Armstrong', 'Auer', 'Aufderhar', 'Bahringer', 'Bailey', 'Balistreri', 'Barrows', 'Bartell', 'Bartoletti', 'Barton', 'Bashirian', 'Batz', 'Bauch', 'Baumbach', 'Bayer', 'Beahan', 'Beatty', 'Bechtelar', 'Becker', 'Bednar', 'Beer', 'Beier', 'Berge', 'Bergnaum', 'Bergstrom', 'Bernhard', 'Bernier', 'Bins', 'Blanda', 'Blick', 'Block', 'Bode', 'Boehm', 'Bogan', 'Bogisich', 'Borer', 'Bosco', 'Botsford', 'Boyer', 'Boyle', 'Bradtke', 'Brakus', 'Braun', 'Breitenberg', 'Brekke', 'Brown', 'Bruen', 'Buckridge', 'Carroll', 'Carter', 'Cartwright', 'Casper', 'Cassin', 'Champlin', 'Christiansen', 'Cole', 'Collier', 'Collins', 'Conn', 'Connelly', 'Conroy', 'Considine', 'Corkery', 'Cormier', 'Corwin', 'Cremin', 'Crist', 'Crona', 'Cronin', 'Crooks', 'Cruickshank'],
+};
+
+export default withStyles(styles)(ActiveConversation);

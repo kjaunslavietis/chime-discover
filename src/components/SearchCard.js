@@ -6,19 +6,21 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import Tooltip from '@material-ui/core/Tooltip';
 import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
 import ShareIcon from '@material-ui/icons/Share';
 import PersonIcon from '@material-ui/icons/Person';
 import HearingIcon from '@material-ui/icons/Hearing';
+import RecordVoiceOverIcon from '@material-ui/icons/RecordVoiceOver';
 import Chip from '@material-ui/core/Chip';
-import Tooltip from '@material-ui/core/Tooltip';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 
 import { Storage } from 'aws-amplify';
 
 import './search.css';
+import { mergeClasses } from '@material-ui/styles';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -45,19 +47,32 @@ const useStyles = makeStyles((theme) => ({
             margin: theme.spacing(0.5),
         },
     },
+    nbUsers: {
+        display: "flex",
+        alignItems: "center",
+    },
     personIcon: {
-        color: 'rgba(0, 0, 0, 0.54)',
-        fontSize: 30,
+        color: 'rgba(6, 100, 21, 0.78)',
+        marginRight: "4px",
+        // fontSize: 30,
+    },
+    recordingIcon: {
+        // marginRight: "4px",
+        // fontSize: 26,
     },
     customWidth: {
         maxWidth: 200,
     },
+    cardActions: {
+        justifyContent: 'space-between',
+        paddingBottom: '0px'
+    }
 }));
 
 export default function SearchCard(props) {
     const classes = useStyles();
     const { conversation, handleClickOnChip, handleJoinRoom } = props;
-    const { name, description, category, keywords, meetingId, numberOfUsers, imageUrl } = conversation;
+    const { name, description, category, keywords, meetingId, imageUrl, attendees, canBeAnalyzed } = conversation;
     const [open, setOpen] = React.useState(false);
 
     const [image, setImage] = React.useState(null);
@@ -128,15 +143,28 @@ export default function SearchCard(props) {
                     </Tooltip>
                 ))}
             </div>
-            <CardActions disableSpacing>
-                <IconButton aria-label="share" onClick={handleOpen}>
-                    <ShareIcon />
-                </IconButton>
-                <PersonIcon className={classes.personIcon} />
-                <Typography>{numberOfUsers}</Typography>
-                <div style={{ marginLeft: "80px" }}>
-                    <Button size="small" color="primary" onClick={() => handleJoinRoom(meetingId)}>Join Room</Button>
-                </div>
+            <CardActions disableSpacing className={classes.cardActions}>
+                    <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
+                        {
+                            canBeAnalyzed 
+                            ?
+                            <Tooltip title="Voice snippets from this room will be used to categorize conversation topic">
+                                    <RecordVoiceOverIcon />
+                            </Tooltip>
+                            :
+                            null
+                        }
+                        <IconButton aria-label="share" onClick={handleOpen}>
+                            <ShareIcon />
+                        </IconButton>
+                        <div className={classes.nbUsers}>
+                            <PersonIcon className={classes.personIcon} />
+                            <Typography variant="body2">{attendees.length} online</Typography>
+                        </div>
+                    </div>
+                    <div>
+                        <Button size="small" color="primary" onClick={() => handleJoinRoom(meetingId)}>Join Room</Button>
+                    </div>
             </CardActions>
             <Snackbar open={open} autoHideDuration={2000} onClose={handleClose}>
                 <Alert onClose={handleClose} severity="success">

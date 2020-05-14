@@ -5,7 +5,7 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import ShareIcon from '@material-ui/icons/Share';
 import IconButton from '@material-ui/core/IconButton';
 import CardHeader from '@material-ui/core/CardHeader';
 import Avatar from '@material-ui/core/Avatar';
@@ -13,11 +13,16 @@ import PersonIcon from '@material-ui/icons/Person';
 import Chip from '@material-ui/core/Chip';
 import Tooltip from '@material-ui/core/Tooltip';
 import HearingIcon from '@material-ui/icons/Hearing';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 import MicIcon from '@material-ui/icons/Mic';
+import RecordVoiceOverIcon from '@material-ui/icons/RecordVoiceOver';
 
 import './RoomCard.css';
+
+function Alert(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -37,12 +42,13 @@ const useStyles = makeStyles((theme) => ({
     },
     personIcon: {
         color: 'rgba(6, 100, 21, 0.78)',
-        fontSize: 26,
+        // fontSize: 26,
         marginRight: "4px"
     },
     cardActions: {
         display: "flex",
         justifyContent: "space-between",
+        paddingRight: "15px",
     },
     nbUsers: {
         display: "flex",
@@ -75,43 +81,45 @@ const options = [
 export default function RoomCard(props) {
     const classes = useStyles();
     const { focus, audioActivated, conversation, handleClickOnCard } = props;
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const open = Boolean(anchorEl);
+    const [open, setOpen] = React.useState(false);
 
-    const handleClick = (e) => {
-        e.stopPropagation();
-        setAnchorEl(e.currentTarget);
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpen(false);
     };
 
-    const handleClose = (e) => {
-        e.stopPropagation();
-        setAnchorEl(null);
+    const handleOpen = (e) => {
+        setOpen(true);
+        navigator.clipboard.writeText("So sorry, I lied ¯\\_(ツ)_/¯");
     };
 
     return (
         <Card className={focus ? classes.focus : classes.root} >
             <CardActionArea onClick={() => handleClickOnCard(conversation)}>
                 <CardHeader
-                    action={
-                        <React.Fragment>
-                            <IconButton aria-label="settings" onClick={handleClick}>
-                                <MoreVertIcon />
-                            </IconButton>
-                            <Menu
-                                id="long-menu"
-                                anchorEl={anchorEl}
-                                keepMounted
-                                open={open}
-                                onClose={handleClose}
-                            >
-                                {options.map((option) => (
-                                    <MenuItem key={option} selected={option === 'Pyxis'} onClick={handleClose}>
-                                        {option}
-                                    </MenuItem>
-                                ))}
-                            </Menu>
-                        </React.Fragment>
-                    }
+                    // action={
+                    //     <React.Fragment>
+                    //         <IconButton aria-label="settings" onClick={handleClick}>
+                    //             <MoreVertIcon />
+                    //         </IconButton>
+                    //         <Menu
+                    //             id="long-menu"
+                    //             anchorEl={anchorEl}
+                    //             keepMounted
+                    //             open={open}
+                    //             onClose={handleClose}
+                    //         >
+                    //             {options.map((option) => (
+                    //                 <MenuItem key={option} selected={option === 'Pyxis'} onClick={handleClose}>
+                    //                     {option}
+                    //                 </MenuItem>
+                    //             ))}
+                    //         </Menu>
+                    //     </React.Fragment>
+                    // }
                     title={conversation.name}
                     className={classes.browserCardHeader}
                 />
@@ -147,12 +155,31 @@ export default function RoomCard(props) {
                     </div>
                 </CardContent>
                 <CardActions disableSpacing className={classes.cardActions}>
+                    <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
+                        <IconButton aria-label="share" onClick={handleOpen}>
+                            <ShareIcon />
+                        </IconButton>
+                        {
+                            conversation.canBeAnalyzed 
+                            ?
+                            <Tooltip title="Voice snippets from this room will be used to categorize conversation topic">
+                                    <RecordVoiceOverIcon />
+                            </Tooltip>
+                            :
+                            null
+                        }
+                    </div>
                     <div className={classes.nbUsers}>
                         <PersonIcon className={classes.personIcon} />
                         <Typography>{conversation.attendees.length} online</Typography>
+                        {audioActivated ? <MicIcon /> : null}
                     </div>
-                    {audioActivated ? <MicIcon /> : null}
                 </CardActions>
+                    <Snackbar open={open} autoHideDuration={2000} onClose={handleClose}>
+                    <Alert onClose={handleClose} severity="success">
+                        Room link copied to clipboard!
+                    </Alert>
+                </Snackbar>
             </CardActionArea>
         </Card>
     );

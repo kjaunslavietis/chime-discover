@@ -1,14 +1,13 @@
-import { MessageList, Button, Input } from 'react-chat-elements';
+import { MessageList } from 'react-chat-elements';
 import React from 'react';
+import ChatService from './../services/ChatService'
+import Paper from '@material-ui/core/Paper';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+
+import ChatEmojiPicker from './ChatEmojiPicker';
 import 'react-chat-elements/dist/main.css'
 import './Chat.css'
-import ChatService from './../services/ChatService'
-import ScrollToBottom from 'react-scroll-to-bottom';
-import 'emoji-mart/css/emoji-mart.css'
-import { Picker } from 'emoji-mart'
-import ReactDOM from 'react-dom';
-
-let currentEmoji = ""; 
 
 class Chat extends React.Component {
   constructor(props) {
@@ -16,7 +15,6 @@ class Chat extends React.Component {
     this.state = {
       message: "",
       messageList: [],
-      showingEmojiPocker: false,
       roomID: this.props.roomID,
     };
 
@@ -26,19 +24,21 @@ class Chat extends React.Component {
     this.addEmoji = this.addEmoji.bind(this)
     console.log("==>user from the chat component " + this.props.userName)
     console.log("==>room id " + this.state.roomID)
+  }
 
+  scrollToBottom = () => {
+    this.messagesEnd.scrollIntoView({ behavior: "smooth" });
   }
 
   componentDidMount() {
     this.timer = setInterval(() => { this.setState({}); console.log("update chat messages time every min") }, 60 * 1000)
-    document.addEventListener('click', this.handleClick, false);
+    this.scrollToBottom();
   }
 
   componentWillMount() {
     this.chatService.getMessagesForConversation().then(chatMessages => {
       this.appendMessagesToChat(chatMessages)
     })
-    document.removeEventListener('click', this.handleClick, false);
   }
 
   componentWillUnmount() {
@@ -52,7 +52,8 @@ class Chat extends React.Component {
 
   //Update chat on switching the room
   async componentDidUpdate(prevProps, prevState) {
-    if(prevProps.roomID !== this.props.roomID) {
+    this.scrollToBottom();
+    if (prevProps.roomID !== this.props.roomID) {
       this.setState({
         roomID: this.props.roomID,
         messageList: [],
@@ -83,71 +84,61 @@ class Chat extends React.Component {
   }
 
   composeMessage() {
-    if (!this.state.message) {
-      return
-    }
-    const newMessage = { roomID: this.state.roomID, senderName: this.props.userName, content: this.state.message }
-    this.appendMessagesToChat([newMessage])
-    this.chatService.createMessage(newMessage)
-    this.setState({
-      message: ""
-    });
-    this.refs.inputRef.clear()
+    if (this.state.message) {
+      const newMessage = { roomID: this.state.roomID, senderName: this.props.userName, content: this.state.message }
+      this.appendMessagesToChat([newMessage])
+      this.chatService.createMessage(newMessage)
+      this.setState({
+        message: ""
+      });
+    }    
   }
 
   addEmoji(emoji) {
-  
-    this.refs.inputRef.onChange({target: {value : this.state.message + emoji.native}});
-  }
-
-  handleClick = e => {
-    if (!ReactDOM.findDOMNode(this).contains(e.target)) {
-      this.setState({showingEmojiPocker: false})
-    }
+    this.setState((prevState) => ({
+      message: prevState.message + emoji.native
+    }));
   }
 
   render() {
     return (
-      <div id = "textfieldc"
-        className='chat-frame'>
-        <ScrollToBottom className="message-list-container">
-          <MessageList
-            lockable={true}
-            className='message-list'
-            toBottomHeight={0}
-            dataSource={this.state.messageList} />
-        </ScrollToBottom>
-        <Input
-          placeholder="write here"
-          ref='inputRef'
-          multiline={false}
-          onChange = {(e) => this.setState({ message: e.target.value })}
-          onKeyPress={(e) => {
-            console.log.apply("==>event:" + e)
-            if (e.shiftKey && e.charCode === 13) {
-              return true;
-            }
-            if (e.charCode === 13) {
-              this.composeMessage();
-              e.preventDefault();
-              return false;
-            }
-          }}
-          rightButtons={
-            <div>
-              <div>
-                <Button
-                  text='😃'
-                  onClick={() => { this.setState({ showingEmojiPocker: !this.state.showingEmojiPocker})}} />
-                {this.state.showingEmojiPocker && <Picker onSelect={this.addEmoji} style={{ position: 'absolute', bottom: '57px', right: '55px' }}/> }
-              </div>
-              <Button
-                text='SEND'
-                onClick={this.composeMessage} />
-
-            </div>
-          } />
-      </div>
+      <Paper elevation={1} style={{ marginTop: '20px' }}>
+        <div style={{ minHeight: '650px', backgroundColor: 'rgb(245, 245, 245)', maxHeight: '650px', overflow: 'auto', paddingLeft: '30px', paddingRight: '30px'}}>
+          <div>
+            <MessageList
+              lockable={true}
+              className='message-list'
+              toBottomHeight={0}
+              dataSource={this.state.messageList} />
+          </div>
+          <div style={{ float:"left", clear: "both" }}
+             ref={(el) => { this.messagesEnd = el; }}>
+          </div>
+        </div>
+        <div style={{ minHeight: '50px', display: 'flex', flexDirection: 'row' }}>
+          <TextField
+            fullWidth
+            placeholder="Write here!"
+            variant="outlined"
+            value={this.state.message}
+            onChange = {(e) => this.setState({ message: e.target.value })}
+            onKeyPress={(e) => {
+                if (e.shiftKey && e.charCode === 13) {
+                return true;
+              }
+              if (e.charCode === 13) {
+                this.composeMessage();
+                e.preventDefault();
+                return false;
+              }
+            }}
+          />
+          <ChatEmojiPicker addEmoji={this.addEmoji} />
+          <Button style={{ marginRight: "10px" }} onClick={this.composeMessage}>
+            SEND
+          </Button>
+        </div>
+      </Paper>
     )
   }
 }

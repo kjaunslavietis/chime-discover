@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -10,7 +11,6 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { Dropdown } from 'reactjs-dropdown-component';
 import { DropzoneArea } from 'material-ui-dropzone'
 
 import './dropdown.sass';
@@ -18,7 +18,8 @@ import './dropdown.sass';
 const useStyles = makeStyles((theme) => ({
 	imageUpload: {
 		minHeight: "auto",
-	}
+		marginTop: "10px"
+	},
 }))
 
 export default function CreateConversation(props) {
@@ -33,6 +34,7 @@ export default function CreateConversation(props) {
 	const [descriptionIsMissing, setDescriptionIsMissing] = useState(false);
 	const [categoryIsMissing, setCategoryIsMissing] = useState(false);
 	const [checked, setChecked] = useState(false);
+	console.log(JSON.stringify(categories));
 	// const categories = [
 	// 	{
 	// 	  id: 0,
@@ -79,6 +81,11 @@ export default function CreateConversation(props) {
 		setName(e.target.value);
 	}
 
+	const onCategoryChange = (e) => {
+		setCategoryIsMissing(false);
+		setCategory(e.target.textContent);
+	}
+
 	const onDescriptionChange = (e) => {
 		setDescriptionIsMissing(false);
 		setDescription(e.target.value);
@@ -91,12 +98,6 @@ export default function CreateConversation(props) {
 	const handleCheck = (event) => {
 		setChecked(event.target.checked);
 	};
-
-	const resetThenSet = (id, key) => {
-		console.log("ALLL CATAS" + JSON.stringify(categories))
-		setCategoryIsMissing(false);
-		setCategory(categories[id].title);
-	  }
 
 	return (
 		<Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
@@ -126,11 +127,14 @@ export default function CreateConversation(props) {
 					onChange={onDescriptionChange}
 					fullWidth
 				/>
-				<Dropdown 
-					searchable={["Search for category", "No matching category"]}
-					title = {category ? category : "Search for categoty"}
-					list={categories}
-					resetThenSet={resetThenSet}
+				<Autocomplete
+					margin="dense"
+					id="category"
+					options={categories}
+					fullWidth
+					value={category}
+					onChange={onCategoryChange}
+					renderInput={(params) => <TextField {...params} helperText={categoryIsMissing ? "Category is missing" : ""} error={categoryIsMissing} label="A category" />}
 				/>
 
 				<DropzoneArea
