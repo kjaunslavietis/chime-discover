@@ -60,7 +60,7 @@ class ActiveConversation extends React.Component {
 
     componentDidMount() {
         //Update attendees list every 3 seconds
-        const promise = this.updateMeetingAttendees();
+        // const promise = this.updateMeetingAttendees();
 
     }
     // on switching the meeting
@@ -118,7 +118,6 @@ class ActiveConversation extends React.Component {
             isMeetingLoading: true
         })
         // call getOrCreateMeeting lambda (or service), get the necessary parameters, use chime SDK to connect to meeting, finally set isMeetingLoading: false
-        console.log("MEETING ID: ", this.props.conversation.meetingID);
         console.log("ROOM ID: ", this.props.conversation.id);
         const meetingSessions = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID, this.props.userName);
         console.log(meetingSessions);
@@ -128,10 +127,14 @@ class ActiveConversation extends React.Component {
             attendeesList: meetingSessions.attendees,
             meetingId: meetingSessions.meetingId
         })
+        console.log('MEETING ID: ', meetingSessions.meetingId);
         await new Promise(r => setTimeout(r, 2000));
         this.setState({
             isMeetingLoading: false
         })
+        let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.state.meetingId}));
+        let newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees;
+        console.log(newAttendeesList);
     }
 
     leaveChimeMeeting() {
