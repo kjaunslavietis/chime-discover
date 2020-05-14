@@ -121,6 +121,7 @@ class ActiveConversation extends React.Component {
         console.log("MEETING ID: ", this.props.conversation.meetingID);
         console.log("ROOM ID: ", this.props.conversation.id);
         const meetingSessions = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID, this.props.userName);
+        console.log(meetingSessions);
         this.meetingSession = meetingSessions.meeting;
         // this.attendeesList = meetingSessions.attendees;
         this.setState({
