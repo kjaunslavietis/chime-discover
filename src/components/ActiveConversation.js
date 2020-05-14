@@ -354,6 +354,9 @@ class ActiveConversation extends React.Component {
                 this.meetingSession.audioVideo.start();
 
                 console.log("Audio has started");
+                let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.state.meetingId}));
+                let newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees;
+                console.log(newAttendeesList);
             }
 
         }
