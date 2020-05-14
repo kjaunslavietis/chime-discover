@@ -60,22 +60,9 @@ class ActiveConversation extends React.Component {
 
     componentDidMount() {
         //Update attendees list every 3 seconds
-        this.timer = setInterval(async () => {
-            if (this.state.meetingId) {
-                let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.state.meetingId}));
-                let newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees;
-                console.log(newAttendeesList);
-
-                this.setState({
-                    attendeesList: newAttendeesList
-                }); 
-                console.log("Update attendees list every 3 seconds, new list: ", newAttendeesList);
-            } else {
-                console.log("meetingId is still null");
-            }
-        }, 3 * 1000);
-
+        this.updateMeetingAttendees();
     }
+    
     // on switching the meeting
     componentDidUpdate(prevProps) {
         if(prevProps.conversation.id !== this.props.conversation.id) {
@@ -89,18 +76,9 @@ class ActiveConversation extends React.Component {
             this.joinChimeMeeting();
         }
     }
+
     updateMeetingAttendees() {
         //Update attendees list every 3 seconds
-        // let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.props.conversation.meetingID}));
-        // let newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees;
-        // console.log(newAttendeesList);
-        // return await new Promise(() => {
-        //     this.timer = setInterval(() => {
-        //         this.setState({
-        //             attendeesList: newAttendeesList
-        //         }); console.log("Update attendees list every 3 seconds, new list: ", newAttendeesList); 
-        //     }, 3 * 1000);
-        // })
         this.timer = setInterval(async () => {
             if (this.state.meetingId) {
                 let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.state.meetingId}));
