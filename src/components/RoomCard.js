@@ -172,8 +172,8 @@ export default function RoomCard(props) {
                     <div className={classes.nbUsers}>
                         <PersonIcon className={classes.personIcon} />
                         <Typography>{conversation.attendees.length} online</Typography>
+                        {audioActivated ? <MicIcon /> : null}
                     </div>
-                    {audioActivated ? <MicIcon /> : null}
                 </CardActions>
                     <Snackbar open={open} autoHideDuration={2000} onClose={handleClose}>
                     <Alert onClose={handleClose} severity="success">

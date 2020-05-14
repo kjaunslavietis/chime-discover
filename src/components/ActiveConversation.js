@@ -110,9 +110,10 @@ class ActiveConversation extends React.Component {
         // call getOrCreateMeeting lambda (or service), get the necessary parameters, use chime SDK to connect to meeting, finally set isMeetingLoading: false
         console.log("MEETING ID: ", this.props.conversation.meetingID);
         console.log("ROOM ID: ", this.props.conversation.id);
-        const meetingSessions = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID, this.props.userName);
-        this.meetingSession = meetingSessions.meeting;
-        this.attendeesList = meetingSessions.attendees;
+        //const meetingSessions = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID, this.props.userName);
+        
+        this.meetingSession ="test";
+        this.attendeesList = [{ExternalUserId: "Test1"}, {ExternalUserId: "Test2"}];
         await new Promise(r => setTimeout(r, 2000));
         this.setState({
             isMeetingLoading: false
@@ -387,10 +388,10 @@ class ActiveConversation extends React.Component {
         if (this.state.isMeetingLoading) {
             return this.loadingScreen();
         } else {
-            this.chooseAudioDevice();
+            //this.chooseAudioDevice();
             return (
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", padding: "30px" }}>
-                    <div style={{ display: "flex", flexDirection: "column" }}>
+                    <div style={{ display: "flex", flexDirection: "column", flex: '1', marginRight: '20px' }}>
                         <Typography variant="h6" gutterBottom>
                             {`You're in ${this.props.conversation.name}`}
                         </Typography>

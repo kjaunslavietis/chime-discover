@@ -103,7 +103,7 @@ class Chat extends React.Component {
   render() {
     return (
       <Paper elevation={1} style={{ marginTop: '20px' }}>
-        <div style={{ minHeight: '650px', minWidth: '1050px', backgroundColor: 'rgb(245, 245, 245)', maxHeight: '650px', overflow: 'auto', paddingLeft: '30px', paddingRight: '30px'}}>
+        <div style={{ minHeight: '650px', backgroundColor: 'rgb(245, 245, 245)', maxHeight: '650px', overflow: 'auto', paddingLeft: '30px', paddingRight: '30px'}}>
           <div>
             <MessageList
               lockable={true}
@@ -115,7 +115,7 @@ class Chat extends React.Component {
              ref={(el) => { this.messagesEnd = el; }}>
           </div>
         </div>
-        <div style={{ minHeight: '50px', minWidth: '1050px', display: 'flex', flexDirection: 'row' }}>
+        <div style={{ minHeight: '50px', display: 'flex', flexDirection: 'row' }}>
           <TextField
             fullWidth
             placeholder="Write here!"
