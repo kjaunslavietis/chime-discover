@@ -10,9 +10,6 @@ exports.handler = async (event) => {
     let meetingId = event.arguments.meetingId;
     let allAttendeesResponse = {};
     let allAttendees = [];
-    console.log('args: ', JSON.stringify(event));
-
-    console.log('meeting id: ', meetingId);
     do {
         try {
             allAttendeesResponse = await chime.listAttendees({
@@ -29,7 +26,6 @@ exports.handler = async (event) => {
         }
     } while (allAttendeesResponse.NextToken);
     console.log(JSON.stringify(allAttendees));
-
     const response = {
         statusCode: 200,
         attendees: allAttendees

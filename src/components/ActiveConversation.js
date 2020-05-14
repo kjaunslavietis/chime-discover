@@ -60,7 +60,20 @@ class ActiveConversation extends React.Component {
 
     componentDidMount() {
         //Update attendees list every 3 seconds
-        // const promise = this.updateMeetingAttendees();
+        this.timer = setInterval(async () => {
+            if (this.state.meetingId) {
+                let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.state.meetingId}));
+                let newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees;
+                console.log(newAttendeesList);
+
+                this.setState({
+                    attendeesList: newAttendeesList
+                }); 
+                console.log("Update attendees list every 3 seconds, new list: ", newAttendeesList);
+            } else {
+                console.log("meetingId is still null");
+            }
+        }, 3 * 1000);
 
     }
     // on switching the meeting
@@ -132,9 +145,6 @@ class ActiveConversation extends React.Component {
         this.setState({
             isMeetingLoading: false
         })
-        let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.state.meetingId}));
-        let newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees;
-        console.log(newAttendeesList);
     }
 
     leaveChimeMeeting() {
@@ -354,9 +364,6 @@ class ActiveConversation extends React.Component {
                 this.meetingSession.audioVideo.start();
 
                 console.log("Audio has started");
-                let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.state.meetingId}));
-                let newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees;
-                console.log(newAttendeesList);
             }
 
         }
