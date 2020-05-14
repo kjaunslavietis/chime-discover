@@ -19,6 +19,7 @@ import MuiAlert from '@material-ui/lab/Alert';
 import { Storage } from 'aws-amplify';
 
 import './search.css';
+import { mergeClasses } from '@material-ui/styles';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -45,8 +46,13 @@ const useStyles = makeStyles((theme) => ({
             margin: theme.spacing(0.5),
         },
     },
+    nbUsers: {
+        display: "flex",
+        alignItems: "center",
+    },
     personIcon: {
-        color: 'rgba(0, 0, 0, 0.54)',
+        color: 'rgba(6, 100, 21, 0.78)',
+        marginRight: "4px",
         fontSize: 30,
     },
     customWidth: {
@@ -57,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
 export default function SearchCard(props) {
     const classes = useStyles();
     const { conversation, handleClickOnChip, handleJoinRoom } = props;
-    const { name, description, category, keywords, meetingId, numberOfUsers, imageUrl } = conversation;
+    const { name, description, category, keywords, meetingId, imageUrl, attendees } = conversation;
     const [open, setOpen] = React.useState(false);
 
     const [image, setImage] = React.useState(null);
@@ -132,8 +138,10 @@ export default function SearchCard(props) {
                 <IconButton aria-label="share" onClick={handleOpen}>
                     <ShareIcon />
                 </IconButton>
-                <PersonIcon className={classes.personIcon} />
-                <Typography>{numberOfUsers}</Typography>
+                <div className={classes.nbUsers}>
+                    <PersonIcon className={classes.personIcon} />
+                    <Typography>{attendees.length} online</Typography>
+                </div>
                 <div style={{ marginLeft: "80px" }}>
                     <Button size="small" color="primary" onClick={() => handleJoinRoom(meetingId)}>Join Room</Button>
                 </div>
