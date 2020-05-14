@@ -48,6 +48,7 @@ const useStyles = makeStyles((theme) => ({
     cardActions: {
         display: "flex",
         justifyContent: "space-between",
+        paddingRight: "15px",
     },
     nbUsers: {
         display: "flex",
@@ -154,18 +155,20 @@ export default function RoomCard(props) {
                     </div>
                 </CardContent>
                 <CardActions disableSpacing className={classes.cardActions}>
-                    <IconButton aria-label="share" onClick={handleOpen}>
-                        <ShareIcon />
-                    </IconButton>
-                    {
-                        conversation.canBeAnalyzed 
-                        ?
-                        <Tooltip title="Voice snippets from this room will be used to categorize conversation topic">
-                                <RecordVoiceOverIcon />
-                        </Tooltip>
-                        :
-                        null
-                    }
+                    <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
+                        <IconButton aria-label="share" onClick={handleOpen}>
+                            <ShareIcon />
+                        </IconButton>
+                        {
+                            conversation.canBeAnalyzed 
+                            ?
+                            <Tooltip title="Voice snippets from this room will be used to categorize conversation topic">
+                                    <RecordVoiceOverIcon />
+                            </Tooltip>
+                            :
+                            null
+                        }
+                    </div>
                     <div className={classes.nbUsers}>
                         <PersonIcon className={classes.personIcon} />
                         <Typography>{conversation.attendees.length} online</Typography>
