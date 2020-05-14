@@ -308,7 +308,7 @@ class ActiveConversation extends React.Component {
         }
     }
 
-    enableAudio() {
+    async enableAudio() {
         try {
             if (!this.state.isAudioEnabled) {
                 const audioElement = document.getElementById('meeting-audio');
