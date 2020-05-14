@@ -11,7 +11,6 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { Dropdown } from 'reactjs-dropdown-component';
 import { DropzoneArea } from 'material-ui-dropzone'
 
 import './dropdown.sass';
