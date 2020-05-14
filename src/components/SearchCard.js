@@ -63,6 +63,10 @@ const useStyles = makeStyles((theme) => ({
     customWidth: {
         maxWidth: 200,
     },
+    cardActions: {
+        justifyContent: 'space-between',
+        paddingBottom: '0px'
+    }
 }));
 
 export default function SearchCard(props) {
@@ -139,26 +143,28 @@ export default function SearchCard(props) {
                     </Tooltip>
                 ))}
             </div>
-            <CardActions disableSpacing>
-                {
-                    canBeAnalyzed 
-                    ?
-                    <Tooltip title="Voice snippets from this room will be used to categorize conversation topic">
-                            <RecordVoiceOverIcon />
-                    </Tooltip>
-                    :
-                    null
-                }
-                <IconButton aria-label="share" onClick={handleOpen}>
-                    <ShareIcon />
-                </IconButton>
-                <div className={classes.nbUsers}>
-                    <PersonIcon className={classes.personIcon} />
-                    <Typography>{attendees.length} online</Typography>
-                </div>
-                <div style={{ marginLeft: "80px" }}>
-                    <Button size="small" color="primary" onClick={() => handleJoinRoom(meetingId)}>Join Room</Button>
-                </div>
+            <CardActions disableSpacing className={classes.cardActions}>
+                    <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
+                        {
+                            canBeAnalyzed 
+                            ?
+                            <Tooltip title="Voice snippets from this room will be used to categorize conversation topic">
+                                    <RecordVoiceOverIcon />
+                            </Tooltip>
+                            :
+                            null
+                        }
+                        <IconButton aria-label="share" onClick={handleOpen}>
+                            <ShareIcon />
+                        </IconButton>
+                        <div className={classes.nbUsers}>
+                            <PersonIcon className={classes.personIcon} />
+                            <Typography variant="body2">{attendees.length} online</Typography>
+                        </div>
+                    </div>
+                    <div>
+                        <Button size="small" color="primary" onClick={() => handleJoinRoom(meetingId)}>Join Room</Button>
+                    </div>
             </CardActions>
             <Snackbar open={open} autoHideDuration={2000} onClose={handleClose}>
                 <Alert onClose={handleClose} severity="success">
