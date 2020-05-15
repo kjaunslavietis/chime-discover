@@ -53,7 +53,7 @@ class ActiveConversation extends React.Component {
         this.state = {
             isMeetingLoading: true,
             onConversationExited: this.props.onConversationExited,
-            isAudioEnabled: true,
+            isAudioEnabled: false,
             isMuted: false,
             attendeesList: [],
             meetingId: null, //update after joining the meeting
@@ -63,7 +63,7 @@ class ActiveConversation extends React.Component {
         this.MS_BETWEEN_RECORDINGS = 1000 * 60 * 1; // 1 minute
 
         this.joinChimeMeeting();
-        
+        this.chooseAudioDevice();
     }
 
     // this will be called when the component is un-rendered, eg. the user has chosen to leave the meeting
@@ -79,11 +79,6 @@ class ActiveConversation extends React.Component {
     }
     
     componentDidUpdate(prevProps, prevState) {
-        if (prevState.isMeetingLoading && !this.state.isMeetingLoading) {
-            console.log('Meeting loaded: ', prevState.isMeetingLoading && !this.state.isMeetingLoading)
-            this.chooseAudioDevice();
-            this.enableAudio();
-        }
         // on switching the meeting
         if(prevProps.conversation.id !== this.props.conversation.id) {
             console.log("Switching the room");
