@@ -67,9 +67,9 @@ class ActiveConversation extends React.Component {
 
     // this will be called when the component is un-rendered, eg. the user has chosen to leave the meeting
     componentWillUnmount() {
+        clearInterval(this.timer);
         this.killRecorderForGood();
-        this.leaveChimeMeeting();
-        clearInterval(this.interval);
+        this.leaveChimeMeeting();  
     }
 
     componentDidMount() {
@@ -96,7 +96,7 @@ class ActiveConversation extends React.Component {
         this.timer = setInterval(async () => {
             if (this.state.meetingId) {
                 let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.state.meetingId}));
-                let newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees;
+                let newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees.sort(this.sortByUsername);
                 console.log(newAttendeesList);
 
                 this.setState({
@@ -388,6 +388,14 @@ class ActiveConversation extends React.Component {
         catch(err) {
             console.error(err);
         }
+    }
+    sortByUsername(x,y) 
+    {
+     if (x.ExternalUserId < y.ExternalUserId)
+       return -1;
+     if (x.ExternalUserId > y.ExternalUserId)
+       return 1;
+     return 0;
     }
 
     handleVolumeChange(event, newValue) {
