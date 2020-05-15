@@ -72,7 +72,6 @@ class ActiveConversation extends React.Component {
         this.mediaRecorder = null;
         this.MS_BETWEEN_RECORDINGS = 1000 * 60 * 1; // 1 minute
 
-        // this.getUser()
         this.joinChimeMeeting();
     }
 
@@ -85,7 +84,9 @@ class ActiveConversation extends React.Component {
 
     componentDidMount() {
         //Update attendees list every 3 seconds
-        this.updateMeetingAttendees();
+        this.enableAudio();
+        this.chooseAudioDevice();
+        // this.updateMeetingAttendees();
     }
     
     // on switching the meeting
@@ -138,7 +139,6 @@ class ActiveConversation extends React.Component {
         const meetingSessions = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID, this.props.userName);
         console.log(meetingSessions);
         this.meetingSession = meetingSessions.meeting;
-        // this.attendeesList = meetingSessions.attendees;
         this.setState({
             attendeesList: meetingSessions.attendees,
             meetingId: meetingSessions.meetingId
@@ -232,7 +232,6 @@ class ActiveConversation extends React.Component {
 
     async chooseAudioDevice() {
         try {
-            this.enableAudio();
             const devices = await this.listAudioDevices();
             //chose the first ones by default for now
             const audioInputDeviceInfo = devices.input;
@@ -419,7 +418,7 @@ class ActiveConversation extends React.Component {
         if (this.state.isMeetingLoading) {
             return this.loadingScreen();
         } else {
-            this.chooseAudioDevice();
+            // this.chooseAudioDevice();
             return (
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", padding: "30px" }}>
                     <div style={{ display: "flex", flexDirection: "column", flex: '1', marginRight: '20px' }}>
