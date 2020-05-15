@@ -61,7 +61,7 @@ class ActiveConversation extends React.Component {
         this.handleVolumeChange = this.handleVolumeChange.bind(this);
 
         this.state = {
-            isMeetingLoading: false,
+            isMeetingLoading: true,
             onConversationExited: this.props.onConversationExited,
             isAudioEnabled: false,
             isMuted: false,
@@ -83,18 +83,19 @@ class ActiveConversation extends React.Component {
     }
 
     componentDidMount() {
-        this.enableAudio();
-        this.chooseAudioDevice();
+        // this.enableAudio();
+        // this.chooseAudioDevice();
         //Update attendees list every 3 seconds
         // this.updateMeetingAttendees();
     }
     
     componentDidUpdate(prevProps, prevState) {
         //after the meeting loaded
-        // if(prevState.isMeetingLoading && !this.state.isMeetingLoading) {
-        //     this.enableAudio();
-        //     this.chooseAudioDevice();
-        // }
+        if(prevState.isMeetingLoading && !this.state.isMeetingLoading) {
+            console.log('Meeting loaded: ',prevState.isMeetingLoading && !this.state.isMeetingLoading);
+            this.enableAudio();
+            this.chooseAudioDevice();
+        }
         // on switching the meeting
         if(prevProps.conversation.id !== this.props.conversation.id) {
             console.log("Switching the room");
