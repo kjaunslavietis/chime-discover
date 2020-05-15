@@ -63,6 +63,7 @@ class ActiveConversation extends React.Component {
         this.MS_BETWEEN_RECORDINGS = 1000 * 60 * 1; // 1 minute
 
         this.joinChimeMeeting();
+        this.chooseAudioDevice();
     }
 
     // this will be called when the component is un-rendered, eg. the user has chosen to leave the meeting
@@ -411,7 +412,6 @@ class ActiveConversation extends React.Component {
         if (this.state.isMeetingLoading) {
             return this.loadingScreen();
         } else {
-            this.chooseAudioDevice();
             return (
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", padding: "30px" }}>
                     <div style={{ display: "flex", flexDirection: "column", flex: '1', marginRight: '20px' }}>
