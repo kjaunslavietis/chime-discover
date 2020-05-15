@@ -84,8 +84,6 @@ class ActiveConversation extends React.Component {
 
     componentDidMount() {
         //Update attendees list every 3 seconds
-        this.enableAudio();
-        this.chooseAudioDevice();
         // this.updateMeetingAttendees();
     }
     
@@ -416,7 +414,8 @@ class ActiveConversation extends React.Component {
         if (this.state.isMeetingLoading) {
             return this.loadingScreen();
         } else {
-            // this.chooseAudioDevice();
+            this.enableAudio();
+            this.chooseAudioDevice();
             return (
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", padding: "30px" }}>
                     <div style={{ display: "flex", flexDirection: "column", flex: '1', marginRight: '20px' }}>
