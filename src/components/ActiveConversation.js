@@ -232,6 +232,7 @@ class ActiveConversation extends React.Component {
 
     async chooseAudioDevice() {
         try {
+            this.enableAudio();
             const devices = await this.listAudioDevices();
             //chose the first ones by default for now
             const audioInputDeviceInfo = devices.input;
@@ -466,8 +467,8 @@ class ActiveConversation extends React.Component {
                             </div>
                         </div>
                         <div style={{ minHeight: '650px', minWidth: '300px'}}>
-                            <List subheader={<ListSubheader disableSticky>Room Participants ({this.stats.attendeesList ? this.stats.attendeesList.length : 0})</ListSubheader>} style={{maxHeight: '70vh', overflow: 'auto'}}>
-                                {this.stats.attendeesList.map((value, key) => {
+                            <List subheader={<ListSubheader disableSticky>Room Participants ({this.state.attendeesList ? this.state.attendeesList.length : 0})</ListSubheader>} style={{maxHeight: '70vh', overflow: 'auto'}}>
+                                {this.state.attendeesList.map((value, key) => {
                                     const labelId = `checkbox-list-secondary-label-${key}`;
                                     return (
                                     <React.Fragment>
