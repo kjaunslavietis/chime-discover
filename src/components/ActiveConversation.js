@@ -4,40 +4,30 @@ import { listMeetingAttendees} from './../graphql/queries'
 
 import { withStyles } from '@material-ui/styles';
 import Container from '@material-ui/core/Container';
-import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
-import Paper from '@material-ui/core/Paper';
 import Slider from '@material-ui/core/Slider';
 import VolumeDown from '@material-ui/icons/VolumeDown';
 import VolumeUp from '@material-ui/icons/VolumeUp';
 import CallEnd from '@material-ui/icons/CallEnd';
 import Fab from '@material-ui/core/Fab';
-import MicNone from '@material-ui/icons/MicNone';
-import Mic from '@material-ui/icons/Mic';
-import MicOff from '@material-ui/icons/MicOff';
-import VolumeOff from '@material-ui/icons/VolumeOff';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import IconButton from '@material-ui/core/IconButton';
-import CommentIcon from '@material-ui/icons/Comment';
 
 import Chat from './Chat';
 import { joinMeeting } from './../chime/handlers';
 import AudioControl from './AudioControl';
-import AttendeesList from './AttendeesList';
 
 import { MeetingSessionStatusCode } from 'amazon-chime-sdk-js';
 import { Mp3MediaRecorder } from 'mp3-mediarecorder';
 import mp3RecorderWorker from 'workerize-loader!./RecorderWorker';  // eslint-disable-line import/no-webpack-loader-syntax
-import { Storage, Auth } from 'aws-amplify';
+import { Storage } from 'aws-amplify';
 
 import './ActiveConversation.css';
 
@@ -83,26 +73,17 @@ class ActiveConversation extends React.Component {
     }
 
     componentDidMount() {
-        // this.enableAudio();
-        // this.chooseAudioDevice();
         //Update attendees list every 3 seconds
-        // this.updateMeetingAttendees();
+        this.updateMeetingAttendees();
     }
     
     componentDidUpdate(prevProps, prevState) {
-        //after the meeting loaded
-        if(prevState.isMeetingLoading && !this.state.isMeetingLoading) {
-            console.log('Meeting loaded: ',prevState.isMeetingLoading && !this.state.isMeetingLoading);
-            this.enableAudio();
-            this.chooseAudioDevice();
-        }
         // on switching the meeting
         if(prevProps.conversation.id !== this.props.conversation.id) {
             console.log("Switching the room");
             this.setState({
                 isAudioEnabled: false,
                 isMuted: false,
-                isMeetingLoading: true
             });
             this.killRecorderForGood();
             this.leaveChimeMeeting();
@@ -422,6 +403,7 @@ class ActiveConversation extends React.Component {
         if (this.state.isMeetingLoading) {
             return this.loadingScreen();
         } else {
+            this.chooseAudioDevice();
             return (
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", padding: "30px" }}>
                     <div style={{ display: "flex", flexDirection: "column", flex: '1', marginRight: '20px' }}>
@@ -452,16 +434,13 @@ class ActiveConversation extends React.Component {
                                         </Grid>
                             </div>
                             <div style={{marginLeft: "20px", padding:"8px"}}>
-                                    {this.state.isMuted ? 
-                                        <Fab size="medium" color="primary" onClick={this.muteOrUnmute}>
-                                            <Mic />
-                                        </Fab>
-                                    :
-                                        <Fab size="medium" onClick={this.muteOrUnmute}>
-                                            <MicOff />
-                                        </Fab>
-                                    }
-                            </div>
+                                <AudioControl
+                                    isMuted={this.state.isMuted} 
+                                    isAudioEnabled={this.state.isAudioEnabled}
+                                    enableAudio={this.enableAudio}
+                                    muteOrUnmute={this.muteOrUnmute}
+                                />
+                                </div>
                             <div style={{marginLeft: "5px", padding:"8px"}}>
                                     <Fab size="medium" color="secondary" onClick={this.exitConversation}>
                                         <CallEnd />
