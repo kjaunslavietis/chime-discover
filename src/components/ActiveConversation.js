@@ -96,7 +96,13 @@ class ActiveConversation extends React.Component {
         this.timer = setInterval(async () => {
             if (this.state.meetingId) {
                 let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.state.meetingId}));
-                let newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees.sort(this.sortByUsername);
+                let newAttendeesList; 
+                if (attendeesResponse.data.listMeetingAttendees.attendees) {
+                    newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees.sort(this.sortByUsername);
+                }
+                else {
+                    newAttendeesList = [];
+                }
                 console.log(newAttendeesList);
 
                 this.setState({
