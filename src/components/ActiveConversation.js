@@ -131,9 +131,6 @@ class ActiveConversation extends React.Component {
     }
 
     async joinChimeMeeting() {
-        this.setState({
-            isMeetingLoading: true
-        })
         // call getOrCreateMeeting lambda (or service), get the necessary parameters, use chime SDK to connect to meeting, finally set isMeetingLoading: false
         console.log("ROOM ID: ", this.props.conversation.id);
         const meetingSessions = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID, this.props.userName);
@@ -181,6 +178,7 @@ class ActiveConversation extends React.Component {
                     <CircularProgress />
                     <Typography style={{ paddingLeft: "20px" }} variant="h5">Joining meeting...</Typography>
                 </div>
+                <audio id="meeting-audio"></audio>
             </Container>
         );
     }
