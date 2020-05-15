@@ -88,7 +88,11 @@ class ActiveConversation extends React.Component {
     }
     
     // on switching the meeting
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps, prevState) {
+        if(prevState.isMeetingLoading && !this.state.isMeetingLoading) {
+            this.enableAudio();
+            this.chooseAudioDevice();
+        }
         if(prevProps.conversation.id !== this.props.conversation.id) {
             console.log("Switching the room");
             this.setState({
@@ -176,7 +180,6 @@ class ActiveConversation extends React.Component {
                     <CircularProgress />
                     <Typography style={{ paddingLeft: "20px" }} variant="h5">Joining meeting...</Typography>
                 </div>
-                <audio id="meeting-audio"></audio>
             </Container>
         );
     }
@@ -414,8 +417,6 @@ class ActiveConversation extends React.Component {
         if (this.state.isMeetingLoading) {
             return this.loadingScreen();
         } else {
-            this.enableAudio();
-            this.chooseAudioDevice();
             return (
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", padding: "30px" }}>
                     <div style={{ display: "flex", flexDirection: "column", flex: '1', marginRight: '20px' }}>
