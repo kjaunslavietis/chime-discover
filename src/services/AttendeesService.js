@@ -6,11 +6,18 @@ class AttendeesService {
     constructor(subsriptionCallBack, conversationId) {
         this.conversationId = conversationId;
         this.subsriptionCallBack = subsriptionCallBack;
-        const subscription = API.graphql(
-            graphqlOperation(subscribeToRoomGettingAttendees, {id: conversationId})
+        this.subscribeToRoom()
+    }
+
+    subscribeToRoom() {
+        if (this.subscription) {
+            this.subscription.unsubscribe() // unsubscribe to old room events ßif exits
+        }
+        this.subscription = API.graphql(
+            graphqlOperation(subscribeToRoomGettingAttendees, {id: this.conversationId})
         ).subscribe({
             next: (room) => {
-                subsriptionCallBack(room.value.data.subscribeToRoomGettingAttendees.attendeesNames)
+                this.subsriptionCallBack(room.value.data.subscribeToRoomGettingAttendees.attendeesNames)
             },
             error: (error) => {
                 console.log("==>err:" + JSON.stringify(error))
@@ -20,6 +27,11 @@ class AttendeesService {
 
     async updateRoomAttendeesNames(attendeesNames) {
         await API.graphql(graphqlOperation(updateRoom, {input: {id: this.conversationId, attendeesNames: attendeesNames}}));
+    }
+
+    updateConversationId(newId) {
+        this.conversationId = newId;
+        this.subscribeToRoom()
     }
 }
 
