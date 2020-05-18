@@ -15,6 +15,7 @@ type Room @model
   lastActiveDate: AWSDateTime
   canBeAnalyzed: Boolean
   keywords: [String]!
+  attendeesNames: [String]
 }
 
 type Category @model {

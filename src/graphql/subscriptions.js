@@ -14,6 +14,23 @@ export const subscribeToGiveRoom = /* GraphQL */ `
     }
   }
 `;
+export const subscribeToRoomGettingAttendees = /* GraphQL */ `
+  subscription SubscribeToRoomGettingAttendees($id: ID!) {
+    subscribeToRoomGettingAttendees(id: $id) {
+      id
+      meetingID
+      name
+      description
+      category
+      imageUrl
+      createdAt
+      lastActiveDate
+      canBeAnalyzed
+      keywords
+      attendeesNames
+    }
+  }
+`;
 export const onCreateChatMessage = /* GraphQL */ `
   subscription OnCreateChatMessage {
     onCreateChatMessage {
@@ -90,6 +107,7 @@ export const onCreateRoom = /* GraphQL */ `
       lastActiveDate
       canBeAnalyzed
       keywords
+      attendeesNames
     }
   }
 `;
@@ -106,6 +124,7 @@ export const onUpdateRoom = /* GraphQL */ `
       lastActiveDate
       canBeAnalyzed
       keywords
+      attendeesNames
     }
   }
 `;
@@ -122,6 +141,7 @@ export const onDeleteRoom = /* GraphQL */ `
       lastActiveDate
       canBeAnalyzed
       keywords
+      attendeesNames
     }
   }
 `;
