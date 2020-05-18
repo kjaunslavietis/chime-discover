@@ -8,8 +8,10 @@ type ChatMessage @model {
     createdAt: AWSDateTime
 }
 
-
 type Subscription {
     subscribeToGiveRoom(roomID: ID!): ChatMessage
             @aws_subscribe(mutations: ["createChatMessage"])
+
+    subscribeToRoomGettingAttendees(id: ID!): Room
+            @aws_subscribe(mutations: ["updateRoom"])
 }

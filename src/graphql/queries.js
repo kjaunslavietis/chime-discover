@@ -120,6 +120,7 @@ export const getRoom = /* GraphQL */ `
       lastActiveDate
       canBeAnalyzed
       keywords
+      attendeesNames
     }
   }
 `;
@@ -141,6 +142,7 @@ export const listRooms = /* GraphQL */ `
         lastActiveDate
         canBeAnalyzed
         keywords
+        attendeesNames
       }
       nextToken
     }

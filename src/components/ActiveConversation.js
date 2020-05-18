@@ -18,6 +18,8 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+
+import AttendeesService from '../services/AttendeesService';
 import Avatar from '@material-ui/core/Avatar';
 
 import Chat from './Chat';
@@ -49,6 +51,7 @@ class ActiveConversation extends React.Component {
         this.startRecording = this.startRecording.bind(this);
         this.restartMediaRecorder = this.restartMediaRecorder.bind(this);
         this.handleVolumeChange = this.handleVolumeChange.bind(this);
+        this.attendeesService = new AttendeesService(names => {console.log("==>NAMES " + JSON.stringify(names))}, this.props.conversation.id)
 
         this.state = {
             isMeetingLoading: true,
