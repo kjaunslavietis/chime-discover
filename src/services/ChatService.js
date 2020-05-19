@@ -8,12 +8,18 @@ class ChatService {
         this.conversationId = conversationId;
         this.senderName = senderName;
         this.subsriptionCallBack = subsriptionCallBack;
-        const subscription = API.graphql(
-            graphqlOperation(subscribeToGiveRoom, {roomID: conversationId})
+        this.subscribeToRoom()
+    }
+    subscribeToRoom() {
+        if (this.subscription) {
+            this.subscription.unsubscribe() // unsubscribe to old room events ßif exits
+        }
+        this.subscription = API.graphql(
+            graphqlOperation(subscribeToGiveRoom, {roomID: this.conversationId})
         ).subscribe({
             next: (chatMessage) => {
                 if (chatMessage.value.data.subscribeToGiveRoom.senderName !== this.senderName)
-                    subsriptionCallBack(chatMessage.value.data.subscribeToGiveRoom)
+                    this.subsriptionCallBack(chatMessage.value.data.subscribeToGiveRoom)
             },
             error: (error) => {
                 console.log("==>err:" + JSON.stringify(error))
@@ -23,6 +29,7 @@ class ChatService {
 
     updateConversationId(newId) {
         this.conversationId = newId;
+        this.subscribeToRoom()
     }
 
     async getMessagesForConversation() {

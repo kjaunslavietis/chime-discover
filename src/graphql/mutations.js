@@ -98,6 +98,7 @@ export const createRoom = /* GraphQL */ `
       lastActiveDate
       canBeAnalyzed
       keywords
+      attendeesNames
     }
   }
 `;
@@ -117,6 +118,7 @@ export const updateRoom = /* GraphQL */ `
       lastActiveDate
       canBeAnalyzed
       keywords
+      attendeesNames
     }
   }
 `;
@@ -136,6 +138,7 @@ export const deleteRoom = /* GraphQL */ `
       lastActiveDate
       canBeAnalyzed
       keywords
+      attendeesNames
     }
   }
 `;
