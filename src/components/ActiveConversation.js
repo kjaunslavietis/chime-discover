@@ -1,7 +1,6 @@
 import React from 'react';
 import { API, graphqlOperation } from 'aws-amplify'
 import { listMeetingAttendees} from './../graphql/queries'
-
 import { withStyles } from '@material-ui/styles';
 import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -52,7 +51,7 @@ class ActiveConversation extends React.Component {
         this.restartMediaRecorder = this.restartMediaRecorder.bind(this);
         this.handleVolumeChange = this.handleVolumeChange.bind(this);
         this.attendeesService = new AttendeesService(names => {console.log("==>NAMES " + JSON.stringify(names))}, this.props.conversation.id)
-
+        this.attendeesList = [];
         this.state = {
             isMeetingLoading: true,
             onConversationExited: this.props.onConversationExited,
@@ -77,7 +76,7 @@ class ActiveConversation extends React.Component {
 
     componentDidMount() {
         //Update attendees list every 3 seconds
-        this.updateMeetingAttendees();
+        // this.updateMeetingAttendees();
     }
     
     componentDidUpdate(prevProps, prevState) {
@@ -106,12 +105,12 @@ class ActiveConversation extends React.Component {
                 else {
                     newAttendeesList = [];
                 }
-                console.log(newAttendeesList);
+                // console.log(newAttendeesList);
 
                 this.setState({
                     attendeesList: newAttendeesList
                 }); 
-                console.log("Update attendees list every 3 seconds, new list: ", newAttendeesList);
+                // console.log("Update attendees list every 3 seconds, new list: ", newAttendeesList);
             }
         }, 3 * 1000);
     }
@@ -133,11 +132,15 @@ class ActiveConversation extends React.Component {
         const meetingSessions = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID, this.props.userName);
         console.log(meetingSessions);
         this.meetingSession = meetingSessions.meeting;
+        this.attendeesList = meetingSessions.attendees;
+        await attendeesService.updateRoomAttendeesNames(this.attendeesList);
+
         this.setState({
             attendeesList: meetingSessions.attendees,
             meetingId: meetingSessions.meetingId
         })
         console.log('MEETING ID: ', meetingSessions.meetingId);
+        console.log('CURRENT ATTENDEES: ', this.attendeesList);
         await new Promise(r => setTimeout(r, 2000));
         this.chooseAudioDevice();
         this.setState({
@@ -206,14 +209,14 @@ class ActiveConversation extends React.Component {
                 audioInputsChanged: freshAudioInputDeviceList => {
                   // An array of MediaDeviceInfo objects
                   freshAudioInputDeviceList.forEach(mediaDeviceInfo => {
-                    console.log(`Device ID: ${mediaDeviceInfo.deviceId} Microphone: ${mediaDeviceInfo.label}`);
+                    // console.log(`Device ID: ${mediaDeviceInfo.deviceId} Microphone: ${mediaDeviceInfo.label}`);
                   });
                 },
                 audioOutputsChanged: freshAudioOutputDeviceList => {
-                  console.log('Audio outputs updated: ', freshAudioOutputDeviceList);
+                //   console.log('Audio outputs updated: ', freshAudioOutputDeviceList);
                 },
                 videoInputsChanged: freshVideoInputDeviceList => {
-                  console.log('Video inputs updated: ', freshVideoInputDeviceList);
+                //   console.log('Video inputs updated: ', freshVideoInputDeviceList);
                 }
               };
               
@@ -231,11 +234,11 @@ class ActiveConversation extends React.Component {
             //chose the first ones by default for now
             const audioInputDeviceInfo = devices.input;
             const inputDeviceId = audioInputDeviceInfo[0].deviceId;
-            console.log('Input audio device: ', audioInputDeviceInfo[0]);
+            // console.log('Input audio device: ', audioInputDeviceInfo[0]);
             await this.meetingSession.audioVideo.chooseAudioInputDevice(inputDeviceId);
             const audioOutputDeviceInfo = devices.output;
             const outputDeviceId = audioOutputDeviceInfo[0].deviceId;
-            console.log('Ouput audio device: ', audioOutputDeviceInfo[0]);
+            // console.log('Ouput audio device: ', audioOutputDeviceInfo[0]);
             await this.meetingSession.audioVideo.chooseAudioOutputDevice(outputDeviceId);
         }
         catch(err) {
@@ -344,6 +347,7 @@ class ActiveConversation extends React.Component {
                               - You called meetingSession.audioVideo.stop().
                               - When closing a browser window or page, Chime SDK attempts to leave the session.
                             */
+
                             console.log('You left the session');
                         } else {
                             console.log('Stopped with a session status code: ', sessionStatusCode);
