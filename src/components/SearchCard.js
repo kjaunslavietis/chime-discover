@@ -4,6 +4,7 @@ import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -66,6 +67,13 @@ const useStyles = makeStyles((theme) => ({
     cardActions: {
         justifyContent: 'space-between',
         paddingBottom: '0px'
+    },
+    loadingSpinner: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        // margin: theme.spacing(5),
+        height: 140,
     }
 }));
 
@@ -75,19 +83,38 @@ export default function SearchCard(props) {
     const { name, description, category, keywords, meetingId, imageUrl, attendees, canBeAnalyzed } = conversation;
     const [open, setOpen] = React.useState(false);
 
+    const [isLoading, setIsLoading] = React.useState(false);
     const [image, setImage] = React.useState(null);
 
     React.useEffect(() => {
+        setIsLoading(true);
         if(imageUrl) {
             Storage.get(imageUrl)
-                .then(data => {
-                    setImage(data);
-                })
-                .catch(err => {
-                    console.error("Error loading image for conversation " + conversation.id);
-                })
+                .then(downloadUrl => tryGettingImage(downloadUrl, 1000, 3));
+        } else {
+            tryGettingImage('https://source.unsplash.com/random', 1000, 3);
         }
-    }, [])
+    }, [imageUrl])
+
+    const tryGettingImage = async (url, nextTimeoutMs, retriesLeft) => {
+        try {
+            let imageResponse = await fetch(url);
+            if (!imageResponse.ok) {
+                throw new Error();
+            }
+            let imageBlob = await imageResponse.blob();
+            let imageBase64 = URL.createObjectURL(imageBlob);
+            setImage(imageBase64);
+        } catch(err) {
+            if(retriesLeft > 0) {
+                console.log(`Error loading image for conversation ${conversation.id}, retrying in ${nextTimeoutMs} ms`)
+                setTimeout(() => tryGettingImage(url, nextTimeoutMs * 2, retriesLeft - 1), nextTimeoutMs);
+            } else {
+                console.log(`Error loading image for conversation ${conversation.id} and not retrying`);
+                setImage('https://source.unsplash.com/random');
+            }
+        }
+    };
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -97,6 +124,14 @@ export default function SearchCard(props) {
         setOpen(false);
     };
 
+    const getSpinner = () => {
+        return (
+            <div className={classes.loadingSpinner}>
+                <CircularProgress />
+            </div>
+        )
+    }
+
     const handleOpen = (e) => {
         setOpen(true);
         navigator.clipboard.writeText("So sorry, I lied ¯\\_(ツ)_/¯");
@@ -104,11 +139,18 @@ export default function SearchCard(props) {
 
     return (
         <Card className={classes.root}>
-            <CardMedia
-                className={classes.media}
-                image={image ? image : "https://source.unsplash.com/random"}
-                title={name}
-            />
+            {
+                image ?
+                    <CardMedia
+                        className={classes.media}
+                        image={image}
+                        title={name}
+                    />
+                    :        
+                    <CardMedia
+                        component={getSpinner}
+                    />
+            }
             <CardContent className={classes.cardContent}>
                 <Typography variant="h5" component="h2" gutterBottom>
                     {name}
