@@ -126,15 +126,28 @@ class ActiveConversation extends React.Component {
         }
     }
 
+    //TODO it's the list of objects, so remove by ExternalUserId
+    async removeAttendee(username) { 
+        var index = this.attendeesList.indexOf(username);
+        if (index > -1) {
+            this.attendeesList.splice(index, 1);
+        }
+        console.log(username, " removed from the attendees list");
+        await this.attendeesService.updateRoomAttendeesNames(this.attendeesList);
+    }
+
     async joinChimeMeeting() {
         // call getOrCreateMeeting lambda (or service), get the necessary parameters, use chime SDK to connect to meeting, finally set isMeetingLoading: false
         console.log("ROOM ID: ", this.props.conversation.id);
         const meetingSessions = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID, this.props.userName);
         console.log(meetingSessions);
         this.meetingSession = meetingSessions.meeting;
-        this.attendeesList = meetingSessions.attendees;
+        if (this.props.conversation.attendeesNames) {
+            this.attendeesList = this.props.conversation.attendeesNames.sort(this.sortByUsername);
+        } //otherwise leave empty 
+        //Add current user to the attendees
+        this.attendeesList.push(this.props.userName);
         await this.attendeesService.updateRoomAttendeesNames(this.attendeesList);
-
         this.setState({
             attendeesList: meetingSessions.attendees,
             meetingId: meetingSessions.meetingId
@@ -342,6 +355,7 @@ class ActiveConversation extends React.Component {
                     audioVideoDidStop: sessionStatus => {
                         const sessionStatusCode = sessionStatus.statusCode();
                         // See the "Stopping a session" section for details.
+                        this.removeAttendee(this.props.userName);
                         if (sessionStatusCode === MeetingSessionStatusCode.Left) {
                             /*
                               - You called meetingSession.audioVideo.stop().
@@ -469,8 +483,8 @@ class ActiveConversation extends React.Component {
                             </div>
                         </div>
                         <div style={{ minHeight: '650px', minWidth: '300px'}}>
-                            <List subheader={<ListSubheader disableSticky>Room Participants ({this.state.attendeesList ? this.state.attendeesList.length : 0})</ListSubheader>} style={{maxHeight: '70vh', overflow: 'auto'}}>
-                                {this.state.attendeesList.map((value, key) => {
+                            <List subheader={<ListSubheader disableSticky>Room Participants ({this.attendeesList ? this.attendeesList.length : 0})</ListSubheader>} style={{maxHeight: '70vh', overflow: 'auto'}}>
+                                {this.attendeesList.map((value, key) => {
                                     const labelId = `checkbox-list-secondary-label-${key}`;
                                     return (
                                     <React.Fragment>
@@ -482,7 +496,7 @@ class ActiveConversation extends React.Component {
                                                 : "https://randomuser.me/api/portraits/women/" + key + ".jpg"}
                                             />
                                             </ListItemAvatar>
-                                            <ListItemText id={labelId} primary={value.ExternalUserId} />
+                                            <ListItemText id={labelId} primary={value} />
                                         </ListItem>
                                         <Divider variant="inset" />
                                     </React.Fragment>

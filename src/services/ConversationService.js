@@ -98,7 +98,8 @@ class ConversationService {
             keywords: conversation.keywords,
             category: conversation.category,
             imageUrl: conversation.imageUrl,
-            meetingID: "blank"
+            meetingID: "blank",
+            ExternalUserId: []
           }}
         ));
       } catch(err) {
