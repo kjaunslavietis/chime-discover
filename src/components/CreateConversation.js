@@ -11,7 +11,16 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import Typography from '@material-ui/core/Typography';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
+
 import { DropzoneArea } from 'material-ui-dropzone'
+
+import PreviewCard from './PreviewCard';
 
 import './dropdown.sass';
 
@@ -158,6 +167,29 @@ export default function CreateConversation(props) {
 						label="Check this to let us record this room and extract keywords"
 					/>
 				</div>
+				{
+					name && description && category ?
+						<ExpansionPanel>
+							<ExpansionPanelSummary
+								expandIcon={<ExpandMoreIcon />}
+								aria-controls="panel1a-content"
+								id="panel1a-header"
+								>
+								<h5>Preview</h5>
+							</ExpansionPanelSummary>
+							<ExpansionPanelDetails>
+								<PreviewCard 
+										name={name}
+										description={description}
+										category={category}
+										canBeAnalyzed={checked}
+										image={image ? URL.createObjectURL(image) : "https://source.unsplash.com/random"}
+								/>
+							</ExpansionPanelDetails>
+						</ExpansionPanel>
+						:
+						null
+				}
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={handleClose} color="primary">
