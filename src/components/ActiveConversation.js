@@ -50,8 +50,8 @@ class ActiveConversation extends React.Component {
         this.startRecording = this.startRecording.bind(this);
         this.restartMediaRecorder = this.restartMediaRecorder.bind(this);
         this.handleVolumeChange = this.handleVolumeChange.bind(this);
-        this.attendeesService = new AttendeesService(names => {console.log("==>NAMES " + JSON.stringify(names))}, this.props.conversation.id)
-        this.attendeesList = [];
+        this.onAttendeesListUpdated = this.onAttendeesListUpdated.bind(this);
+        this.attendeesService = new AttendeesService(this.onAttendeesListUpdated, this.props.conversation.id)
         this.state = {
             isMeetingLoading: true,
             onConversationExited: this.props.onConversationExited,
@@ -128,12 +128,21 @@ class ActiveConversation extends React.Component {
 
     //TODO it's the list of objects, so remove by ExternalUserId
     async removeAttendee(username) { 
-        var index = this.attendeesList.indexOf(username);
+        let attendees = this.state.attendeesList;
+        let index = attendees.indexOf(username);
+
         if (index > -1) {
-            this.attendeesList.splice(index, 1);
+            attendees.splice(index, 1);
         }
         console.log(username, " removed from the attendees list");
-        await this.attendeesService.updateRoomAttendeesNames(this.attendeesList);
+        await this.attendeesService.updateRoomAttendeesNames(attendees);
+    }
+
+    onAttendeesListUpdated(attendees) {
+        console.log("Attendees list updated: ", attendees);
+        this.setState({
+            attendeesList: attendees
+        })
     }
 
     async joinChimeMeeting() {
@@ -142,18 +151,19 @@ class ActiveConversation extends React.Component {
         const meetingSessions = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID, this.props.userName);
         console.log(meetingSessions);
         this.meetingSession = meetingSessions.meeting;
+        let attendees = [];
         if (this.props.conversation.attendeesNames) {
-            this.attendeesList = this.props.conversation.attendeesNames.sort(this.sortByUsername);
+            attendees = this.props.conversation.attendeesNames.sort(this.sortByUsername);
         } //otherwise leave empty 
         //Add current user to the attendees
-        this.attendeesList.push(this.props.userName);
-        await this.attendeesService.updateRoomAttendeesNames(this.attendeesList);
+        attendees.push(this.props.userName);
+        await this.attendeesService.updateRoomAttendeesNames(attendees);
         this.setState({
-            attendeesList: meetingSessions.attendees,
+            // attendeesList: meetingSessions.attendees,
             meetingId: meetingSessions.meetingId
         })
         console.log('MEETING ID: ', meetingSessions.meetingId);
-        console.log('CURRENT ATTENDEES: ', this.attendeesList);
+        console.log('CURRENT ATTENDEES: ', this.state.attendeesList);
         await new Promise(r => setTimeout(r, 2000));
         this.chooseAudioDevice();
         this.setState({
@@ -178,6 +188,7 @@ class ActiveConversation extends React.Component {
             this.meetingSession.audioVideo.removeObserver(this.deviceChangeObserver);
             console.log('DeviceChange observer removed');
         }
+        this.removeAttendee(this.props.userName);
         console.log("Left chime meeting");
     }
 
@@ -354,8 +365,7 @@ class ActiveConversation extends React.Component {
                     },
                     audioVideoDidStop: sessionStatus => {
                         const sessionStatusCode = sessionStatus.statusCode();
-                        // See the "Stopping a session" section for details.
-                        this.removeAttendee(this.props.userName);
+                        // See the "Stopping a session" section for details
                         if (sessionStatusCode === MeetingSessionStatusCode.Left) {
                             /*
                               - You called meetingSession.audioVideo.stop().
@@ -483,8 +493,8 @@ class ActiveConversation extends React.Component {
                             </div>
                         </div>
                         <div style={{ minHeight: '650px', minWidth: '300px'}}>
-                            <List subheader={<ListSubheader disableSticky>Room Participants ({this.attendeesList ? this.attendeesList.length : 0})</ListSubheader>} style={{maxHeight: '70vh', overflow: 'auto'}}>
-                                {this.attendeesList.map((value, key) => {
+                            <List subheader={<ListSubheader disableSticky>Room Participants ({this.state.attendeesList ? this.state.attendeesList.length : 0})</ListSubheader>} style={{maxHeight: '70vh', overflow: 'auto'}}>
+                                {this.state.attendeesList.map((value, key) => {
                                     const labelId = `checkbox-list-secondary-label-${key}`;
                                     return (
                                     <React.Fragment>
