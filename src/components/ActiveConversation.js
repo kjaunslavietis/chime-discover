@@ -133,7 +133,7 @@ class ActiveConversation extends React.Component {
         console.log(meetingSessions);
         this.meetingSession = meetingSessions.meeting;
         this.attendeesList = meetingSessions.attendees;
-        await attendeesService.updateRoomAttendeesNames(this.attendeesList);
+        await this.attendeesService.updateRoomAttendeesNames(this.attendeesList);
 
         this.setState({
             attendeesList: meetingSessions.attendees,
