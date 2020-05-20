@@ -64,7 +64,7 @@ class ActiveConversation extends React.Component {
         this.mediaRecorder = null;
         this.MS_BETWEEN_RECORDINGS = 1000 * 60 * 1; // 1 minute
 
-        this.joinChimeMeeting();
+        this.joinChimeMeeting(this.props.conversation, this.props.userName);
     }
 
     // this will be called when the component is un-rendered, eg. the user has chosen to leave the meeting
@@ -74,11 +74,6 @@ class ActiveConversation extends React.Component {
         this.leaveChimeMeeting();  
     }
 
-    componentDidMount() {
-        //Update attendees list every 3 seconds
-        // this.updateMeetingAttendees();
-    }
-    
     componentDidUpdate(prevProps, prevState) {
         // on switching the meeting
         if(prevProps.conversation.id !== this.props.conversation.id) {
@@ -89,30 +84,10 @@ class ActiveConversation extends React.Component {
             });
             this.killRecorderForGood();
             this.leaveChimeMeeting();
-            this.joinChimeMeeting();
+            this.attendeesService.updateConversationId(this.props.conversation.id);
+            //Join the new meeting
+            this.joinChimeMeeting(this.props.conversation, this.props.userName);
         }
-    }
-
-    updateMeetingAttendees() {
-        //Update attendees list every 3 seconds
-        this.timer = setInterval(async () => {
-            if (this.state.meetingId) {
-                let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.state.meetingId}));
-                let newAttendeesList; 
-                if (attendeesResponse.data.listMeetingAttendees.attendees) {
-                    newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees.sort(this.sortByUsername);
-                }
-                else {
-                    newAttendeesList = [];
-                }
-                // console.log(newAttendeesList);
-
-                this.setState({
-                    attendeesList: newAttendeesList
-                }); 
-                // console.log("Update attendees list every 3 seconds, new list: ", newAttendeesList);
-            }
-        }, 3 * 1000);
     }
 
     killRecorderForGood() {
@@ -126,7 +101,6 @@ class ActiveConversation extends React.Component {
         }
     }
 
-    //TODO it's the list of objects, so remove by ExternalUserId
     async removeAttendee(username) { 
         let attendees = this.state.attendeesList;
         let index = attendees.indexOf(username);
@@ -138,6 +112,10 @@ class ActiveConversation extends React.Component {
         await this.attendeesService.updateRoomAttendeesNames(attendees);
     }
 
+    isAttendeeHere(username) {
+        return this.state.attendeesList.indexOf(username) > -1;
+    }
+
     onAttendeesListUpdated(attendees) {
         console.log("Attendees list updated: ", attendees);
         this.setState({
@@ -145,26 +123,36 @@ class ActiveConversation extends React.Component {
         })
     }
 
-    async joinChimeMeeting() {
+    async joinChimeMeeting(conversation, username) {
         // call getOrCreateMeeting lambda (or service), get the necessary parameters, use chime SDK to connect to meeting, finally set isMeetingLoading: false
-        console.log("ROOM ID: ", this.props.conversation.id);
-        const meetingSessions = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID, this.props.userName);
+        console.log("ROOM ID: ", conversation.id);
+        const meetingSessions = await joinMeeting(conversation.id, conversation.meetingID, username);
         console.log(meetingSessions);
         this.meetingSession = meetingSessions.meeting;
         let attendees = [];
-        if (this.props.conversation.attendeesNames) {
-            attendees = this.props.conversation.attendeesNames.sort(this.sortByUsername);
+
+        //Check that attendeesNames exists in schema, and that Chime API gave more than one attendee in the list
+        //(if it's just one, it means that it's only the current joining one, and the meeting was just created or 
+        //it was interrupted and the people were not removed from the DB)
+        if (conversation.attendeesNames && meetingSessions.attendees.length > 1) {
+            attendees = conversation.attendeesNames.sort(this.sortByUsername);
         } //otherwise leave empty 
-        //Add current user to the attendees
-        attendees.push(this.props.userName);
+        
+        //check if attendee is not already in the list for some reason
+        if (!this.isAttendeeHere(username)) { 
+            //Add current user to the attendees
+            console.log("Add to the attendees: ", username);
+            attendees.push(username);
+        } else {
+            console.log(username, " is already there!");
+        }
+
         await this.attendeesService.updateRoomAttendeesNames(attendees);
+        console.log('MEETING ID: ', meetingSessions.meetingId);
+        await new Promise(r => setTimeout(r, 2000));
         this.setState({
-            // attendeesList: meetingSessions.attendees,
             meetingId: meetingSessions.meetingId
         })
-        console.log('MEETING ID: ', meetingSessions.meetingId);
-        console.log('CURRENT ATTENDEES: ', this.state.attendeesList);
-        await new Promise(r => setTimeout(r, 2000));
         this.chooseAudioDevice();
         this.setState({
             isMeetingLoading: false
