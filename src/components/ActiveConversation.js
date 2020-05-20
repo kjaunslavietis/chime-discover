@@ -112,8 +112,8 @@ class ActiveConversation extends React.Component {
         await this.attendeesService.updateRoomAttendeesNames(attendees);
     }
 
-    isAttendeeHere(username) {
-        return this.state.attendeesList.indexOf(username) > -1;
+    isAttendeeHere(attendees, username) {
+        return attendees.indexOf(username) > -1;
     }
 
     onAttendeesListUpdated(attendees) {
@@ -139,7 +139,7 @@ class ActiveConversation extends React.Component {
         } //otherwise leave empty 
         
         //check if attendee is not already in the list for some reason
-        if (!this.isAttendeeHere(username)) { 
+        if (!this.isAttendeeHere(attendees, username)) { 
             //Add current user to the attendees
             console.log("Add to the attendees: ", username);
             attendees.push(username);
