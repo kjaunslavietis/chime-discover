@@ -1,7 +1,6 @@
 import React from 'react';
 import { API, graphqlOperation } from 'aws-amplify'
 import { listMeetingAttendees} from './../graphql/queries'
-
 import { withStyles } from '@material-ui/styles';
 import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -51,8 +50,8 @@ class ActiveConversation extends React.Component {
         this.startRecording = this.startRecording.bind(this);
         this.restartMediaRecorder = this.restartMediaRecorder.bind(this);
         this.handleVolumeChange = this.handleVolumeChange.bind(this);
-        this.attendeesService = new AttendeesService(names => {console.log("==>NAMES " + JSON.stringify(names))}, this.props.conversation.id)
-
+        this.onAttendeesListUpdated = this.onAttendeesListUpdated.bind(this);
+        this.attendeesService = new AttendeesService(this.onAttendeesListUpdated, this.props.conversation.id)
         this.state = {
             isMeetingLoading: true,
             onConversationExited: this.props.onConversationExited,
@@ -65,7 +64,7 @@ class ActiveConversation extends React.Component {
         this.mediaRecorder = null;
         this.MS_BETWEEN_RECORDINGS = 1000 * 60 * 1; // 1 minute
 
-        this.joinChimeMeeting();
+        this.joinChimeMeeting(this.props.conversation, this.props.userName);
     }
 
     // this will be called when the component is un-rendered, eg. the user has chosen to leave the meeting
@@ -75,11 +74,6 @@ class ActiveConversation extends React.Component {
         this.leaveChimeMeeting();  
     }
 
-    componentDidMount() {
-        //Update attendees list every 3 seconds
-        this.updateMeetingAttendees();
-    }
-    
     componentDidUpdate(prevProps, prevState) {
         // on switching the meeting
         if(prevProps.conversation.id !== this.props.conversation.id) {
@@ -90,30 +84,10 @@ class ActiveConversation extends React.Component {
             });
             this.killRecorderForGood();
             this.leaveChimeMeeting();
-            this.joinChimeMeeting();
+            this.attendeesService.updateConversationId(this.props.conversation.id);
+            //Join the new meeting
+            this.joinChimeMeeting(this.props.conversation, this.props.userName);
         }
-    }
-
-    updateMeetingAttendees() {
-        //Update attendees list every 3 seconds
-        this.timer = setInterval(async () => {
-            if (this.state.meetingId) {
-                let attendeesResponse = await API.graphql(graphqlOperation(listMeetingAttendees, {meetingId: this.state.meetingId}));
-                let newAttendeesList; 
-                if (attendeesResponse.data.listMeetingAttendees.attendees) {
-                    newAttendeesList = attendeesResponse.data.listMeetingAttendees.attendees.sort(this.sortByUsername);
-                }
-                else {
-                    newAttendeesList = [];
-                }
-                console.log(newAttendeesList);
-
-                this.setState({
-                    attendeesList: newAttendeesList
-                }); 
-                console.log("Update attendees list every 3 seconds, new list: ", newAttendeesList);
-            }
-        }, 3 * 1000);
     }
 
     killRecorderForGood() {
@@ -127,18 +101,58 @@ class ActiveConversation extends React.Component {
         }
     }
 
-    async joinChimeMeeting() {
+    async removeAttendee(username) { 
+        let attendees = this.state.attendeesList;
+        let index = attendees.indexOf(username);
+
+        if (index > -1) {
+            attendees.splice(index, 1);
+        }
+        console.log(username, " removed from the attendees list");
+        await this.attendeesService.updateRoomAttendeesNames(attendees);
+    }
+
+    isAttendeeHere(username) {
+        return this.state.attendeesList.indexOf(username) > -1;
+    }
+
+    onAttendeesListUpdated(attendees) {
+        console.log("Attendees list updated: ", attendees);
+        this.setState({
+            attendeesList: attendees
+        })
+    }
+
+    async joinChimeMeeting(conversation, username) {
         // call getOrCreateMeeting lambda (or service), get the necessary parameters, use chime SDK to connect to meeting, finally set isMeetingLoading: false
-        console.log("ROOM ID: ", this.props.conversation.id);
-        const meetingSessions = await joinMeeting(this.props.conversation.id, this.props.conversation.meetingID, this.props.userName);
+        console.log("ROOM ID: ", conversation.id);
+        const meetingSessions = await joinMeeting(conversation.id, conversation.meetingID, username);
         console.log(meetingSessions);
         this.meetingSession = meetingSessions.meeting;
-        this.setState({
-            attendeesList: meetingSessions.attendees,
-            meetingId: meetingSessions.meetingId
-        })
+        let attendees = [];
+
+        //Check that attendeesNames exists in schema, and that Chime API gave more than one attendee in the list
+        //(if it's just one, it means that it's only the current joining one, and the meeting was just created or 
+        //it was interrupted and the people were not removed from the DB)
+        if (conversation.attendeesNames && meetingSessions.attendees.length > 1) {
+            attendees = conversation.attendeesNames.sort(this.sortByUsername);
+        } //otherwise leave empty 
+        
+        //check if attendee is not already in the list for some reason
+        if (!this.isAttendeeHere(username)) { 
+            //Add current user to the attendees
+            console.log("Add to the attendees: ", username);
+            attendees.push(username);
+        } else {
+            console.log(username, " is already there!");
+        }
+
+        await this.attendeesService.updateRoomAttendeesNames(attendees);
         console.log('MEETING ID: ', meetingSessions.meetingId);
         await new Promise(r => setTimeout(r, 2000));
+        this.setState({
+            meetingId: meetingSessions.meetingId
+        })
         this.chooseAudioDevice();
         this.setState({
             isMeetingLoading: false
@@ -162,6 +176,7 @@ class ActiveConversation extends React.Component {
             this.meetingSession.audioVideo.removeObserver(this.deviceChangeObserver);
             console.log('DeviceChange observer removed');
         }
+        this.removeAttendee(this.props.userName);
         console.log("Left chime meeting");
     }
 
@@ -206,14 +221,14 @@ class ActiveConversation extends React.Component {
                 audioInputsChanged: freshAudioInputDeviceList => {
                   // An array of MediaDeviceInfo objects
                   freshAudioInputDeviceList.forEach(mediaDeviceInfo => {
-                    console.log(`Device ID: ${mediaDeviceInfo.deviceId} Microphone: ${mediaDeviceInfo.label}`);
+                    // console.log(`Device ID: ${mediaDeviceInfo.deviceId} Microphone: ${mediaDeviceInfo.label}`);
                   });
                 },
                 audioOutputsChanged: freshAudioOutputDeviceList => {
-                  console.log('Audio outputs updated: ', freshAudioOutputDeviceList);
+                //   console.log('Audio outputs updated: ', freshAudioOutputDeviceList);
                 },
                 videoInputsChanged: freshVideoInputDeviceList => {
-                  console.log('Video inputs updated: ', freshVideoInputDeviceList);
+                //   console.log('Video inputs updated: ', freshVideoInputDeviceList);
                 }
               };
               
@@ -231,11 +246,11 @@ class ActiveConversation extends React.Component {
             //chose the first ones by default for now
             const audioInputDeviceInfo = devices.input;
             const inputDeviceId = audioInputDeviceInfo[0].deviceId;
-            console.log('Input audio device: ', audioInputDeviceInfo[0]);
+            // console.log('Input audio device: ', audioInputDeviceInfo[0]);
             await this.meetingSession.audioVideo.chooseAudioInputDevice(inputDeviceId);
             const audioOutputDeviceInfo = devices.output;
             const outputDeviceId = audioOutputDeviceInfo[0].deviceId;
-            console.log('Ouput audio device: ', audioOutputDeviceInfo[0]);
+            // console.log('Ouput audio device: ', audioOutputDeviceInfo[0]);
             await this.meetingSession.audioVideo.chooseAudioOutputDevice(outputDeviceId);
         }
         catch(err) {
@@ -338,12 +353,13 @@ class ActiveConversation extends React.Component {
                     },
                     audioVideoDidStop: sessionStatus => {
                         const sessionStatusCode = sessionStatus.statusCode();
-                        // See the "Stopping a session" section for details.
+                        // See the "Stopping a session" section for details
                         if (sessionStatusCode === MeetingSessionStatusCode.Left) {
                             /*
                               - You called meetingSession.audioVideo.stop().
                               - When closing a browser window or page, Chime SDK attempts to leave the session.
                             */
+
                             console.log('You left the session');
                         } else {
                             console.log('Stopped with a session status code: ', sessionStatusCode);
@@ -478,7 +494,7 @@ class ActiveConversation extends React.Component {
                                                 : "https://randomuser.me/api/portraits/women/" + key + ".jpg"}
                                             />
                                             </ListItemAvatar>
-                                            <ListItemText id={labelId} primary={value.ExternalUserId} />
+                                            <ListItemText id={labelId} primary={value} />
                                         </ListItem>
                                         <Divider variant="inset" />
                                     </React.Fragment>

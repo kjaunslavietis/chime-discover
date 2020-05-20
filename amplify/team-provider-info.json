@@ -40,7 +40,8 @@
             },
             "function": {
                 "getOrCreateConversation": {},
-                "transcribeSample": {}
+                "transcribeSample": {},
+                "listMeetingAttendees": {}
             }
         }
     },

@@ -14,8 +14,6 @@ export async function joinMeeting(oldId, desiredMeetingId, userName) {
     try {
       let isCreated = false;
       let conversationService = new ConversationService();
-      console.log(desiredMeetingId);
-      console.log(userName);
       let meetingAndAttendeeInfo = await API.graphql(graphqlOperation(getOrCreateMeeting, {meetingId: desiredMeetingId, userId: userName}));
       const meetingResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.meeting;
       const attendeeResponse = meetingAndAttendeeInfo.data.getOrCreateMeeting.attendee;
@@ -30,7 +28,7 @@ export async function joinMeeting(oldId, desiredMeetingId, userName) {
       console.log('Attendees: ',attendeesList);
       console.log("New meeting was created:", isCreated);
       //The rest of the function needs to be executed in HTTPS, it will return errors in HTTP
-      const logger = new ConsoleLogger('SDK', LogLevel.INFO);
+      const logger = new ConsoleLogger('SDK', LogLevel.OFF);
       const deviceController = new DefaultDeviceController(logger);
       const configuration = new MeetingSessionConfiguration(meetingResponse, attendeeResponse);
       const meetingSession = new DefaultMeetingSession(

@@ -30,6 +30,7 @@ class AttendeesService {
     }
 
     updateConversationId(newId) {
+        console.log("roomId in AttendeesService updated to: ",newId);
         this.conversationId = newId;
         this.subscribeToRoom()
     }
