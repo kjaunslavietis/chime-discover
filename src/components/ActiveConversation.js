@@ -19,6 +19,7 @@ import ListSubheader from '@material-ui/core/ListSubheader';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 
 import AttendeesService from '../services/AttendeesService';
+import AttendeesServiceV2 from '../services/AttendeesServiceV2';
 import Avatar from '@material-ui/core/Avatar';
 
 import Chat from './Chat';
@@ -50,8 +51,10 @@ class ActiveConversation extends React.Component {
         this.startRecording = this.startRecording.bind(this);
         this.restartMediaRecorder = this.restartMediaRecorder.bind(this);
         this.handleVolumeChange = this.handleVolumeChange.bind(this);
-        this.onAttendeesListUpdated = this.onAttendeesListUpdated.bind(this);
-        this.attendeesService = new AttendeesService(this.onAttendeesListUpdated, this.props.conversation.id)
+        this.onAttendeeLeaves = this.onAttendeeLeaves.bind(this);
+        this.onAttendeeJoins = this.onAttendeeJoins.bind(this);
+        this.attendeesService = new AttendeesServiceV2(this.onAttendeeJoins, this.onAttendeeLeaves,
+             this.props.conversation.id)
         this.state = {
             isMeetingLoading: true,
             onConversationExited: this.props.onConversationExited,
@@ -102,24 +105,29 @@ class ActiveConversation extends React.Component {
     }
 
     async removeAttendee(username) { 
-        let attendees = this.state.attendeesList;
-        let index = attendees.indexOf(username);
-
-        if (index > -1) {
-            attendees.splice(index, 1);
-        }
-        console.log(username, " removed from the attendees list");
-        await this.attendeesService.updateRoomAttendeesNames(attendees);
+        await this.attendeesService.makeAttendeeLeaveMeeting(username);
     }
 
     isAttendeeHere(attendees, username) {
         return attendees.indexOf(username) > -1;
     }
 
-    onAttendeesListUpdated(attendees) {
-        console.log("Attendees list updated: ", attendees);
+    onAttendeeJoins(attendeeName) {
+        console.log("Attendee joined: ", attendeeName);
+        let updatedAttendeesList = this.state.attendeesList;
+        updatedAttendeesList.push(attendeeName)
         this.setState({
-            attendeesList: attendees
+            attendeesList: updatedAttendeesList
+        })
+    }
+
+    onAttendeeLeaves(attendeeName) {
+        console.log("Attendee left: ", attendeeName);
+        let updatedAttendeesList = this.state.attendeesList.filter(function(e) {
+            return e !== attendeeName
+          });
+        this.setState({
+            attendeesList: updatedAttendeesList
         })
     }
 
@@ -129,7 +137,6 @@ class ActiveConversation extends React.Component {
         const meetingSessions = await joinMeeting(conversation.id, conversation.meetingID, username);
         console.log(meetingSessions);
         this.meetingSession = meetingSessions.meeting;
-        let attendees = [];
 
         //Check that attendeesNames exists in schema, and that Chime API gave more than one attendee in the list
         //(if it's just one, it means that it's only the current joining one, and the meeting was just created or 
@@ -137,17 +144,9 @@ class ActiveConversation extends React.Component {
         if (conversation.attendeesNames && meetingSessions.attendees.length > 1) {
             attendees = conversation.attendeesNames.sort(this.sortByUsername);
         } //otherwise leave empty 
-        
-        //check if attendee is not already in the list for some reason
-        if (!this.isAttendeeHere(attendees, username)) { 
-            //Add current user to the attendees
-            console.log("Add to the attendees: ", username);
-            attendees.push(username);
-        } else {
-            console.log(username, " is already there!");
-        }
 
-        await this.attendeesService.updateRoomAttendeesNames(attendees);
+        await this.attendeesService.makeAttendeeJoinMeeting(username);
+        let attendees = await this.attendeesService.gettAttendees().sort(this.sortByUsername);
         console.log('MEETING ID: ', meetingSessions.meetingId);
         await new Promise(r => setTimeout(r, 2000));
         this.setState({
@@ -155,7 +154,9 @@ class ActiveConversation extends React.Component {
         })
         this.chooseAudioDevice();
         this.setState({
-            isMeetingLoading: false
+            isMeetingLoading: false,
+            attendeesList: attendees
+
         })
     }
 

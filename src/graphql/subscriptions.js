@@ -31,6 +31,24 @@ export const subscribeToRoomGettingAttendees = /* GraphQL */ `
     }
   }
 `;
+export const subscribeToAttendeeJoinsRoom = /* GraphQL */ `
+  subscription SubscribeToAttendeeJoinsRoom($roomID: ID!) {
+    subscribeToAttendeeJoinsRoom(roomID: $roomID) {
+      id
+      roomID
+      attendeesName
+    }
+  }
+`;
+export const subscribeToAttendeeLeavesRoom = /* GraphQL */ `
+  subscription SubscribeToAttendeeLeavesRoom($roomID: ID!) {
+    subscribeToAttendeeLeavesRoom(roomID: $roomID) {
+      id
+      roomID
+      attendeesName
+    }
+  }
+`;
 export const onCreateChatMessage = /* GraphQL */ `
   subscription OnCreateChatMessage {
     onCreateChatMessage {
@@ -91,6 +109,33 @@ export const onDeleteCategory = /* GraphQL */ `
     onDeleteCategory {
       id
       name
+    }
+  }
+`;
+export const onCreateRoomAttendee = /* GraphQL */ `
+  subscription OnCreateRoomAttendee {
+    onCreateRoomAttendee {
+      id
+      roomID
+      attendeesName
+    }
+  }
+`;
+export const onUpdateRoomAttendee = /* GraphQL */ `
+  subscription OnUpdateRoomAttendee {
+    onUpdateRoomAttendee {
+      id
+      roomID
+      attendeesName
+    }
+  }
+`;
+export const onDeleteRoomAttendee = /* GraphQL */ `
+  subscription OnDeleteRoomAttendee {
+    onDeleteRoomAttendee {
+      id
+      roomID
+      attendeesName
     }
   }
 `;

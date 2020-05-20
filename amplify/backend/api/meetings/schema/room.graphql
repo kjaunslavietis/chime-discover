@@ -22,3 +22,9 @@ type Category @model {
   id: ID!
   name: String!
 }
+
+type RoomAttendee @model {
+  id: ID!
+  roomID: ID!
+  attendeesName: String!
+}
