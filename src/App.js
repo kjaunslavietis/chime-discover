@@ -24,6 +24,7 @@ import { withAuthenticator } from '@aws-amplify/ui-react';
 import { Map, Set } from 'immutable';
 
 import { v4 as uuidv4 } from 'uuid';
+import Compressor from 'compressorjs';
 
 import './App.css';
 
@@ -248,11 +249,21 @@ class App extends React.Component {
     let imageKey = null;
     if(image) {
       imageKey = `images/${uuidv4()}`;
-      Storage.put(imageKey, image)
-      .then (result => {
-        console.log(result)
-      })
-      .catch(err => console.log(err));
+      new Compressor(image, {
+        quality: 0.6,
+        convertSize: 500000,
+        success(compressedImage) {
+          Storage.put(imageKey, compressedImage)
+          .then (result => {
+            console.log(result)
+          })
+          .catch(err => console.log(err));
+        },
+        error(err) {
+          console.log(err.message);
+        },
+      });
+
     }
 
     this.conversationService.createConversation({
