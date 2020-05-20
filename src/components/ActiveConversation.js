@@ -45,7 +45,6 @@ class ActiveConversation extends React.Component {
         super(props);
         this.exitConversation = this.exitConversation.bind(this);
         this.pushMeetingRecording = this.pushMeetingRecording.bind(this);
-        this.enableAudio = this.enableAudio.bind(this);
         this.muteOrUnmute = this.muteOrUnmute.bind(this);
         this.startRecording = this.startRecording.bind(this);
         this.restartMediaRecorder = this.restartMediaRecorder.bind(this);
@@ -131,7 +130,7 @@ class ActiveConversation extends React.Component {
         this.meetingSession = meetingSessions.meeting;
         let attendees = [];
 
-        //Check that attendeesNames exists in schema, and that Chime API gave more than one attendee in the list
+        //Check that attendeesNames exists in schema, and that Chime API returned more than one attendee in the list
         //(if it's just one, it means that it's only the current joining one, and the meeting was just created or 
         //it was interrupted and the people were not removed from the DB)
         if (conversation.attendeesNames && meetingSessions.attendees.length > 1) {
@@ -157,6 +156,9 @@ class ActiveConversation extends React.Component {
         this.setState({
             isMeetingLoading: false
         })
+        //Wait until <audio> is rendered for sure
+        await new Promise(r => setTimeout(r, 500));
+        this.enableAudio();
     }
 
     leaveChimeMeeting() {
@@ -337,9 +339,6 @@ class ActiveConversation extends React.Component {
         try {
             if (!this.state.isAudioEnabled) {
                 const audioElement = document.getElementById('meeting-audio');
-                this.setState({
-                    isAudioEnabled: true
-                });
                 this.meetingSession.audioVideo.bindAudioElement(audioElement);
                 
                 this.audioVideoObserver = {
@@ -354,6 +353,7 @@ class ActiveConversation extends React.Component {
                     audioVideoDidStop: sessionStatus => {
                         const sessionStatusCode = sessionStatus.statusCode();
                         // See the "Stopping a session" section for details
+                        console.log("Status code: ", sessionStatusCode);
                         if (sessionStatusCode === MeetingSessionStatusCode.Left) {
                             /*
                               - You called meetingSession.audioVideo.stop().
@@ -378,6 +378,10 @@ class ActiveConversation extends React.Component {
                 this.meetingSession.audioVideo.addObserver(this.audioVideoObserver);
                 
                 this.meetingSession.audioVideo.start();
+                
+                this.setState({
+                    isAudioEnabled: true
+                });
 
                 console.log("Audio has started");
                 audioElement.volume = 0.5;
@@ -469,8 +473,6 @@ class ActiveConversation extends React.Component {
                             <div style={{marginLeft: "20px", padding:"8px"}}>
                                 <AudioControl
                                     isMuted={this.state.isMuted} 
-                                    isAudioEnabled={this.state.isAudioEnabled}
-                                    enableAudio={this.enableAudio}
                                     muteOrUnmute={this.muteOrUnmute}
                                 />
                                 </div>

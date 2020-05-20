@@ -2,21 +2,12 @@ import React from 'react';
 import Fab from '@material-ui/core/Fab';
 import Mic from '@material-ui/icons/Mic';
 import MicOff from '@material-ui/icons/MicOff';
-import VolumeOff from '@material-ui/icons/VolumeOff';
 import OutputDevices from './OutputDevices';
 import InputDevices from './InputDevices';
 
 class AudioControl extends React.Component {
     constructor(props) {
         super(props);
-    }
-
-    enableAudioButton() {
-        return (
-            <Fab size="medium" onClick={this.props.enableAudio}>
-                <VolumeOff />
-            </Fab>
-        )
     }
 
     unmuteButton() {
@@ -37,13 +28,10 @@ class AudioControl extends React.Component {
     }
 
     render() {
-        if(!this.props.isAudioEnabled) {
-            return this.enableAudioButton();
-        }
-        else if(this.props.isMuted && this.props.isAudioEnabled) {
+        if (this.props.isMuted) {
             return this.unmuteButton();
         }
-        else if(!this.props.isMuted && this.props.isAudioEnabled) {
+        else {
             return this.muteButton();
         }
     }
