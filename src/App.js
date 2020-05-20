@@ -16,7 +16,6 @@ import ActiveConversation from './components/ActiveConversation';
 import SearchPage from './components/SearchPage';
 
 import ConversationService from './services/ConversationService';
-import AttendeeService from './services/AttendeeService';
 import CategoriesService from './services/CategoriesService';
 
 import { Storage, Auth, Hub } from 'aws-amplify';
@@ -90,7 +89,6 @@ class App extends React.Component {
     }
 
     this.conversationService = new ConversationService();
-    this.attendeeService = new AttendeeService();
     this.categoriesService = new CategoriesService();
 
     this.createConversationSubscription = null;
@@ -130,7 +128,6 @@ class App extends React.Component {
       let matchedConversation = await this.conversationService.getConversation(nextId);
       if(matchedConversation) {
         stillValidIds = stillValidIds.add(nextId);
-        matchedConversation.attendees = this.attendeeService.getAttendeesForRoom(nextId);
         conversationHistory = conversationHistory.set(nextId, matchedConversation);
       }
     }
@@ -159,7 +156,6 @@ class App extends React.Component {
     if(allConversations) {
       let conversationMap = new Map();
       for(let nextConversation of allConversations) {
-        nextConversation.attendees = this.attendeeService.getAttendeesForRoom(nextConversation.id);
         conversationMap = conversationMap.set(nextConversation.id, nextConversation);
       }
 
@@ -170,14 +166,12 @@ class App extends React.Component {
   async setupSubscriptions() {
     if(!this.createConversationSubscription) {
       this.createConversationSubscription = this.conversationService.subscribeToCreates((newConvo) => {
-        newConvo.attendees = this.attendeeService.getAttendeesForRoom(newConvo.id);
         this.setState({conversations: this.state.conversations.set(newConvo.id, newConvo)});
       });
     }
 
     if(!this.updateConversationSubscription) {
       this.updateConversationSubscription = this.conversationService.subscribeToUpdates((updatedConvo) => {
-        updatedConvo.attendees = this.attendeeService.getAttendeesForRoom(updatedConvo.id);
         if(this.state.conversationHistory.has(updatedConvo.id)) {
           this.setState({conversationHistory: this.state.conversationHistory.set(updatedConvo.id, updatedConvo)});
         }

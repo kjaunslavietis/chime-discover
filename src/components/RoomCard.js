@@ -171,7 +171,7 @@ export default function RoomCard(props) {
                     </div>
                     <div className={classes.nbUsers}>
                         <PersonIcon className={classes.personIcon} />
-                        <Typography>{conversation.attendees.length} online</Typography>
+                        <Typography>{conversation.attendeesNames ? conversation.attendeesNames.length : 0} online</Typography>
                         {audioActivated ? <MicIcon /> : null}
                     </div>
                 </CardActions>

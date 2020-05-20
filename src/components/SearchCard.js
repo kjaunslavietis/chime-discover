@@ -80,7 +80,7 @@ const useStyles = makeStyles((theme) => ({
 export default function SearchCard(props) {
     const classes = useStyles();
     const { conversation, handleClickOnChip, handleJoinRoom } = props;
-    const { name, description, category, keywords, meetingId, imageUrl, attendees, canBeAnalyzed } = conversation;
+    const { name, description, category, keywords, meetingId, imageUrl, attendeesNames, canBeAnalyzed } = conversation;
     const [open, setOpen] = React.useState(false);
 
     const [isLoading, setIsLoading] = React.useState(false);
@@ -201,7 +201,7 @@ export default function SearchCard(props) {
                         </IconButton>
                         <div className={classes.nbUsers}>
                             <PersonIcon className={classes.personIcon} />
-                            <Typography variant="body2">{attendees.length} online</Typography>
+                            <Typography variant="body2">{attendeesNames ? attendeesNames.length : 0} online</Typography>
                         </div>
                     </div>
                     <div>
