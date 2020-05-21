@@ -8,6 +8,7 @@ module.exports = {
         category
         meetingID
         canBeAnalyzed
+        attendeesNames
       }
     }
     `
