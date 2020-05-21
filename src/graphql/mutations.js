@@ -88,9 +88,8 @@ export const createRoomAttendee = /* GraphQL */ `
     $condition: ModelRoomAttendeeConditionInput
   ) {
     createRoomAttendee(input: $input, condition: $condition) {
-      id
       roomID
-      attendeesName
+      attendeeName
     }
   }
 `;
@@ -100,9 +99,8 @@ export const updateRoomAttendee = /* GraphQL */ `
     $condition: ModelRoomAttendeeConditionInput
   ) {
     updateRoomAttendee(input: $input, condition: $condition) {
-      id
       roomID
-      attendeesName
+      attendeeName
     }
   }
 `;
@@ -112,9 +110,8 @@ export const deleteRoomAttendee = /* GraphQL */ `
     $condition: ModelRoomAttendeeConditionInput
   ) {
     deleteRoomAttendee(input: $input, condition: $condition) {
-      id
       roomID
-      attendeesName
+      attendeeName
     }
   }
 `;

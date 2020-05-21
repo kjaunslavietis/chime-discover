@@ -22,9 +22,13 @@ class ChatEmojiPicker extends React.Component {
   }
 
   handleClick = e => {
+    try {
     if (!ReactDOM.findDOMNode(this).contains(e.target)) {
       this.setState({ showingEmojiPocker: false })
     }
+  } catch(err) {
+
+  }
   }
 
   render() {

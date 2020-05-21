@@ -28,6 +28,7 @@ import Compressor from 'compressorjs';
 
 import './App.css';
 
+
 const styles = (theme) => ({
   root: {
     flexGrow: 1,

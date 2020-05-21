@@ -108,25 +108,31 @@ export const listCategorys = /* GraphQL */ `
   }
 `;
 export const getRoomAttendee = /* GraphQL */ `
-  query GetRoomAttendee($id: ID!) {
-    getRoomAttendee(id: $id) {
-      id
+  query GetRoomAttendee($attendeeName: String!) {
+    getRoomAttendee(attendeeName: $attendeeName) {
       roomID
-      attendeesName
+      attendeeName
     }
   }
 `;
 export const listRoomAttendees = /* GraphQL */ `
   query ListRoomAttendees(
+    $attendeeName: String
     $filter: ModelRoomAttendeeFilterInput
     $limit: Int
     $nextToken: String
+    $sortDirection: ModelSortDirection
   ) {
-    listRoomAttendees(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    listRoomAttendees(
+      attendeeName: $attendeeName
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
       items {
-        id
         roomID
-        attendeesName
+        attendeeName
       }
       nextToken
     }
