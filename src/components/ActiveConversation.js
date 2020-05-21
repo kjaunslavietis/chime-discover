@@ -163,16 +163,18 @@ class ActiveConversation extends React.Component {
         await new Promise(r => setTimeout(r, 2000));
         this.setState({
             meetingId: meetingSessions.meetingId
-        })
+        });
         this.chooseAudioDevice();
-        let attendees = await this.attendeesService.gettAttendees() 
+        let attendees = await this.attendeesService.gettAttendees();
         this.setState({
             isMeetingLoading: false,
             attendeesList: attendees
 
-        })
-        this.attendeesService.subscribe()
-        this.addAttendee(conversation.id, username) 
+        });
+        this.attendeesService.subscribe();
+        this.addAttendee(conversation.id, username);
+        await new Promise(r => setTimeout(r, 1000));
+        this.enableAudio();
     }
 
     leaveChimeMeeting(roomID) {
