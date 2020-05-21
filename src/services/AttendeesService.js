@@ -108,11 +108,11 @@ class AttendeesService {
         this.subscribeToAttendeeLeavesRoom()
     }
 
-    async updateRoomAttendeesNames(attendeesNames) {
+    async updateRoomAttendeesNames(roomID, attendeesNames) {
         if (attendeesNames.length > 0) {
-            await API.graphql(graphqlOperation(updateRoom, {input: {id: this.conversationId, attendeesNames: attendeesNames}}));
+            await API.graphql(graphqlOperation(updateRoom, {input: {id: roomID, attendeesNames: attendeesNames}}));
         } else {
-            await API.graphql(graphqlOperation(updateRoom, {input: {id: this.conversationId, attendeesNames: []}}));
+            await API.graphql(graphqlOperation(updateRoom, {input: {id: roomID, attendeesNames: []}}));
         }
         
     }

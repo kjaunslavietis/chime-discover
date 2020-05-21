@@ -73,7 +73,7 @@ class ActiveConversation extends React.Component {
     componentWillUnmount() {
         clearInterval(this.timer);
         this.killRecorderForGood();
-        this.leaveChimeMeeting();  
+        this.leaveChimeMeeting(this.props.conversation.id);  
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -85,7 +85,7 @@ class ActiveConversation extends React.Component {
                 isMuted: false,
             });
             this.killRecorderForGood();
-            this.leaveChimeMeeting();
+            this.leaveChimeMeeting(prevProps.conversation.id);
             this.attendeesService.updateConversationId(this.props.conversation.id);
             //Join the new meeting
             this.joinChimeMeeting(this.props.conversation, this.props.userName);
@@ -103,22 +103,22 @@ class ActiveConversation extends React.Component {
         }
     }
 
-    async removeAttendee(username) { 
+    async removeAttendee(roomID, username) { 
         await this.attendeesService.makeAttendeeLeaveMeeting(username);
         let updatedAttendeesList = this.state.attendeesList.filter(function(e) {
             return e !== username
           })
-        this.attendeesService.updateRoomAttendeesNames(updatedAttendeesList)
+        this.attendeesService.updateRoomAttendeesNames(roomID, updatedAttendeesList)
     }
 
-    async addAttendee(username) {
+    async addAttendee(roomID, username) {
         if (this.isAttendeeHere(this.state.attendeesList, username)) {
             return
         }
         await this.attendeesService.makeAttendeeJoinMeeting(username);
         let updatedAttendeesList = this.state.attendeesList;
         updatedAttendeesList.push(username)
-        this.attendeesService.updateRoomAttendeesNames(updatedAttendeesList)
+        this.attendeesService.updateRoomAttendeesNames(roomID, updatedAttendeesList)
     }
 
     isAttendeeHere(attendees, username) {
@@ -172,10 +172,10 @@ class ActiveConversation extends React.Component {
 
         })
         this.attendeesService.subscribe()
-        this.addAttendee(username) 
+        this.addAttendee(conversation.id, username) 
     }
 
-    leaveChimeMeeting() {
+    leaveChimeMeeting(roomID) {
         console.log("Stopping the audio");
         this.meetingSession.audioVideo.chooseAudioInputDevice(null); //red circle should disappear after this line
         try {
@@ -193,7 +193,7 @@ class ActiveConversation extends React.Component {
             console.log('DeviceChange observer removed');
         }
         this.attendeesService.unsubscribe()
-        this.removeAttendee(this.props.userName);
+        this.removeAttendee(roomID, this.props.userName);
         console.log("Left chime meeting");
         
     }
