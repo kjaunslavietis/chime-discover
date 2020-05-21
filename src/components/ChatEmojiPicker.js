@@ -37,7 +37,9 @@ class ChatEmojiPicker extends React.Component {
             <IconButton onClick={() => this.setState({ showingEmojiPocker: !this.state.showingEmojiPocker})}>
               <InsertEmoticon fontSize="large" />
             </IconButton>
-            {this.state.showingEmojiPocker && <Picker onSelect={this.props.addEmoji} style={{ position: 'absolute', bottom: '120px', right: '350px' }}/> }
+            <div style={{ position: 'relative' }}>
+              {this.state.showingEmojiPocker && <Picker onSelect={this.props.addEmoji} style={{ position: 'absolute', bottom: '60px', right: '10px' }}/> }
+            </div>
           </div>
     )
   }
