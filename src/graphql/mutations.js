@@ -82,6 +82,39 @@ export const deleteCategory = /* GraphQL */ `
     }
   }
 `;
+export const createRoomAttendee = /* GraphQL */ `
+  mutation CreateRoomAttendee(
+    $input: CreateRoomAttendeeInput!
+    $condition: ModelRoomAttendeeConditionInput
+  ) {
+    createRoomAttendee(input: $input, condition: $condition) {
+      roomID
+      attendeeName
+    }
+  }
+`;
+export const updateRoomAttendee = /* GraphQL */ `
+  mutation UpdateRoomAttendee(
+    $input: UpdateRoomAttendeeInput!
+    $condition: ModelRoomAttendeeConditionInput
+  ) {
+    updateRoomAttendee(input: $input, condition: $condition) {
+      roomID
+      attendeeName
+    }
+  }
+`;
+export const deleteRoomAttendee = /* GraphQL */ `
+  mutation DeleteRoomAttendee(
+    $input: DeleteRoomAttendeeInput!
+    $condition: ModelRoomAttendeeConditionInput
+  ) {
+    deleteRoomAttendee(input: $input, condition: $condition) {
+      roomID
+      attendeeName
+    }
+  }
+`;
 export const createRoom = /* GraphQL */ `
   mutation CreateRoom(
     $input: CreateRoomInput!

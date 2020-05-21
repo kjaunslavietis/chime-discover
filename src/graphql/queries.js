@@ -107,6 +107,37 @@ export const listCategorys = /* GraphQL */ `
     }
   }
 `;
+export const getRoomAttendee = /* GraphQL */ `
+  query GetRoomAttendee($attendeeName: String!) {
+    getRoomAttendee(attendeeName: $attendeeName) {
+      roomID
+      attendeeName
+    }
+  }
+`;
+export const listRoomAttendees = /* GraphQL */ `
+  query ListRoomAttendees(
+    $attendeeName: String
+    $filter: ModelRoomAttendeeFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listRoomAttendees(
+      attendeeName: $attendeeName
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        roomID
+        attendeeName
+      }
+      nextToken
+    }
+  }
+`;
 export const getRoom = /* GraphQL */ `
   query GetRoom($id: ID!) {
     getRoom(id: $id) {
