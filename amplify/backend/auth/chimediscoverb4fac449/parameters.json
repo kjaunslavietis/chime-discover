@@ -7,9 +7,7 @@
         "email"
     ],
     "mfaConfiguration": "OFF",
-    "mfaTypes": [
-        "SMS Text Message"
-    ],
+    "mfaTypes": [],
     "smsAuthenticationMessage": "Your authentication code is {####}",
     "smsVerificationMessage": "Your verification code is {####}",
     "emailVerificationSubject": "Your verification code",
@@ -28,7 +26,9 @@
     ],
     "userpoolClientReadAttributes": [
         "email",
-        "phone_number"
+        "phone_number",
+        "email_verified",
+        "phone_number_verified"
     ],
     "userpoolClientLambdaRole": "chimedb4fac449_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": true,
