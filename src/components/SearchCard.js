@@ -89,32 +89,34 @@ export default function SearchCard(props) {
     React.useEffect(() => {
         setIsLoading(true);
         if(imageUrl) {
-            Storage.get(imageUrl)
-                .then(downloadUrl => tryGettingImage(downloadUrl, 1000, 3));
+            console.log("updating imageUrl");
+            onPageRendered();
         } else {
-            tryGettingImage('https://source.unsplash.com/random', 1000, 3);
+            setImage('https://source.unsplash.com/random');
         }
-    }, [imageUrl])
+    }, [imageUrl]);
 
-    const tryGettingImage = async (url, nextTimeoutMs, retriesLeft) => {
-        try {
-            let imageResponse = await fetch(url);
-            if (!imageResponse.ok) {
-                throw new Error();
-            }
-            let imageBlob = await imageResponse.blob();
-            let imageBase64 = URL.createObjectURL(imageBlob);
-            setImage(imageBase64);
-        } catch(err) {
-            if(retriesLeft > 0) {
-                console.log(`Error loading image for conversation ${conversation.id}, retrying in ${nextTimeoutMs} ms`)
-                setTimeout(() => tryGettingImage(url, nextTimeoutMs * 2, retriesLeft - 1), nextTimeoutMs);
-            } else {
-                console.log(`Error loading image for conversation ${conversation.id} and not retrying`);
-                setImage('https://source.unsplash.com/random');
-            }
-        }
-    };
+    const onPageRendered = async () => {
+        getImage();
+    }
+
+    const getImage = () => {
+        Storage.get(imageUrl)
+                .then(downloadUrl => {
+                    let request = new Request(downloadUrl);
+                    fetch(request).then(function(response) {
+                        if (response.status === 200) {
+                            setImage(downloadUrl);
+                            setIsLoading(false);
+                        }
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    setImage('https://source.unsplash.com/random');
+                    setIsLoading(false);
+                });
+    }
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -140,16 +142,16 @@ export default function SearchCard(props) {
     return (
         <Card className={classes.root}>
             {
-                image ?
-                    <CardMedia
+                isLoading ?
+                <CardMedia
+                    component={getSpinner}
+                />
+                :
+                <CardMedia
                         className={classes.media}
                         image={image}
                         title={name}
-                    />
-                    :        
-                    <CardMedia
-                        component={getSpinner}
-                    />
+                />
             }
             <CardContent className={classes.cardContent}>
                 <Typography variant="h5" component="h2" gutterBottom>
