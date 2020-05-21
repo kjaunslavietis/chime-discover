@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -43,7 +43,7 @@ export default function CreateConversation(props) {
 	const [descriptionIsMissing, setDescriptionIsMissing] = useState(false);
 	const [categoryIsMissing, setCategoryIsMissing] = useState(false);
 	const [checked, setChecked] = useState(false);
-	console.log(JSON.stringify(categories));
+	// console.log(JSON.stringify(categories));
 	// const categories = [
 	// 	{
 	// 	  id: 0,
@@ -64,6 +64,17 @@ export default function CreateConversation(props) {
 	// 	  key: 'location'
 	// 	}
 	//   ]
+
+	useEffect(() => {
+		setName("");
+		setDescription("");
+		setCategory("");
+		setImage(null);
+		setNameIsMissing(false);
+		setDescriptionIsMissing(false);
+		setCategoryIsMissing(false);
+		setChecked(false);
+    }, [open])
 
 	const handleClickOnCreate = () => {
 		let error = false;
