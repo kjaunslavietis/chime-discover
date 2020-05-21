@@ -1,0 +1,13 @@
+type Subscription {
+    subscribeToGiveRoom(roomID: ID!): ChatMessage
+            @aws_subscribe(mutations: ["createChatMessage"])
+
+  subscribeToRoomGettingAttendees(id: ID!): Room
+            @aws_subscribe(mutations: ["updateRoom"])
+
+    subscribeToAttendeeJoinsRoom(roomID: ID!): RoomAttendee
+            @aws_subscribe(mutations: ["createRoomAttendee"])
+    
+    subscribeToAttendeeLeavesRoom(roomID: ID!): RoomAttendee
+            @aws_subscribe(mutations: ["deleteRoomAttendee"])
+}

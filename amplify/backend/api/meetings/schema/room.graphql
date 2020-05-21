@@ -23,8 +23,8 @@ type Category @model {
   name: String!
 }
 
-type RoomAttendee @model {
-  id: ID!
+type RoomAttendee @model 
+@key(fields: ["attendeeName"]){
   roomID: ID!
-  attendeesName: String!
+  attendeeName: String!
 }
