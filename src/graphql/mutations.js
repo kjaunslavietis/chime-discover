@@ -90,6 +90,7 @@ export const createRoomAttendee = /* GraphQL */ `
     createRoomAttendee(input: $input, condition: $condition) {
       roomID
       attendeeName
+      attendeeId
     }
   }
 `;
@@ -101,6 +102,7 @@ export const updateRoomAttendee = /* GraphQL */ `
     updateRoomAttendee(input: $input, condition: $condition) {
       roomID
       attendeeName
+      attendeeId
     }
   }
 `;
@@ -112,6 +114,7 @@ export const deleteRoomAttendee = /* GraphQL */ `
     deleteRoomAttendee(input: $input, condition: $condition) {
       roomID
       attendeeName
+      attendeeId
     }
   }
 `;

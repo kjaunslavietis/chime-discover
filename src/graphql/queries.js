@@ -112,6 +112,7 @@ export const getRoomAttendee = /* GraphQL */ `
     getRoomAttendee(attendeeName: $attendeeName) {
       roomID
       attendeeName
+      attendeeId
     }
   }
 `;
@@ -133,6 +134,7 @@ export const listRoomAttendees = /* GraphQL */ `
       items {
         roomID
         attendeeName
+        attendeeId
       }
       nextToken
     }

@@ -27,4 +27,5 @@ type RoomAttendee @model
 @key(fields: ["attendeeName"]){
   roomID: ID!
   attendeeName: String!
+  attendeeId: String!
 }

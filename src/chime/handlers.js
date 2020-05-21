@@ -28,7 +28,7 @@ export async function joinMeeting(oldId, desiredMeetingId, userName) {
       console.log('Attendees: ',attendeesList);
       console.log("New meeting was created:", isCreated);
       //The rest of the function needs to be executed in HTTPS, it will return errors in HTTP
-      const logger = new ConsoleLogger('SDK', LogLevel.INFO);
+      const logger = new ConsoleLogger('SDK', LogLevel.OFF);
       const deviceController = new DefaultDeviceController(logger);
       const configuration = new MeetingSessionConfiguration(meetingResponse, attendeeResponse);
       const meetingSession = new DefaultMeetingSession(
@@ -39,6 +39,7 @@ export async function joinMeeting(oldId, desiredMeetingId, userName) {
       return {
         meeting: meetingSession, 
         meetingId: meetingId,
+        attendee: attendeeResponse,
         attendees: attendeesList
       };
     } catch(err) {

@@ -36,6 +36,7 @@ export const subscribeToAttendeeJoinsRoom = /* GraphQL */ `
     subscribeToAttendeeJoinsRoom(roomID: $roomID) {
       roomID
       attendeeName
+      attendeeId
     }
   }
 `;
@@ -44,6 +45,7 @@ export const subscribeToAttendeeLeavesRoom = /* GraphQL */ `
     subscribeToAttendeeLeavesRoom(roomID: $roomID) {
       roomID
       attendeeName
+      attendeeId
     }
   }
 `;
@@ -115,6 +117,7 @@ export const onCreateRoomAttendee = /* GraphQL */ `
     onCreateRoomAttendee {
       roomID
       attendeeName
+      attendeeId
     }
   }
 `;
@@ -123,6 +126,7 @@ export const onUpdateRoomAttendee = /* GraphQL */ `
     onUpdateRoomAttendee {
       roomID
       attendeeName
+      attendeeId
     }
   }
 `;
@@ -131,6 +135,7 @@ export const onDeleteRoomAttendee = /* GraphQL */ `
     onDeleteRoomAttendee {
       roomID
       attendeeName
+      attendeeId
     }
   }
 `;

@@ -67,7 +67,7 @@
 				"Runtime": "nodejs12.x",
 				"Timeout": "25",
 				"Code": {
-					"S3Bucket": "amplify-chime-discover-chatapi-04307-deployment",
+					"S3Bucket": "amplify-chime-discover-chimesdk-211432-deployment",
 					"S3Key": "amplify-builds/getOrCreateConversation-744f46783379776b4345-build.zip"
 				}
 			}

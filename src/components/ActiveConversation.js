@@ -111,30 +111,30 @@ class ActiveConversation extends React.Component {
         this.attendeesService.updateRoomAttendeesNames(roomID, updatedAttendeesList)
     }
 
-    async addAttendee(roomID, username) {
-        if (this.isAttendeeHere(this.state.attendeesList, username)) {
+    async addAttendee(roomID, username, attendeeId) {
+        if (this.isAttendeeHere(this.state.attendeesList, username, attendeeId)) {
             return
         }
-        await this.attendeesService.makeAttendeeJoinMeeting(username);
+        await this.attendeesService.makeAttendeeJoinMeeting(username, attendeeId);
         let updatedAttendeesList = this.state.attendeesList;
-        updatedAttendeesList.push(username)
-        this.attendeesService.updateRoomAttendeesNames(roomID, updatedAttendeesList)
+        updatedAttendeesList.push({ name: username, id: attendeeId });
+        this.attendeesService.updateRoomAttendeesNames(roomID, updatedAttendeesList);
     }
 
-    isAttendeeHere(attendees, username) {
-        return attendees.indexOf(username) > -1;
+    isAttendeeHere(attendees, username, attendeeId) {
+        return attendees.indexOf({ name: username, id: attendeeId }) > -1;
     }
 
-    onAttendeeJoins(attendeeName) {
+    onAttendeeJoins(attendeeName, attendeeId) {
         if (!attendeeName) {
             return
         }
-        if (this.isAttendeeHere(this.state.attendeesList, attendeeName)) {
+        if (this.isAttendeeHere(this.state.attendeesList, attendeeName, attendeeId)) {
             return
         }
         console.log("Attendee joined: ", attendeeName);
         let updatedAttendeesList = this.state.attendeesList;
-        updatedAttendeesList.push(attendeeName)
+        updatedAttendeesList.push({ name: attendeeName, id: attendeeId })
         updatedAttendeesList =  updatedAttendeesList.sort(this.sortByUsername)
         this.setState({
             attendeesList: updatedAttendeesList
@@ -145,7 +145,7 @@ class ActiveConversation extends React.Component {
     onAttendeeLeaves(attendeeName) {
         console.log("Attendee left: ", attendeeName);
         let updatedAttendeesList = this.state.attendeesList.filter(function(e) {
-            return e !== attendeeName
+            return e.name !== attendeeName
           });
         this.setState({
             attendeesList: updatedAttendeesList
@@ -157,6 +157,7 @@ class ActiveConversation extends React.Component {
         // call getOrCreateMeeting lambda (or service), get the necessary parameters, use chime SDK to connect to meeting, finally set isMeetingLoading: false
         console.log("ROOM ID: ", conversation.id);
         const meetingSessions = await joinMeeting(conversation.id, conversation.meetingID, username);
+        const attendeeId = meetingSessions.attendee.AttendeeId;
         console.log(meetingSessions);
         this.meetingSession = meetingSessions.meeting;
         console.log('MEETING ID: ', meetingSessions.meetingId);
@@ -165,14 +166,13 @@ class ActiveConversation extends React.Component {
             meetingId: meetingSessions.meetingId
         });
         this.chooseAudioDevice();
-        let attendees = await this.attendeesService.gettAttendees();
+        let attendees = await this.attendeesService.getAttendees();
         this.setState({
             isMeetingLoading: false,
             attendeesList: attendees
-
         });
         this.attendeesService.subscribe();
-        this.addAttendee(conversation.id, username);
+        this.addAttendee(conversation.id, username, attendeeId);
         await new Promise(r => setTimeout(r, 1000));
         this.enableAudio();
     }
@@ -439,9 +439,9 @@ class ActiveConversation extends React.Component {
     }
     sortByUsername(x,y) 
     {
-     if (x.ExternalUserId < y.ExternalUserId)
+     if (x.name < y.name)
        return -1;
-     if (x.ExternalUserId > y.ExternalUserId)
+     if (x.name > y.name1)
        return 1;
      return 0;
     }

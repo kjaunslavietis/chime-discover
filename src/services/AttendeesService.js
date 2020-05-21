@@ -27,7 +27,10 @@ class AttendeesService {
             graphqlOperation(subscribeToAttendeeJoinsRoom, {roomID: this.conversationId})
         ).subscribe({
             next: (room) => {
-                this.joinigSubsriptionCallBack(room.value.data.subscribeToAttendeeJoinsRoom.attendeeName)
+                this.joinigSubsriptionCallBack(
+                    room.value.data.subscribeToAttendeeJoinsRoom.attendeeName,
+                    room.value.data.subscribeToAttendeeJoinsRoom.attendeeId,
+                    )
             },
             error: (error) => {
                 console.log("==>err:" + JSON.stringify(error))
@@ -55,16 +58,16 @@ class AttendeesService {
         await API.graphql(graphqlOperation(deleteRoomAttendee, {input: {attendeeName: attendeeName}}));
     }
 
-    async makeAttendeeJoinMeeting(attendeeName) {
+    async makeAttendeeJoinMeeting(attendeeName, attendeeId) {
         try {
         await API.graphql(graphqlOperation(deleteRoomAttendee, {input: {attendeeName: attendeeName}}));
         } catch(err) {
             console.log("the attendee was not in a room previously")
         }
-        await API.graphql(graphqlOperation(createRoomAttendee, {input: {roomID: this.conversationId, attendeeName: attendeeName}}));
+        await API.graphql(graphqlOperation(createRoomAttendee, {input: {roomID: this.conversationId, attendeeName: attendeeName, attendeeId: attendeeId}}));
     }
 
-    async gettAttendees() {
+    async getAttendees() {
         try {
         let data = await API.graphql(graphqlOperation(listRoomAttendees, {filter: {
             roomID: {
@@ -97,7 +100,7 @@ class AttendeesService {
     }
 
     mapAttendeesNames(allRoomAttendees) {
-        const arr = allRoomAttendees.map(e => {return e.attendeeName})
+        const arr = allRoomAttendees.map(e => {return { name: e.attendeeName, id: e.attendeeId } });
         return arr
     }
 
